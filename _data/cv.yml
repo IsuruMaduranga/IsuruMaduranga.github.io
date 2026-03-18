@@ -1,14 +1,8 @@
 cv:
   name: Isuru Wijesiri
-  label: NLP Researcher & AI Engineer
+  headline: NLP Researcher & AI Engineer
   email: imwijesiri@gmail.com
   location: Colombo, Sri Lanka
-  image: ""
-  summary: >
-    Research focuses on scalable and reliable natural language processing systems,
-    particularly for low-resource and program synthesis settings. Study how language
-    models can be adapted to operate under real-world constraints such as limited data,
-    distributed environments, and deployment restrictions.
 
   social_networks:
     - network: GitHub
@@ -84,22 +78,22 @@ cv:
 
     Publications:
       - title: "Memory-Efficient Graph Convolutional Network-Based Distributed Link Prediction"
-        authors: "Isuru Wijesiri et al."
+        authors:
+          - Isuru Wijesiri
+          - Miyuru Dayarathna
+          - Sanath Jayasena
         date: "2020"
         journal: "2020 IEEE International Conference on Big Data (Big Data)"
         url: "https://ieeexplore.ieee.org/document/9377874"
-        highlights:
-          - "Introduces a memory-efficient, federated training scheme that partitions large graphs across JasmineGraph."
-          - "Cuts training time by 3–5× on Reddit and Twitter graphs compared with standard in-memory methods."
 
       - title: "Anomaly Detection using Deep Reconstruction and Forecasting for Autonomous Systems"
-        authors: "Isuru Wijesiri et al."
+        authors:
+          - Isuru Wijesiri
+          - Sachith Gunasekara
+          - Tharindu Wickramasinghe
         date: "2020"
         journal: "arXiv:2006.14556"
         url: "https://arxiv.org/abs/2006.14556"
-        highlights:
-          - "Self-supervised anomaly-detection system for autonomous drones achieving 94% accuracy / 0.95 F1 on video."
-          - "Runner-up, IEEE Signal Processing Cup 2020."
 
     Projects:
       - name: "Lightweight Code Retrieval Models (22M/33M parameters)"
@@ -123,18 +117,18 @@ cv:
           - "Natural-language-driven programming abstractions for Python with LLM-backed function invocation and code synthesis."
 
     Awards:
-      - title: "IEEE Signal Processing Cup 2020 – First Runner-Up (2nd globally)"
+      - name: "IEEE Signal Processing Cup 2020 – First Runner-Up (2nd globally)"
         date: "2020"
         highlights:
           - "Developed multimodal anomaly-detection system (conditional GAN + dual LSTM) for autonomous drones."
           - "Highest score in selection round. Final competition at ICASSP 2020."
 
-      - title: "University Award for Best R&D Project"
+      - name: "University Award for Best R&D Project"
         date: "2021"
         highlights:
           - "Highest marks achieved in undergraduate thesis research on distributed graph ML."
 
-      - title: "Additional Distinctions"
+      - name: "Additional Distinctions"
         date: "2020"
         highlights:
           - "Top 0.4% – DrivenData Flu Shot Challenge"
