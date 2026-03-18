@@ -12,8 +12,7 @@ description: > # the ">" symbol means to ignore newlines until "footer_text:"
   Personal academic website of Isuru Wijesiri – NLP Researcher, AI Engineer at WSO2.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
-  Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-  Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
+  Hosted by <a href="https://pages.cloudflare.com/" target="_blank">Cloudflare Pages</a>.
 keywords: NLP, agentic AI, machine learning, code generation, federated learning, privacy-preserving ML, graph neural networks
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
 icon: ⚛️ # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
