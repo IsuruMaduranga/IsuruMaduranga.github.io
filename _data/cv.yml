@@ -9,6 +9,8 @@ cv:
       username: IsuruMaduranga
     - network: LinkedIn
       username: isuruwijesiri
+    - network: Google Scholar
+      username: 7FchZzsAAAAJ
 
   sections:
     Education:
@@ -17,11 +19,11 @@ cv:
         url: https://uom.lk/
         area: Computer Science and Engineering
         studyType: "B.Sc. Engineering (Honours)"
-        start_date: 2016
-        end_date: 2020
-        score: "GPA: 3.87 – First Class Honours"
+        start_date: 2017
+        end_date: 2021
+        score: "GPA: 3.89 - First Class Honours"
         highlights:
-          - "Dean's List: 7 out of 8 semesters"
+          - "Dean's List: 7 out of 8 semesters (Semesters 1, 3, 4, 5, 6, 7, 8)"
           - "Thesis: Privacy-Preserving Machine Learning on Distributed Graphs (Grade: A+)"
           - "University Award for Best R&D Project (highest marks achieved)"
 
@@ -46,6 +48,7 @@ cv:
         highlights:
           - "MI Copilot: Owned from ideation to production. NL to Synapse DSL code generation with version-aware retrieval, XSD/Schematron validation, LSP diagnostics, and automated repair loops. 300+ active daily users."
           - "MI Copilot Agent Mode: Cursor/Claude Code-style agentic integration engineer inside VS Code with 22 tools across 8 categories, multi-step planning, and autonomous task execution."
+          - "Integrated domain-specific embedding models into MI Copilot retrieval system for low-latency semantic code search."
           - "Optimized operational cost via advanced prompt caching (~90% cost reduction) and production hardening/observability hooks."
           - "Small Language Model initiative: Initiated domain-specialized SLM training for Ballerina to enable low-latency on-prem code generation."
 
@@ -61,12 +64,13 @@ cv:
           - "GenAI / Multi-agent framework: Led a low-code framework supporting multiple LLM backends + vector stores, reducing delivery time and standardizing deployments."
 
       - company: University of Moratuwa
-        position: External Research Collaborator
+        position: Lead Research Collaborator
         location: Sri Lanka
         start_date: 2025-08
-        summary: "Supervisor: Dr. Surangika Ranathunga (Massey University, NZ)"
+        summary: "Supervisors: Dr. Surangika Ranathunga (Massey University, NZ) and Dr. Nisansa de Silva (UOM)"
         highlights:
           - "Leading Google-funded research on Automatic Post-Editing (APE) for low-resource languages (Sinhala, Tamil)."
+          - "Proposing controllable minimal-edit post-editing with hidden-state anchoring and dynamic edit-distance constrained decoding."
           - "Driving experimentation, evaluation, and research direction for practical APE workflows."
 
       - company: Persistent Systems
@@ -78,6 +82,17 @@ cv:
           - "Developed architectures and POCs for a new API Marketplace intended to host and manage thousands of APIs."
 
       - company: University of Moratuwa
+        position: Graduate Researcher (Thesis Continuation)
+        location: Sri Lanka
+        start_date: 2021-06
+        end_date: 2021-12
+        summary: "Supervisors: Prof. Sanath Jayasena, Dr. Miyuru Dayarathna"
+        highlights:
+          - "Extended undergraduate thesis on privacy-preserving distributed graph ML."
+          - "Developed novel common-attribute and common-entity aggregation mechanisms for heterogeneous multi-organization graph learning while maintaining privacy."
+          - "Implemented prototype on JasmineGraph distributed graph database."
+
+      - company: University of Moratuwa
         position: Undergraduate Thesis Researcher
         location: Sri Lanka
         start_date: 2020-01
@@ -87,16 +102,16 @@ cv:
           - "Researched privacy-preserving distributed graph ML and federated GNNs for large-scale link prediction."
           - "Built memory-efficient distributed/federated GCN training enabling training on very large graphs on commodity hardware (JasmineGraph)."
           - "Peer-reviewed publication at IEEE Big Data 2020."
-          - "Extended thesis with novel aggregation mechanisms for heterogeneous multi-organization graph learning while maintaining privacy."
 
-      - company: Zepto
-        position: Machine Learning Engineer Intern
+      - company: Zeptolytics
+        position: Machine Learning Research Intern
         location: Colombo, Sri Lanka
         start_date: 2019-06
         end_date: 2019-12
         highlights:
-          - "Developed an automated data analytics and Business Intelligence tool for the ZEPTO platform using Python, Scikit-learn, pandas, and NumPy."
-          - "Deployed using Docker and AWS."
+          - "Developed end-to-end automated data analytics and Business Intelligence pipeline for the ZEPTO platform."
+          - "Resulted in 40% improvement in decision-making speed for client companies."
+          - "Built using Python, Scikit-learn, pandas, NumPy. Deployed with Docker and AWS."
 
     Publications:
       - title: "Memory-Efficient Graph Convolutional Network-Based Distributed Link Prediction"
@@ -118,12 +133,13 @@ cv:
         url: "https://arxiv.org/abs/2006.14556"
 
     Projects:
-      - name: "MI Copilot – Agentic Coding Assistant for WSO2 MI"
+      - name: "MI Copilot - Agentic Coding Assistant for WSO2 MI"
         url: "https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/"
-        date: "2023 – present"
+        date: "2023 - present"
         highlights:
           - "Cursor/Claude Code-style coding agent for enterprise integration with 300+ daily active users."
           - "22 tools across 8 categories: project management, connector management, XML LSP validation, builds, and runtime workflows."
+          - "+24 percentage-point improvement on HumanEval over base LLM (0-shot) using multi-agent iterative refinement and execution-guided verification."
 
       - name: "Lightweight Code Retrieval Models (22M/33M parameters)"
         date: "2025"
@@ -131,13 +147,13 @@ cv:
           - "Fine-tuned MiniLM-based sentence-transformer models (512-dim) for domain-specific code retrieval using contrastive learning."
           - "97% Recall@10 and 95% MRR@10. Released on Hugging Face."
 
-      - name: "Toolflow – Structured Agent Framework"
+      - name: "Toolflow - Structured Agent Framework"
         url: "https://github.com/IsuruMaduranga/toolflow"
         date: "2025"
         highlights:
           - "Lightweight research framework for LLM-based agents with structured output guarantees and automatic tool invocation."
 
-      - name: "Naturalpy – Natural Programming Interface for Python"
+      - name: "Naturalpy - Natural Programming Interface for Python"
         url: "https://github.com/IsuruMaduranga/natural-python"
         date: "2025"
         highlights:
@@ -160,7 +176,8 @@ cv:
         url: "https://arxiv.org/abs/2006.14556"
         date: "2020"
         highlights:
-          - "Self-supervised deep reconstruction and forecasting for drones (video + IMU). IEEE Signal Processing Cup 2020 runner-up."
+          - "Self-supervised deep reconstruction and forecasting for drones (video + IMU)."
+          - "94% accuracy / 0.95 F1 on video, 100% accuracy / 0.98 F1 on IMU. IEEE Signal Processing Cup 2020 runner-up."
 
     Awards:
       - name: "IEEE Signal Processing Cup 2020 - First Runner-Up"
