@@ -143,36 +143,58 @@ cv:
         highlights:
           - "Natural-language-driven programming abstractions for Python with LLM-backed function invocation and code synthesis."
 
-    Awards:
-      - name: "IEEE Signal Processing Cup 2020 – First Runner-Up"
+      - name: "Distributed Transaction Counter for WSO2 Synapse"
+        url: "https://github.com/wso2/integration-transaction-counter"
+        date: "2022"
+        highlights:
+          - "Scalable transaction counting for high-throughput API gateways handling 10,000+ TPS with sub-millisecond latency."
+
+      - name: "Privacy-Preserving ML on Federated Graph Database Systems"
+        url: "https://github.com/IsuruMaduranga/federated-gcn"
         date: "2020"
         highlights:
-          - "Secured 2nd place globally in prestigious IEEE competition (team Icarus Inhibition)."
+          - "Federated learning for collaborative, privacy-preserving graph learning on JasmineGraph distributed graph database."
+          - "IEEE Big Data 2020 publication. Technologies: C++, Python, StellarGraph, TensorFlow."
+
+      - name: "Anomaly Detection for Autonomous Systems"
+        url: "https://arxiv.org/abs/2006.14556"
+        date: "2020"
+        highlights:
+          - "Self-supervised deep reconstruction and forecasting for drones (video + IMU). IEEE Signal Processing Cup 2020 runner-up."
+
+    Awards:
+      - name: "IEEE Signal Processing Cup 2020 - First Runner-Up"
+        date: "2020"
+        highlights:
+          - "First Runner-Up at ICASSP 2020 finals (team Icarus Inhibition)."
           - "Achieved the highest score in the selection round for anomaly detection in autonomous drone systems using multimodal sensor data."
-          - "Final competition held at ICASSP 2020."
 
       - name: "University Award for Best R&D Project"
         date: "2021"
         highlights:
           - "Highest marks achieved in undergraduate thesis research on distributed graph ML."
 
-      - name: "University Award for Best R&D Project (Virtusa Award)"
-        date: "2020"
+      - name: "Virtusa Award"
+        date: "2019"
+        highlights:
+          - "Awarded to the student who earned the highest marks for the semester 5 Software Engineering Project."
+          - "Issued by Department of CSE, University of Moratuwa."
 
-      - name: "Flu Shot Learning Challenge – 18th/4811 (top 0.4%)"
+      - name: "Flu Shot Learning Challenge - 18th/4811 (top 0.4%)"
         date: "2020"
         highlights:
           - "DrivenData machine learning competition."
 
-      - name: "SLIIT Codefest Datathon – Champions"
+      - name: "SLIIT Codefest Datathon - Champions"
         date: "2019"
         highlights:
-          - "Winner of 12-hour inter-university data science competition."
+          - "Winning team (XGCoders) of nationwide inter-university data mining competition."
 
-      - name: "iHack 5.0 Software Development Hackathon – Winners"
+      - name: "iHack 5.0 - Winners"
         date: "2019"
         highlights:
-          - "Winner of 24-hour hackathon at University of Colombo."
+          - "24-hour inter-university software development hackathon at University of Colombo."
+          - "Team ODIGOS designed and developed a mobile/web app solving Sri Lanka's tourism issues. First place out of 59 teams."
 
     Teaching:
       - company: University of Moratuwa

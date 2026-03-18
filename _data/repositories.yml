@@ -8,3 +8,5 @@ github_repos:
   - IsuruMaduranga/natural-python
   - wso2/vscode-extensions
   - wso2-extensions/mi-module-generative-ai
+  - wso2/integration-transaction-counter
+  - IsuruMaduranga/federated-gcn
