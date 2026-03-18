@@ -1,811 +1,344 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://isurumaduranga.github.io/feed.xml" rel="self" type="application/atom+xml"/><link href="https://isurumaduranga.github.io/" rel="alternate" type="text/html" hreflang="en"/><updated>2026-03-18T09:35:00+00:00</updated><id>https://isurumaduranga.github.io/feed.xml</id><title type="html">blank</title><subtitle>Personal academic website of Isuru Wijesiri – NLP Researcher, AI Engineer at WSO2. </subtitle><entry><title type="html">a post with plotly.js</title><link href="https://isurumaduranga.github.io/blog/2025/plotly/" rel="alternate" type="text/html" title="a post with plotly.js"/><published>2025-03-26T14:24:00+00:00</published><updated>2025-03-26T14:24:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2025/plotly</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2025/plotly/"><![CDATA[<p>This is an example post with some <a href="https://plotly.com/javascript/">plotly</a> code.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">plotly
-</span><span class="sb">{
-  "data": [
-    {
-      "x": [1, 2, 3, 4],
-      "y": [10, 15, 13, 17],
-      "type": "scatter"
-    },
-    {
-      "x": [1, 2, 3, 4],
-      "y": [16, 5, 11, 9],
-      "type": "scatter"
-    }
-  ]
-}</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-plotly">{
-  "data": [
-    {
-      "x": [1, 2, 3, 4],
-      "y": [10, 15, 13, 17],
-      "type": "scatter"
-    },
-    {
-      "x": [1, 2, 3, 4],
-      "y": [16, 5, 11, 9],
-      "type": "scatter"
-    }
-  ]
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://isurumaduranga.github.io/feed.xml" rel="self" type="application/atom+xml"/><link href="https://isurumaduranga.github.io/" rel="alternate" type="text/html" hreflang="en"/><updated>2026-03-18T12:18:41+00:00</updated><id>https://isurumaduranga.github.io/feed.xml</id><title type="html">blank</title><subtitle>Personal academic website of Isuru Wijesiri – NLP Researcher, AI Engineer at WSO2. </subtitle><entry><title type="html">Building a Claude Code-Style AI Agent for Enterprise Integration</title><link href="https://isurumaduranga.github.io/blog/2026/building-claude-code-style-agent/" rel="alternate" type="text/html" title="Building a Claude Code-Style AI Agent for Enterprise Integration"/><published>2026-03-18T00:00:00+00:00</published><updated>2026-03-18T00:00:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2026/building-claude-code-style-agent</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2026/building-claude-code-style-agent/"><![CDATA[<p><em>How we built WSO2 MI Copilot — a domain-specific agentic coding assistant with 23 tools, 4 subagents, a dynamic knowledge graph, and a context engineering strategy that achieves 81-90% prompt cache hit rates.</em></p> <hr/> <h2 id="introduction">Introduction</h2> <p>The emergence of agentic coding assistants — Claude Code, Cursor, Windsurf, Codex — has demonstrated that LLMs become dramatically more useful when given tools to act on the world, not just generate text. But these are general-purpose. What happens when you apply the same architectural patterns to a <em>domain-specific</em> development environment?</p> <p>We built <strong>WSO2 MI Copilot</strong>: an agentic AI assistant embedded in VS Code for developing enterprise integrations on the WSO2 Micro Integrator platform. The architecture draws heavy inspiration from Claude Code — the ReAct loop, tool-based autonomy, multi-agent delegation, conversation compaction, undo checkpoints — but adapts these patterns for a constrained domain where the context engineering challenge is fundamentally different.</p> <p>This post is a technical deep dive. We’ll cover:</p> <ol> <li><strong>The ReAct execution loop</strong> — how streaming tool calling creates an autonomous agent</li> <li><strong>Why domain-specific is harder</strong> — the edge case problem and why models fail without engineered context</li> <li><strong>Context engineering</strong> — the three-layer architecture that makes a domain agent dramatically more effective</li> <li><strong>Dynamic knowledge loading</strong> — a structured knowledge graph the agent queries on demand</li> <li><strong>Multi-agent orchestration</strong> — subagent spawning, background execution, and conversation compaction</li> <li><strong>Prompt caching and context economics</strong> — achieving 81-90% cache hit rates, and managing tool result bloat</li> <li><strong>Shell sandboxing</strong> — letting an agent run commands without letting it destroy your environment</li> <li><strong>LSP integration</strong> — ground-truth XML validation as the agent’s self-correction mechanism</li> <li><strong>The mode system</strong> — structured autonomy through Ask/Edit/Plan</li> <li><strong>What didn’t work</strong> — approaches we tried and discarded</li> <li><strong>What’s next</strong> — local embeddings, vector search, and semantic code retrieval</li> </ol> <p>We’ll reference relevant research where the patterns align with published work, and provide concrete implementation details throughout.</p> <hr/> <h2 id="1-the-react-loop-reason--act-in-a-streaming-loop">1. The ReAct Loop: Reason + Act in a Streaming Loop</h2> <p>MI Copilot’s core execution model implements the ReAct (Reasoning + Acting) paradigm introduced by Yao et al. (2023) <sup id="fnref:1"><a href="#fn:1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>. The agent interleaves reasoning (thinking through a problem) with acting (calling tools), using observations from tool results to inform the next reasoning step.</p> <h3 id="implementation-vercel-ai-sdk-streamtext-with-multi-step-tool-calling">Implementation: Vercel AI SDK <code class="language-plaintext highlighter-rouge">streamText</code> with Multi-Step Tool Calling</h3> <p>The agent uses the Vercel AI SDK’s <code class="language-plaintext highlighter-rouge">streamText</code> function with <code class="language-plaintext highlighter-rouge">stopWhen: stepCountIs(50)</code>, creating a loop where the model can make up to 50 sequential tool calls per user message:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>STREAM_TO_CLIENT(
+    model       = Claude Sonnet 4.6 (or Opus 4.6),
+    max_tokens  = 15,000,
+    messages    = [system_prompt, ...chat_history, current_user_message],
+    tools       = 23 registered tools (filtered by active mode),
+    stop_after  = 50 tool-call steps,
+    reasoning   = adaptive,        // model decides when to think deeply
+    effort      = low              // bias toward direct responses
+)
+
+// Callback: fires before EACH API call in the multi-step loop
+BEFORE_EACH_STEP(messages):
+    mark last message with cache-control = ephemeral   // prompt caching
+</code></pre></div></div> <p>Each “step” in the loop follows the ReAct pattern:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Observe → Think (optional reasoning block) → Act (tool call) → Observe result → Think → Act → ...
+</code></pre></div></div> <p>The <code class="language-plaintext highlighter-rouge">prepareStep</code> callback fires before each API call within the loop, allowing us to update cache breakpoints as the conversation grows with tool results. This is critical — without it, each step would re-send the entire conversation without caching benefits.</p> <h3 id="extended-thinking-when-to-reason-deeply">Extended Thinking: When to Reason Deeply</h3> <p>Claude’s extended thinking (adaptive mode) adds a reasoning trace before the model’s response. We enable it by default but configure <code class="language-plaintext highlighter-rouge">effort: 'low'</code> to let the model decide when deep reasoning is warranted:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>thinking_start → thinking_delta (streamed) → thinking_end → text or tool_call
+</code></pre></div></div> <p>The system prompt explicitly instructs: <em>“Extended thinking adds latency and should only be used when it will meaningfully improve answer quality — typically for problems that require multi-step reasoning. When in doubt, respond directly. More importantly: Do not Overthink.”</em></p> <p>This aligns with findings from the chain-of-thought literature <sup id="fnref:4"><a href="#fn:4" class="footnote" rel="footnote" role="doc-noteref">2</a></sup> — shallow problems don’t benefit from explicit reasoning traces, and forcing them can actually degrade performance on simple tasks.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/react_loop.svg" sizes="95vw"/> <img src="/assets/img/react_loop.svg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <h3 id="stream-processing-architecture">Stream Processing Architecture</h3> <p>The streaming loop processes multiple event types in real-time:</p> <table> <thead> <tr> <th>Stream Event</th> <th>Handler</th> <th>UI Effect</th> </tr> </thead> <tbody> <tr> <td><code class="language-plaintext highlighter-rouge">text-delta</code></td> <td>Accumulate text</td> <td>Live markdown rendering</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">reasoning-start/delta/end</code></td> <td>Track thinking blocks</td> <td>Collapsible thinking display</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">tool-input-start</code></td> <td>Early tool detection</td> <td>Show “Running tool…” immediately</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">tool-call</code></td> <td>Execute tool</td> <td>Status indicator (spinner → check/error)</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">tool-result</code></td> <td>Feed back to model</td> <td>Next reasoning step</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">finish</code></td> <td>Persist to JSONL</td> <td>Save conversation state</td> </tr> </tbody> </table> <p>The <code class="language-plaintext highlighter-rouge">tool-input-start</code> event deserves special mention — it fires when the model begins generating tool input JSON, before the tool actually executes. This lets us show a loading indicator to the user immediately, reducing perceived latency.</p> <h3 id="stream-watchdog-timeout-management">Stream Watchdog: Timeout Management</h3> <p>A dual-timeout watchdog prevents the agent from hanging:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WATCHDOG = create_stream_watchdog(
+    idle_timeout   = 2 minutes,      // max silence between stream events
+    total_timeout  = 10 minutes,     // hard circuit breaker for entire run
+    pause_idle_when = tool_is_executing OR waiting_for_user_input
+)
+</code></pre></div></div> <p>The idle timeout pauses during tool execution (some tools like <code class="language-plaintext highlighter-rouge">build_project</code> take minutes) and during blocking operations like <code class="language-plaintext highlighter-rouge">ask_user_question</code> (which waits for user input). The total timeout acts as a hard circuit breaker.</p> <hr/> <h2 id="2-why-domain-specific-is-harder-than-general-purpose">2. Why Domain-Specific is Harder Than General-Purpose</h2> <p>It might seem like building a domain-specific agent would be <em>easier</em> than a general-purpose tool like Claude Code — smaller scope, fewer languages, constrained problem space. The opposite is true.</p> <h3 id="the-model-doesnt-know-your-domain">The Model Doesn’t Know Your Domain</h3> <p>Claude, GPT-4, and other frontier models have been trained on vast corpora of Python, JavaScript, TypeScript, Rust, Go — languages with millions of public repositories and decades of Stack Overflow answers. When Claude Code edits a React component, the model draws on deep statistical patterns from hundreds of thousands of similar components.</p> <p>WSO2 Synapse XML is not Python. The training data is sparse. The model has seen some Synapse configurations, but not enough to internalize the subtleties — and the subtleties are where integrations break.</p> <h3 id="the-edge-case-problem">The Edge Case Problem</h3> <p>Consider this Synapse expression: <code class="language-plaintext highlighter-rouge">"Count: " + payload.count</code>. Looks reasonable. In JavaScript, Python, or almost any mainstream language, this concatenates a string with a number. In Synapse’s expression engine, <strong>it throws a runtime exception</strong> — the <code class="language-plaintext highlighter-rouge">+</code> operator doesn’t coerce types, and string + integer is undefined.</p> <p>Or this null check: <code class="language-plaintext highlighter-rouge">payload.age == null or payload.age &gt; 18</code>. Seems defensive. But if <code class="language-plaintext highlighter-rouge">payload.age</code> is truly <code class="language-plaintext highlighter-rouge">null</code>, the second operand still evaluates and throws <code class="language-plaintext highlighter-rouge">"Null source value"</code> before the <code class="language-plaintext highlighter-rouge">or</code> short-circuits.</p> <p>Or this equality check: <code class="language-plaintext highlighter-rouge">1 == 1.0</code>. Returns <code class="language-plaintext highlighter-rouge">false</code> in Synapse — it compares as strings <code class="language-plaintext highlighter-rouge">"1"</code> vs <code class="language-plaintext highlighter-rouge">"1.0"</code>.</p> <p>Or this perfectly reasonable-looking API definition: <code class="language-plaintext highlighter-rouge">&lt;send/&gt;</code> at the end of an inSequence. In most integration platforms, “send” means “send the response.” In Synapse, <code class="language-plaintext highlighter-rouge">&lt;send/&gt;</code> sends the message to the <em>endpoint</em> and <code class="language-plaintext highlighter-rouge">&lt;respond/&gt;</code> sends the response to the <em>client</em>. The model will generate <code class="language-plaintext highlighter-rouge">&lt;send/&gt;</code> because every HTTP framework it’s trained on uses “send” for responses — and the integration silently hangs, waiting for a backend that was never called.</p> <p>These aren’t corner cases in obscure features. They’re fundamental type system behaviors that a model trained primarily on mainstream languages will get wrong <em>every time</em> — because the patterns that are correct in 99% of programming languages are incorrect in Synapse.</p> <p>We documented <strong>dozens</strong> of these edge cases across type coercion, null handling, integer overflow, XML escaping, payload factory pitfalls, and error propagation. Without this context, the agent generates code that <em>looks</em> correct, passes a casual review, and fails at runtime.</p> <p>This is the fundamental challenge of domain-specific agents: <strong>the model’s priors are wrong, and you have to override them with precise, verified context at every turn.</strong></p> <h3 id="what-a-general-purpose-agent-cant-do">What a General-Purpose Agent Can’t Do</h3> <p>A tool like Claude Code can edit Synapse XML files — it’s just text. But it can’t:</p> <ul> <li><strong>Validate generated XML against the MI schema</strong> — it doesn’t have a language server</li> <li><strong>Know which connectors exist</strong> for the user’s runtime version — it doesn’t have the Connector Store API</li> <li><strong>Check if an expression will throw</strong> at runtime — it doesn’t know Synapse’s type coercion rules</li> <li><strong>Detect that a property scope is wrong</strong> — it doesn’t know that <code class="language-plaintext highlighter-rouge">$ctx:uri.var.petId</code> works in API resources but not in sequences</li> <li><strong>Build and deploy the project</strong> — it doesn’t know how MI’s Maven build or runtime server work</li> <li><strong>Look up mediator semantics</strong> — it will guess from the XML tag name and often guess wrong</li> </ul> <p>MI Copilot fills these gaps with engineered context, specialized tools, and a language server integration that provides ground-truth validation. The model doesn’t need to <em>know</em> Synapse — it needs to be given the right information at the right time and have tools to verify its work.</p> <h3 id="the-23-tool-surface">The 23-Tool Surface</h3> <p>We mention “23 tools” throughout this post. Here’s the full inventory — each tool exists because a general-purpose agent would need it but doesn’t have it:</p> <table> <thead> <tr> <th>Category</th> <th>Tools</th> <th>Count</th> <th>Why It Exists</th> </tr> </thead> <tbody> <tr> <td><strong>File Operations</strong></td> <td><code class="language-plaintext highlighter-rouge">file_read</code>, <code class="language-plaintext highlighter-rouge">file_write</code>, <code class="language-plaintext highlighter-rouge">file_edit</code>, <code class="language-plaintext highlighter-rouge">grep</code>, <code class="language-plaintext highlighter-rouge">glob</code></td> <td>5</td> <td>Structured editing with LSP sync, not raw filesystem writes</td> </tr> <tr> <td><strong>Connectors &amp; Context</strong></td> <td><code class="language-plaintext highlighter-rouge">get_connector_definitions</code>, <code class="language-plaintext highlighter-rouge">load_context_reference</code></td> <td>2</td> <td>100+ connectors from live Store API; 12 deep reference docs</td> </tr> <tr> <td><strong>Project Management</strong></td> <td><code class="language-plaintext highlighter-rouge">add_or_remove_connector</code></td> <td>1</td> <td>Updates <code class="language-plaintext highlighter-rouge">pom.xml</code> dependencies — model can’t guess Maven coordinates</td> </tr> <tr> <td><strong>Validation</strong></td> <td><code class="language-plaintext highlighter-rouge">validate_code</code></td> <td>1</td> <td>LemMinx LSP diagnostics with code actions</td> </tr> <tr> <td><strong>Data Mapper</strong></td> <td><code class="language-plaintext highlighter-rouge">create_data_mapper</code>, <code class="language-plaintext highlighter-rouge">generate_data_mapping</code></td> <td>2</td> <td>TypeScript schema-to-schema mappings via specialized sub-agent</td> </tr> <tr> <td><strong>Runtime</strong></td> <td><code class="language-plaintext highlighter-rouge">build_project</code>, <code class="language-plaintext highlighter-rouge">server_management</code></td> <td>2</td> <td>Maven build + MI server start/stop/status</td> </tr> <tr> <td><strong>Planning &amp; Subagents</strong></td> <td><code class="language-plaintext highlighter-rouge">create_subagent</code>, <code class="language-plaintext highlighter-rouge">ask_user_question</code>, <code class="language-plaintext highlighter-rouge">enter_plan_mode</code>, <code class="language-plaintext highlighter-rouge">exit_plan_mode</code>, <code class="language-plaintext highlighter-rouge">todo_write</code></td> <td>5</td> <td>Multi-agent delegation, human-in-the-loop, task tracking</td> </tr> <tr> <td><strong>Shell</strong></td> <td><code class="language-plaintext highlighter-rouge">shell</code>, <code class="language-plaintext highlighter-rouge">kill_task</code>, <code class="language-plaintext highlighter-rouge">task_output</code></td> <td>3</td> <td>Sandboxed command execution with background process support</td> </tr> <tr> <td><strong>Web</strong></td> <td><code class="language-plaintext highlighter-rouge">web_search</code>, <code class="language-plaintext highlighter-rouge">web_fetch</code></td> <td>2</td> <td>Approval-gated web access for external information</td> </tr> </tbody> </table> <hr/> <h2 id="3-context-engineering-the-domain-specific-advantage">3. Context Engineering: The Domain-Specific Advantage</h2> <p>Context engineering — the deliberate construction of what goes into the model’s context window — is arguably more important than the model itself. Anthropic’s own documentation describes it as “the art of providing the right information in the right format at the right time.” <sup id="fnref:2"><a href="#fn:2" class="footnote" rel="footnote" role="doc-noteref">3</a></sup></p> <p>For a domain-specific agent, context engineering is where you win or lose. A general-purpose coding assistant has to work with whatever the user throws at it. A domain-specific agent can be opinionated about what context matters.</p> <h3 id="the-three-layer-context-architecture">The Three-Layer Context Architecture</h3> <p>MI Copilot structures its context into three layers, each with different caching characteristics:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────────────────────────────────────────────┐
+│  Layer 1: STATIC SYSTEM PROMPT          [CACHED]    │
+│  ─────────────────────────────────────────────────── │
+│  Identity, behavioral rules, 23 tool schemas,       │
+│  mode policies, Synapse guide, connector patterns,  │
+│  debugging guidelines, user query processing policy  │
+│  ≈ 10-15K tokens | Cache: always ephemeral          │
+├─────────────────────────────────────────────────────┤
+│  Layer 2: PROJECT CONTEXT               [PER-TURN]  │
+│  ─────────────────────────────────────────────────── │
+│  File tree (max 50 files), open file, connector     │
+│  catalog, runtime version, environment metadata,     │
+│  mode-specific system reminder                       │
+│  ≈ 1-3K tokens | Cache: last-message ephemeral      │
+├─────────────────────────────────────────────────────┤
+│  Layer 3: DYNAMIC KNOWLEDGE             [ON-DEMAND] │
+│  ─────────────────────────────────────────────────── │
+│  12 deep reference docs (loaded via tool calls),     │
+│  connector definitions (from Store API + cache),     │
+│  file contents (read on demand)                      │
+│  ≈ 0-20K tokens per turn | Not pre-loaded           │
+└─────────────────────────────────────────────────────┘
+</code></pre></div></div> <p>This layered approach is inspired by the observation from Anthropic’s context engineering guide that <em>“the most effective agents separate static knowledge (system prompts) from dynamic knowledge (tool results)”</em>.</p> <h3 id="layer-1-the-static-system-prompt-3100-lines">Layer 1: The Static System Prompt (~3,100 lines)</h3> <p>The system prompt is a carefully structured document with 17 major sections:</p> <ol> <li><strong>Identity &amp; behavior</strong> — concise, professional, markdown-formatted for VS Code sidebar</li> <li><strong>Operating modes</strong> — Ask/Edit/Plan mode descriptions and switching logic</li> <li><strong>Tool usage policy</strong> — when to parallelize, when to use subagents vs. direct tools</li> <li><strong>User query processing policy</strong> — a step-by-step workflow: scope → requirements → design → context → implement → validate → build → test → cleanup</li> <li><strong>Synapse guide</strong> — embedded XML syntax reference (version-selected at runtime: v2 for &gt;=4.4.0, v1 for older runtimes)</li> <li><strong>Connector documentation</strong> — usage patterns and initialization templates</li> <li><strong>Debugging guidelines</strong> — common MI issues and resolution patterns</li> <li><strong>Deep reference index</strong> — descriptions of 12 on-demand context references the agent can load</li> </ol> <p>The guide selection is version-aware:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>system_prompt = TEMPLATE
+    with SYNAPSE_GUIDE    = modern_guide   IF runtime_version &gt;= 4.4.0
+                            legacy_guide   OTHERWISE
+    with CONNECTOR_DOCS   = modern_docs    IF runtime_version &gt;= 4.4.0
+                            legacy_docs    OTHERWISE
+</code></pre></div></div> <p>This avoids a common failure mode in domain-specific agents: generating code for the wrong version of the platform.</p> <h3 id="layer-2-project-context-assembly">Layer 2: Project Context Assembly</h3> <p>Every user message is wrapped with project-specific context assembled from live workspace state:</p> <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;project_structure&gt;</span>
+├── src/main/synapse-config/
+│   ├── api/CustomerAPI.xml
+│   ├── sequences/ErrorHandler.xml
+│   └── endpoints/BackendEP.xml
+├── src/main/registry-resources/
+└── pom.xml
+<span class="nt">&lt;/project_structure&gt;</span>
+
+<span class="nt">&lt;ide_opened_file&gt;</span>src/main/synapse-config/api/CustomerAPI.xml<span class="nt">&lt;/ide_opened_file&gt;</span>
+
+<span class="nt">&lt;available_connectors&gt;</span>Database, Email, File, HTTP, Salesforce, ...<span class="nt">&lt;/available_connectors&gt;</span>
+<span class="nt">&lt;available_inbound_endpoints&gt;</span>HTTP, JMS, Kafka, ...<span class="nt">&lt;/available_inbound_endpoints&gt;</span>
+
+<span class="nt">&lt;env&gt;</span>
+  <span class="nt">&lt;working_directory&gt;</span>/Users/dev/my-integration<span class="nt">&lt;/working_directory&gt;</span>
+  <span class="nt">&lt;mi_runtime_version&gt;</span>4.4.0<span class="nt">&lt;/mi_runtime_version&gt;</span>
+  <span class="nt">&lt;mi_runtime_home&gt;</span>/opt/mi-4.4.0<span class="nt">&lt;/mi_runtime_home&gt;</span>
+  <span class="nt">&lt;platform&gt;</span>darwin<span class="nt">&lt;/platform&gt;</span>
+  <span class="nt">&lt;today&gt;</span>2026-03-18<span class="nt">&lt;/today&gt;</span>
+<span class="nt">&lt;/env&gt;</span>
+
+<span class="nt">&lt;system_reminder&gt;</span>
+  <span class="nt">&lt;mode&gt;</span>EDIT<span class="nt">&lt;/mode&gt;</span>
+  [Mode-specific policy text injected here]
+<span class="nt">&lt;/system_reminder&gt;</span>
+</code></pre></div></div> <p>The file tree is capped at 50 files and 10K characters with smart exclusions (<code class="language-plaintext highlighter-rouge">.git</code>, <code class="language-plaintext highlighter-rouge">.mvn</code>, <code class="language-plaintext highlighter-rouge">node_modules</code>, <code class="language-plaintext highlighter-rouge">.mi-copilot</code>). This prevents context bloat on large projects while preserving the structural overview the model needs for navigation decisions.</p> <h3 id="layer-3-dynamic-knowledge-the-knowledge-graph">Layer 3: Dynamic Knowledge (The Knowledge Graph)</h3> <p>This is where MI Copilot diverges most from general-purpose assistants. Rather than relying on the model’s training data for Synapse XML knowledge (which is sparse and often outdated), we built a <strong>structured knowledge graph</strong> that the agent queries on demand through the <code class="language-plaintext highlighter-rouge">load_context_reference</code> tool.</p> <p>We cover this in depth in the next section.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/context_layers.svg" sizes="95vw"/> <img src="/assets/img/context_layers.svg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <hr/> <h2 id="4-dynamic-knowledge-loading-a-structured-context-reference-system">4. Dynamic Knowledge Loading: A Structured Context Reference System</h2> <h3 id="the-problem-with-static-context">The Problem with Static Context</h3> <p>Stuffing all domain knowledge into the system prompt doesn’t work. Our Synapse reference documentation alone would consume ~60K tokens — expression spec, function reference, mediator semantics, endpoint types, property scopes, edge cases, payload patterns, SOAP handling, and more. That’s before the user even asks a question.</p> <p>The insight: <strong>most questions only need 1-2 specific reference documents</strong>. An agent building a REST API doesn’t need the SOAP namespace guide. An agent debugging expressions doesn’t need the endpoint reference.</p> <h3 id="the-load_context_reference-tool-agent-driven-knowledge-retrieval">The <code class="language-plaintext highlighter-rouge">load_context_reference</code> Tool: Agent-Driven Knowledge Retrieval</h3> <p>We implemented a tool that lets the agent <em>decide</em> what knowledge it needs and load it on demand:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>KNOWLEDGE_GRAPH = registry of context references, each with:
+    name          : canonical identifier (e.g., "synapse-expression-spec")
+    description   : one-line summary the agent reads to decide relevance
+    full_content  : complete document (~3-6K tokens)
+    sections      : map of { section_name → section_content } for granular loading
+    min_version?  : optional runtime version gate
+    aliases?      : alternative names the agent might use
+
+Example entries:
+    "synapse-expression-spec"     → operators, type system, coercion, null handling, JSONPath
+    "synapse-function-reference"  → string, math, type-check, conversion, datetime, access
+    "synapse-mediator-reference"  → enrich, call, send, payloadFactory, property, ...
+    ... 9 more contexts
+</code></pre></div></div> <p>Each context reference supports <strong>section-level loading</strong>. The agent can request a full document or a specific section using colon syntax:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>load_context_reference("synapse-expression-spec")              → Full doc (~6K tokens)
+load_context_reference("synapse-expression-spec:type_coercion") → One section (~1K tokens)
+</code></pre></div></div> <h3 id="the-12-context-references">The 12 Context References</h3> <table> <thead> <tr> <th>Reference</th> <th>Sections</th> <th>Typical Load</th> </tr> </thead> <tbody> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-expression-spec</code></td> <td>operators, type_system, type_coercion, null_handling, jsonpath, …</td> <td>1-6K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-function-reference</code></td> <td>string_functions, math_functions, datetime_functions, …</td> <td>1-5K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-variable-resolution</code></td> <td>payload, headers, properties, params, configs, registry</td> <td>1-4K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-mediator-expression-matrix</code></td> <td>per-mediator expression support, payload state transitions</td> <td>2-5K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-edge-cases</code></td> <td>type gotchas, null handling, XML escaping, error catalog</td> <td>2-4K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-endpoint-reference</code></td> <td>HTTP, Address, WSDL, failover, loadbalance patterns</td> <td>2-5K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-mediator-reference</code></td> <td>enrich, call, send, payloadFactory, property, …</td> <td>3-6K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-payload-patterns</code></td> <td>JSON/XML construction, format conversion, FreeMarker</td> <td>2-5K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-property-reference</code></td> <td>HTTP properties, content-type, error handling, scopes</td> <td>2-4K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">synapse-soap-namespace-guide</code></td> <td>SOAP calls, WSDL namespace, WS-Addressing</td> <td>2-4K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">unit-test-reference</code></td> <td>test schema, assertions, mock services, examples</td> <td>2-5K tokens</td> </tr> <tr> <td><code class="language-plaintext highlighter-rouge">ai-connector-app-development</code></td> <td>AI connector: chat, RAG, knowledge base, agents</td> <td>3-5K tokens</td> </tr> </tbody> </table> <h3 id="context-selector-parser-flexible-input-normalization">Context Selector Parser: Flexible Input Normalization</h3> <p>The parser handles inconsistent input gracefully through dual normalization:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NORMALIZE_CONTEXT_NAME(input):
+    lowercase → replace underscores and spaces with hyphens
+    "synapse_expression_spec"  →  "synapse-expression-spec"
+    "synapse expression spec"  →  "synapse-expression-spec"
+
+NORMALIZE_SECTION_NAME(input):
+    lowercase → replace hyphens and spaces with underscores
+    "type-system"   →  "type_system"
+    "Type System"   →  "type_system"
+</code></pre></div></div> <p>This eliminates a class of errors where the model hallucinates slightly wrong names — <code class="language-plaintext highlighter-rouge">synapse_expression_spec</code> works just as well as <code class="language-plaintext highlighter-rouge">synapse-expression-spec</code>.</p> <p>Alias support adds another layer of robustness — a context can be found by any of its names:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"unit-test-reference"  aliases: ["unit_test_reference", "unit-test-guide"]
+</code></pre></div></div> <h3 id="runtime-version-gating">Runtime Version Gating</h3> <p>Some contexts are only valid for specific MI runtime versions:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LOAD_CONTEXT("ai-connector-app-development"):
+    runtime_version = detect_from_pom_xml(project_path)
+    IF runtime_version &lt; 4.4.0:
+        RETURN error: "Context requires MI runtime 4.4.0+. Detected: {runtime_version}"
+    ELSE:
+        RETURN ai_connector_documentation
+</code></pre></div></div> <p>This prevents the agent from generating code that uses features unavailable in the user’s runtime — a subtle but critical correctness guarantee.</p> <h3 id="why-not-just-rag">Why Not Just RAG?</h3> <p>Traditional RAG (Retrieval-Augmented Generation) <sup id="fnref:5"><a href="#fn:5" class="footnote" rel="footnote" role="doc-noteref">4</a></sup> with vector embeddings would seem like the obvious approach. We chose structured references instead for several reasons:</p> <ol> <li> <p><strong>Precision over recall</strong>: For a domain-specific agent, we need <em>exact</em> reference information (operator precedence tables, type coercion rules), not “similar” chunks. A vector search might return the right neighborhood but miss the critical table.</p> </li> <li> <p><strong>Section-level granularity</strong>: Our section structure gives the agent control over how much context to load. Vector search returns fixed-size chunks that may split a table or combine unrelated content.</p> </li> <li> <p><strong>Agent-driven selection</strong>: The agent reads the section <em>descriptions</em> in its system prompt and decides what to load based on reasoning, not embedding similarity. This leverages the model’s understanding of what information it needs.</p> </li> <li> <p><strong>Determinism</strong>: Given the same query, the agent loads the same reference. No embedding drift, no index staleness.</p> </li> </ol> <p>That said, this position has nuance — structured references win for <em>platform documentation</em> where precision matters, but we’re adding vector search for a fundamentally different query type: searching <em>user code</em> for conceptual patterns. We discuss this evolution in Section 10 (What Didn’t Work) and Section 11 (What’s Next).</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/knowledge_graph.svg" sizes="95vw"/> <img src="/assets/img/knowledge_graph.svg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <hr/> <h2 id="5-multi-agent-orchestration">5. Multi-Agent Orchestration</h2> <p>Single-agent architectures hit limitations when tasks require both breadth (exploring a codebase) and depth (reasoning about architecture). MI Copilot addresses this with a multi-agent system inspired by the orchestrator-worker pattern described in Anthropic’s agent design patterns <sup id="fnref:3"><a href="#fn:3" class="footnote" rel="footnote" role="doc-noteref">5</a></sup>.</p> <h3 id="the-agent-hierarchy">The Agent Hierarchy</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────────────────────────────────────────┐
+│                    MAIN AGENT (Orchestrator)              │
+│   Model: Claude Sonnet 4.6 | Tools: 23 | Steps: 50      │
+│                                                           │
+│   Delegates to subagents via create_subagent tool         │
+├─────────┬──────────────┬──────────────┬──────────────────┤
+│ Explore │ SynapseCtx   │ DataMapper   │ Compact          │
+│ Haiku   │ Haiku        │ Haiku        │ Haiku            │
+│ 3 tools │ 4 tools      │ 0 tools      │ 0 tools          │
+│ 30 steps│ 6 steps      │ 1 step       │ 1 step           │
+└─────────┴──────────────┴──────────────┴──────────────────┘
+</code></pre></div></div> <p>Each subagent has a fundamentally different operating profile:</p> <h3 id="explore-subagent-fast-codebase-search">Explore Subagent: Fast Codebase Search</h3> <p>The Explore subagent is designed for rapid, broad codebase investigation. It gets three read-only tools (<code class="language-plaintext highlighter-rouge">file_read</code>, <code class="language-plaintext highlighter-rouge">grep</code>, <code class="language-plaintext highlighter-rouge">glob</code>) and up to 30 steps to find what it needs:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>EXPLORE_SUBAGENT = run_agent(
+    model       = Haiku (fast, cheap),
+    tools       = [file_read, grep, glob],     // read-only subset — no mutations possible
+    max_tokens  = 8,000,
+    temperature = 0.2,                          // focused, low creativity
+    stop_after  = 30 steps                      // ~10 cycles of glob → grep → read
+)
+</code></pre></div></div> <p>The system prompt is carefully scoped: <em>“Be fast and efficient — don’t read unnecessary files. Answer the specific question.”</em> It includes common MI project paths so the subagent knows where to look.</p> <p>The 30-step limit is intentional — it allows 10+ cycles of “glob to find files → grep to search content → read to verify”, which is sufficient for most exploration tasks.</p> <h3 id="synapsecontext-subagent-deep-documentation-lookup">SynapseContext Subagent: Deep Documentation Lookup</h3> <p>The SynapseContext subagent gets the same three file tools <em>plus</em> <code class="language-plaintext highlighter-rouge">load_context_reference</code> — access to the full knowledge graph. But it’s constrained to just <strong>6 steps</strong> (intentionally tight).</p> <p>Its system prompt is more opinionated: <em>“You are a subagent — the main agent is smarter than you. Your value is fast, accurate reference lookups. Load 1-2 docs, extract what’s relevant, return it. Don’t keep loading hoping to find it.”</em></p> <p>This asymmetry is deliberate. The SynapseContext subagent’s job is retrieval, not reasoning. It loads reference documents, extracts the relevant portions, and returns them. The main agent does the reasoning.</p> <h3 id="subagent-tool-isolation">Subagent Tool Isolation</h3> <p>Each subagent gets an <strong>independently constructed tool set</strong> — not a filtered view of the main agent’s tools:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Explore subagent tools:         { file_read, grep, glob }
+SynapseContext subagent tools:  { file_read, grep, glob, load_context_reference }
+DataMapper subagent tools:      { }   // pure generation, no tool access
+Compact subagent tools:         { }   // processes message history only
+</code></pre></div></div> <p>These are fresh tool instances scoped to the project path — not references to the main agent’s tools. Subagents cannot accidentally modify files, trigger builds, or spawn their own subagents because the tool schemas simply don’t exist in their context.</p> <h3 id="background-execution-with-abortcontroller-chaining">Background Execution with AbortController Chaining</h3> <p>Subagents can run in the background, allowing the main agent to continue working:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// Main agent spawns a background subagent:
+result = CREATE_SUBAGENT(
+    type             = "Explore",
+    prompt           = "Find all API definitions that use the Database connector",
+    run_in_background = true
+)
+// Returns IMMEDIATELY with: { subagent_id: "task-subagent-a1b2c3" }
+// Subagent executes concurrently in a fire-and-forget promise
+
+// Later, main agent polls for results:
+output = TASK_OUTPUT(task_id = "task-subagent-a1b2c3")
+// Returns: { completed: true/false, output: "...", exit_code: ... }
+</code></pre></div></div> <p>The cancellation signal is chained from parent to child:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>subagent_abort_controller = new AbortController()
+
+ON main_agent.abort:
+    subagent_abort_controller.abort(reason)    // propagate cancellation downstream
+
+ON kill_task("task-subagent-a1b2c3"):
+    subagent_abort_controller.abort()          // kill only this subagent
+</code></pre></div></div> <p>When the user cancels the main agent, the abort propagates to all background subagents. When a specific subagent is killed via <code class="language-plaintext highlighter-rouge">kill_task</code>, only that subagent’s controller fires.</p> <h3 id="jsonl-history-resumable-subagent-execution">JSONL History: Resumable Subagent Execution</h3> <p>Each subagent’s conversation is persisted to JSONL, enabling resumption:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.wso2-mi/copilot/projects/{project-key}/{session-id}/subagents/{task-id}/
+├── history.jsonl       # Full message history (tool calls + results)
+└── metadata.json       # { subagentType: "Explore", createdAt: "..." }
+</code></pre></div></div> <p>The main agent can resume a completed subagent with new instructions:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RESUME_SUBAGENT(
+    type   = "Explore",
+    resume = "task-subagent-a1b2c3",                              // reference to prior run
+    prompt = "Now also check the sequences directory for similar patterns"
+)
+
+// Internally, the resumed subagent receives:
+messages = [
+    ...previous_messages_from_jsonl,                               // full prior conversation
+    { role: user, content: "Continue Exploration: {new_prompt}" }  // new instructions appended
+]
+</code></pre></div></div> <p>This pattern avoids re-executing expensive search operations and preserves the subagent’s accumulated understanding.</p> <h3 id="compact-agent-context-window-management">Compact Agent: Context Window Management</h3> <p>Long conversations approach the context limit. The Compact agent (Haiku) summarizes the conversation while preserving technical details:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMPACT_CONVERSATION:
+    1. Convert tool-call/result blocks to plain text descriptions
+       (Haiku doesn't need tool schemas — just the textual content)
+    2. Merge consecutive same-role messages
+       (Anthropic API requires strict user/assistant alternation)
+    3. Append summarization instructions as final user message
+
+    summary = GENERATE_TEXT(
+        model       = Haiku,
+        system      = main_agent_system_prompt,    // full context for domain awareness
+        messages    = converted_text_messages,
+        tools       = all_23_tool_definitions,     // included for context, never executed
+        max_tokens  = 16,000,
+        temperature = 0                            // deterministic summary
+    )
+    4. Extract &lt;summary&gt; from response
+    5. Replace conversation history with summary checkpoint in JSONL
+</code></pre></div></div> <p>The summary replaces the conversation history, and the main agent continues with full context about what was previously discussed.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/multi_agent.svg" sizes="95vw"/> <img src="/assets/img/multi_agent.svg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <hr/> <h2 id="6-prompt-caching-and-context-economics">6. Prompt Caching and Context Economics</h2> <p>Anthropic’s prompt caching allows marking portions of the request as cacheable, with cached reads costing 0.1x the base price (90% discount) vs. a 1.25x write penalty. The cache has a 5-minute TTL and requires a minimum of 1,024 tokens.</p> <p>MI Copilot uses a <strong>two-tier caching strategy</strong>:</p> <h3 id="tier-1-system-prompt-always-cached">Tier 1: System Prompt (Always Cached)</h3> <p>The system prompt (~10-15K tokens including tool definitions) is tagged as cacheable:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>system_message = {
+    role:    "system",
+    content: build_system_prompt(runtime_version),
+    cache:   ephemeral     // Anthropic caches this block across requests (5-min TTL)
 }
-</code></pre> <p>Also another example chart.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">plotly
-</span><span class="sb">{
-  "data": [
+</code></pre></div></div> <p>On the first call, this costs 1.25x (cache write). On every subsequent call within 5 minutes, it costs 0.1x (cache read). Since the system prompt doesn’t change within a session, this is essentially free after the first message.</p> <h3 id="tier-2-conversation-history-dynamic-caching">Tier 2: Conversation History (Dynamic Caching)</h3> <p>The <code class="language-plaintext highlighter-rouge">before_each_step</code> hook marks the last message in the array with cache control before each API call:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BEFORE_EACH_STEP(messages):
+    messages.last().cache = ephemeral    // growing conversation prefix stays cached
+</code></pre></div></div> <p>This creates an incrementally growing cached prefix:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Turn 1: [SYSTEM ✓cached] [User msg ✓cached]
+Turn 2: [SYSTEM ✓cached] [User msg ✓cached] [Assistant ✓cached] [User msg → NEW cache write]
+Turn 3: [SYSTEM ✓cached] [User+Asst+User ✓cached] [Assistant ✓cached] [User msg → NEW cache write]
+</code></pre></div></div> <h3 id="real-world-cost-impact">Real-World Cost Impact</h3> <p>For a typical 10-turn conversation:</p> <table> <thead> <tr> <th>Turn</th> <th>Input Tokens</th> <th>Cached Tokens</th> <th>Cache Ratio</th> <th>Effective Cost</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>12,500</td> <td>0</td> <td>0%</td> <td>12,500 (+ 1.25x write)</td> </tr> <tr> <td>2</td> <td>15,000</td> <td>12,500</td> <td>83%</td> <td>~3,750</td> </tr> <tr> <td>3</td> <td>20,000</td> <td>17,000</td> <td>85%</td> <td>~4,700</td> </tr> <tr> <td>5</td> <td>35,000</td> <td>30,000</td> <td>86%</td> <td>~8,500</td> </tr> <tr> <td>10</td> <td>60,000</td> <td>52,000</td> <td>87%</td> <td>~13,200</td> </tr> </tbody> </table> <p><strong>Cumulative savings: ~81% average across the session, reaching 87-90% on individual turns in longer conversations.</strong> The 81% figure is the session-wide average weighed down by the first turn (0% cache). By turn 5+, individual turn ratios consistently exceed 85%.</p> <p>The agent logs cache metrics on every step:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[agent] Cache ratio: 86.7% | Input: 8,234 | Cached: 53,412 | Output: 1,847
+</code></pre></div></div> <h3 id="the-other-side-of-context-economics-tool-result-bloat">The Other Side of Context Economics: Tool Result Bloat</h3> <p>Caching makes the <em>input</em> cheap, but there’s a second cost dimension: tool results accumulate in the conversation. A single <code class="language-plaintext highlighter-rouge">grep</code> across a large project can return 30KB+ of results. After a few tool calls, the context window fills with tool results, not useful reasoning.</p> <p>MI Copilot addresses this with a persistence layer that intercepts oversized tool results:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AFTER_TOOL_EXECUTION(tool_name, result):
+    IF result.length &gt; 30KB:
+        file_path = "{session_dir}/tool-results/{timestamp}-{tool_name}.txt"
+        WRITE full result to file_path
+
+        RETURN TO MODEL:
+            "&lt;persisted-output&gt;
+             Output too large ({size}). Full output saved to: {file_path}
+             Preview (first 2KB):
+             {result[0..2048]}...
+             &lt;/persisted-output&gt;"
+    ELSE:
+        RETURN result as-is
+
+    // Recursion guard: if file_read is called on a tool-results/ path,
+    // skip persistence to prevent infinite write-read-write loops
+</code></pre></div></div> <p>The model sees a preview with a file path. If it needs the full content, it can <code class="language-plaintext highlighter-rouge">file_read</code> the persisted file — and the recursion guard prevents that read from being persisted again.</p> <p>Auto-cleanup enforces limits: 7-day retention, max 50 files, 20MB total per session.</p> <p>This pattern keeps the conversation lean while ensuring no information is lost.</p> <hr/> <h2 id="7-shell-sandboxing-letting-an-agent-run-commands-safely">7. Shell Sandboxing: Letting an Agent Run Commands Safely</h2> <blockquote> <p><em>Trust the agent to reason; don’t trust it with <code class="language-plaintext highlighter-rouge">sudo</code>.</em></p> </blockquote> <p>An agent that can only read and write files is fundamentally limited. Real development workflows require running builds, starting servers, checking logs, and executing project scripts. MI Copilot gives the agent a <code class="language-plaintext highlighter-rouge">shell</code> tool — but with a security sandbox that prevents the class of catastrophic failures that make unsandboxed agents dangerous.</p> <h3 id="three-tier-command-classification">Three-Tier Command Classification</h3> <p>Every shell command is parsed and classified before execution:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CLASSIFY_COMMAND(command_tokens):
+
+    TIER 1 — SAFE (auto-allowed, no user prompt):
+        Read-only commands: cat, grep, ls, head, tail, pwd, which, stat,
+                           tree, wc, sort, uniq, du, dirname, realpath, ...
+        → Execute immediately
+
+    TIER 2 — REQUIRES APPROVAL (shown to user first):
+        Mutation commands: mkdir, cp, npm install, git commit, mvn build, ...
+        Wrapper commands: env, xargs (can execute arbitrary sub-commands)
+        Network commands not on safe list
+        → Show command to user → wait for approve/deny
+
+    TIER 3 — HARD BLOCKED (rejected unconditionally):
+        Interactive shells: bash, sh, zsh, powershell
+        Elevated execution: sudo, doas, su
+        Interactive editors: vim, nano, emacs
+        Process monitors: top, htop, watch, less, more, man
+        → Return error: "Command '{cmd}' is blocked for safety."
+</code></pre></div></div> <p>The classification is conservative — unknown commands default to requiring approval. This ensures new tools the model discovers can’t bypass the sandbox.</p> <h3 id="path-sandboxing-preventing-escape-via-symlinks">Path Sandboxing: Preventing Escape via Symlinks</h3> <p>A subtle attack vector: the model could write a symlink inside the project that points to <code class="language-plaintext highlighter-rouge">/etc/passwd</code>, then read it through the “safe” <code class="language-plaintext highlighter-rouge">file_read</code> tool. The sandbox prevents this by resolving all paths through <code class="language-plaintext highlighter-rouge">realpath</code> before checking boundaries:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RESOLVE_SAFE_PATH(target_path):
+    absolute = resolve_to_absolute(target_path)
+    real     = realpath(absolute)         // follows symlinks to true location
+
+    IF real does NOT exist:
+        walk up parent directories until one exists
+        resolve THAT parent via realpath
+        rejoin the non-existent child segments
+        // prevents /project/../../etc/passwd via non-existent intermediate paths
+
+    IF real is outside [project_directory, /tmp]:
+        BLOCK: "Path resolves outside project boundary"
+
+    RETURN real
+</code></pre></div></div> <h3 id="sensitive-path-protection">Sensitive Path Protection</h3> <p>Certain paths are unconditionally blocked regardless of project boundaries:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BLOCKED DIRECTORY SEGMENTS:  .ssh, .aws, .azure, .gnupg, .kube, .npm, .pypirc
+BLOCKED FILE NAMES:          .env, .env.*, .bashrc, .zshrc, .netrc, .npmrc,
+                             .git-credentials, id_rsa, id_ed25519, authorized_keys,
+                             credentials, known_hosts, ...
+</code></pre></div></div> <p>The check inspects every segment of the path — so <code class="language-plaintext highlighter-rouge">cat ~/.ssh/id_rsa</code>, <code class="language-plaintext highlighter-rouge">cat /home/user/.ssh/config</code>, and <code class="language-plaintext highlighter-rouge">cat project/.env.production</code> are all caught, regardless of how the model constructs the command.</p> <h3 id="session-scoped-approval-rules">Session-Scoped Approval Rules</h3> <p>Requiring approval for every <code class="language-plaintext highlighter-rouge">npm run build</code> would be unusable. The sandbox supports “remember for this session” rules:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ON user approves "npm install lodash":
+    STORE prefix rule: ["npm", "install"]
+
+ON next command "npm install express":
+    MATCH against stored rules: ["npm", "install"] is prefix of ["npm", "install", "express"]
+    → Auto-approve (skip user prompt)
+
+EXCEPTIONS — always re-prompt:
+    Destructive commands (rm -rf, git reset --hard)
+    Complex syntax (pipes, subshells, command substitution)
+    Blocked commands (never auto-approve)
+</code></pre></div></div> <h3 id="plan-mode-read-only-shell">Plan Mode: Read-Only Shell</h3> <p>In Plan mode, the shell sandbox adds an additional layer — only read-only exploration is allowed:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PLAN_MODE_SHELL_FILTER(command):
+    ALLOW: ls, cat, grep, rg, find, git status, git diff, git log
+    BLOCK: output redirection (&gt;, &gt;&gt;), git mutations (add, commit, push),
+           package managers (npm, pip, mvn), file operations (rm, mv, cp, mkdir),
+           build tools
+</code></pre></div></div> <p>This lets the agent investigate the project during planning without accidentally making changes.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/shell_sandbox.svg" sizes="95vw"/> <img src="/assets/img/shell_sandbox.svg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <hr/> <h2 id="8-lsp-integration-ground-truth-validation-in-the-loop">8. LSP Integration: Ground-Truth Validation in the Loop</h2> <p>This is perhaps the most critical advantage MI Copilot has over a general-purpose agent: <strong>a language server that provides ground-truth validation of generated code</strong>.</p> <h3 id="the-validation-problem">The Validation Problem</h3> <p>When Claude Code generates a Python function, the user can run it and see if it works. When an agent generates Synapse XML, the feedback loop is much slower — you need to build the project, deploy to MI, send a test request, and check the logs. By the time you discover the XML is invalid, the agent has moved on.</p> <p>MI Copilot closes this feedback loop by integrating the LemMinx XML Language Server directly into the agent’s tool chain.</p> <h3 id="how-it-works-workspaceedit--lsp-sync">How It Works: WorkspaceEdit + LSP Sync</h3> <p>The key architectural decision: <strong>all file operations go through VS Code’s WorkspaceEdit API</strong>, not direct filesystem writes.</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AGENT_WRITES_FILE(path, content):
+    1. Create a WorkspaceEdit transaction
+    2. IF file exists:
+           Replace entire document range with new content
+       ELSE:
+           Create file + insert content at position 0
+    3. Apply edit via VS Code API (atomic operation)
+           → VS Code notifies LemMinx of the change (automatic)
+           → LemMinx re-validates the file against the Synapse XSD schema
+    4. Save the document
+    5. Fetch diagnostics from LemMinx for the file
+    6. RETURN structured validation result to the agent
+
+    Result format:
     {
-      "x": [1, 2, 3, 4],
-      "y": [10, 15, 13, 17],
-      "mode": "markers"
-    },
-    {
-      "x": [2, 3, 4, 5],
-      "y": [16, 5, 11, 9],
-      "mode": "lines"
-    },
-    {
-      "x": [1, 2, 3, 4],
-      "y": [12, 9, 15, 12],
-      "mode": "lines+markers"
+        validated:     true,
+        error_count:   2,
+        warning_count: 1,
+        diagnostics: [
+            { severity: "error",   line: 45, message: "Element 'api' not found in schema",
+              code_actions: ["Add missing namespace declaration"] },
+            { severity: "error",   line: 78, message: "Invalid attribute 'timeout'",
+              code_actions: ["Use 'readTimeOut' instead"] },
+            { severity: "warning", line: 123, message: "Deprecated element usage",
+              code_actions: ["Replace with 'http-endpoint'"] }
+        ]
     }
-  ],
-  "layout": {
-    "title": {
-      "text": "Line and Scatter Plot"
-    }
-  }
-}</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>This is how it looks like:</p> <pre><code class="language-plotly">{
-  "data": [
-    {
-      "x": [1, 2, 3, 4],
-      "y": [10, 15, 13, 17],
-      "mode": "markers"
-    },
-    {
-      "x": [2, 3, 4, 5],
-      "y": [16, 5, 11, 9],
-      "mode": "lines"
-    },
-    {
-      "x": [1, 2, 3, 4],
-      "y": [12, 9, 15, 12],
-      "mode": "lines+markers"
-    }
-  ],
-  "layout": {
-    "title": {
-      "text": "Line and Scatter Plot"
-    }
-  }
-}
-</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="charts"/><summary type="html"><![CDATA[this is what included plotly.js code could look like]]></summary></entry><entry><title type="html">a post with image galleries</title><link href="https://isurumaduranga.github.io/blog/2024/photo-gallery/" rel="alternate" type="text/html" title="a post with image galleries"/><published>2024-12-04T01:59:00+00:00</published><updated>2024-12-04T01:59:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/photo-gallery</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/photo-gallery/"><![CDATA[<p>The images in this post are all zoomable, arranged into different mini-galleries using different libraries.</p> <h2 id="lightbox2"><a href="https://lokeshdhakar.com/projects/lightbox2/">Lightbox2</a></h2> <p><a href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg" data-lightbox="roadtrip"><img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-200.jpg"/></a> <a href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-2500.jpg" data-lightbox="roadtrip"><img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-200.jpg"/></a> <a href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-2500.jpg" data-lightbox="roadtrip"><img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-200.jpg"/></a></p> <hr/> <h2 id="photoswipe"><a href="https://photoswipe.com/">PhotoSwipe</a></h2> <div class="pswp-gallery pswp-gallery--single-column" id="gallery--getting-started"> <a href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-2500.jpg" data-pswp-width="1669" data-pswp-height="2500" target="_blank"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-200.jpg" alt=""/> </a> <a href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/7/img-2500.jpg" data-pswp-width="1875" data-pswp-height="2500" data-cropped="true" target="_blank"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/7/img-200.jpg" alt=""/> </a> <a href="https://unsplash.com" data-pswp-src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-2500.jpg" data-pswp-width="2500" data-pswp-height="1666" target="_blank"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-200.jpg" alt=""/> </a> <div> <a href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/6/img-2500.jpg" data-pswp-width="2500" data-pswp-height="1667" target="_blank"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/6/img-200.jpg" alt=""/> </a> </div> </div> <hr/> <h2 id="spotlight-js"><a href="https://nextapps-de.github.io/spotlight/">Spotlight JS</a></h2> <div class="spotlight-group"> <a class="spotlight" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-200.jpg"/> </a> <a class="spotlight" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-2500.jpg"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-200.jpg"/> </a> <a class="spotlight" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-2500.jpg"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-200.jpg"/> </a> </div> <div class="spotlight-group"> <a class="spotlight" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/4/img-2500.jpg"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/4/img-200.jpg"/> </a> <a class="spotlight" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/5/img-2500.jpg"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/5/img-200.jpg"/> </a> <a class="spotlight" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/6/img-2500.jpg"> <img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/6/img-200.jpg"/> </a> </div> <hr/> <h2 id="venobox"><a href="https://veno.es/venobox/">Venobox</a></h2> <p><a class="venobox" data-gall="myGallery" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-2500.jpg"><img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/1/img-200.jpg"/></a> <a class="venobox" data-gall="myGallery" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-2500.jpg"><img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/2/img-200.jpg"/></a> <a class="venobox" data-gall="myGallery" href="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-2500.jpg"><img src="https://cdn.photoswipe.com/photoswipe-demo-images/photos/3/img-200.jpg"/></a></p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="images"/><summary type="html"><![CDATA[this is what included image galleries could look like]]></summary></entry><entry><title type="html">a post with tabs</title><link href="https://isurumaduranga.github.io/blog/2024/tabs/" rel="alternate" type="text/html" title="a post with tabs"/><published>2024-05-01T00:32:13+00:00</published><updated>2024-05-01T00:32:13+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/tabs</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/tabs/"><![CDATA[<p>This is how a post with <a href="https://github.com/Ovski4/jekyll-tabs">tabs</a> looks like. Note that the tabs could be used for different purposes, not only for code.</p> <h2 id="first-tabs">First tabs</h2> <p>To add tabs, use the following syntax:</p> <div class="language-liquid highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">{%</span><span class="w"> </span><span class="nt">tabs</span><span class="w"> </span><span class="nv">group-name</span><span class="w"> </span><span class="cp">%}</span>
+</code></pre></div></div> <p>This means <strong>every <code class="language-plaintext highlighter-rouge">file_write</code> and <code class="language-plaintext highlighter-rouge">file_edit</code> automatically validates the result</strong>. The agent sees validation errors as part of the tool response and can fix them in the next ReAct step — without the user ever seeing invalid XML.</p> <h3 id="code-actions-lsp-quick-fixes-as-agent-guidance">Code Actions: LSP Quick Fixes as Agent Guidance</h3> <p>The validation result includes <strong>code actions</strong> — quick fix suggestions from the language server. These are not generic “fix this error” messages; they’re specific, actionable fixes that the language server can apply:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Diagnostics for CustomerAPI.xml:
+  ✗ Line 45: Element 'send' is not valid here
+    Available fixes:
+      - "Replace with 'call' mediator"
+      - "Move inside 'inSequence' block"
+  ✗ Line 78: Attribute 'uri' is required
+    Available fixes:
+      - "Add required 'uri' attribute"
+</code></pre></div></div> <p>The agent receives these as structured data and can use the suggested fixes to self-correct. This creates a tight <strong>generate → validate → fix</strong> loop that typically converges in 1-2 iterations.</p> <h3 id="why-not-just-trust-the-model">Why Not Just Trust the Model?</h3> <p>Without LSP validation, the agent has to rely on its training data to generate valid XML — and as we discussed in Section 2, its priors for Synapse XML are unreliable. The language server provides a <strong>ground-truth oracle</strong> that catches:</p> <ul> <li><strong>Schema violations</strong> — elements in wrong positions, missing required attributes</li> <li><strong>Namespace errors</strong> — incorrect or missing XML namespace declarations</li> <li><strong>Connector misconfigurations</strong> — invalid operation names, wrong parameter types</li> <li><strong>Deprecation warnings</strong> — using old element names when newer alternatives exist</li> </ul> <p>This is fundamentally different from how general-purpose agents work. Claude Code generates Python and hopes the user runs it. MI Copilot generates XML, validates it against the schema immediately, and fixes issues before the user even sees the result.</p> <h3 id="the-validation-as-a-tool-pattern">The Validation-as-a-Tool Pattern</h3> <p>We also expose validation as a standalone <code class="language-plaintext highlighter-rouge">validate_code</code> tool for cases where the agent wants to validate files it didn’t just write — for example, batch-validating an entire project or re-validating after adding a connector dependency:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>VALIDATE_CODE(file_paths = ["api/CustomerAPI.xml", "api/OrderAPI.xml"]):
+    FOR EACH file:
+        IF NOT xml_file: SKIP
+        diagnostics = LemMinx.get_code_diagnostics(file)
+        code_actions = LemMinx.get_code_actions(file, diagnostics)
+    RETURN structured results for all files
+</code></pre></div></div> <p>The tool description explicitly notes that <code class="language-plaintext highlighter-rouge">file_write</code>/<code class="language-plaintext highlighter-rouge">file_edit</code> already validate automatically — preventing redundant LSP round-trips.</p> <hr/> <h2 id="9-the-mode-system-structured-autonomy">9. The Mode System: Structured Autonomy</h2> <p>The three-mode system (Ask/Edit/Plan) controls how much autonomy the agent has at any given time.</p> <h3 id="mode-aware-tool-execution-not-schema-removal">Mode-Aware Tool Execution (Not Schema Removal)</h3> <p>A naive approach to restricting tool access would be to remove tools from the schema when they’re not available. MI Copilot takes a different approach — <strong>all tools remain in the schema, but blocked tools return descriptive errors at execution time</strong>:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WRAP_TOOL_FOR_MODE(tool_name, mode, original_execute):
+    IF mode == "ask" AND tool_name NOT IN read_only_tools:
+        RETURN error:
+            "Tool '{tool_name}' is not available in ASK mode. Switch to EDIT mode."
 
-<span class="cp">{%</span><span class="w"> </span><span class="nt">tab</span><span class="w"> </span><span class="nv">group-name</span><span class="w"> </span><span class="nv">tab-name-1</span><span class="w"> </span><span class="cp">%}</span>
+    IF mode == "plan" AND tool_name is a mutation tool:
+        IF tool_name == file_write AND target_path is within plan_directory:
+            ALLOW    // plan file edits are permitted
+        ELSE:
+            RETURN error:
+                "Tool '{tool_name}' blocked in PLAN mode. Only read-only and planning tools allowed."
 
-Content 1
-
-<span class="cp">{%</span><span class="w"> </span><span class="nt">endtab</span><span class="w"> </span><span class="cp">%}</span>
-
-<span class="cp">{%</span><span class="w"> </span><span class="nt">tab</span><span class="w"> </span><span class="nv">group-name</span><span class="w"> </span><span class="nv">tab-name-2</span><span class="w"> </span><span class="cp">%}</span>
-
-Content 2
-
-<span class="cp">{%</span><span class="w"> </span><span class="nt">endtab</span><span class="w"> </span><span class="cp">%}</span>
-
-<span class="cp">{%</span><span class="w"> </span><span class="nt">endtabs</span><span class="w"> </span><span class="cp">%}</span>
-</code></pre></div></div> <p>With this you can generate visualizations like:</p> <ul id="log" class="tab" data-tab="0630b996-7956-45b5-90b4-d78c0cf16f18" data-name="log"> <li class="active" id="log-php"> <a href="#">php </a> </li> <li id="log-js"> <a href="#">js </a> </li> <li id="log-ruby"> <a href="#">ruby </a> </li> </ul> <ul class="tab-content" id="0630b996-7956-45b5-90b4-d78c0cf16f18" data-name="log"> <li class="active"> <div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">var_dump</span><span class="p">(</span><span class="s1">'hello'</span><span class="p">);</span>
-</code></pre></div></div> </li> <li> <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">hello</span><span class="dl">"</span><span class="p">);</span>
-</code></pre></div></div> </li> <li> <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">pputs</span> <span class="dl">'</span><span class="s1">hello</span><span class="dl">'</span>
-</code></pre></div></div> </li> </ul> <h2 id="another-example">Another example</h2> <ul id="data-struct" class="tab" data-tab="ac2caa1e-68cf-497f-bdd1-f5974d7d3fd6" data-name="data-struct"> <li class="active" id="data-struct-yaml"> <a href="#">yaml </a> </li> <li id="data-struct-json"> <a href="#">json </a> </li> </ul> <ul class="tab-content" id="ac2caa1e-68cf-497f-bdd1-f5974d7d3fd6" data-name="data-struct"> <li class="active"> <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">hello</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s2">"</span><span class="s">whatsup"</span>
-  <span class="pi">-</span> <span class="s2">"</span><span class="s">hi"</span>
-</code></pre></div></div> </li> <li> <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"hello"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"whatsup"</span><span class="p">,</span><span class="w"> </span><span class="s2">"hi"</span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre></div></div> </li> </ul> <h2 id="tabs-for-something-else">Tabs for something else</h2> <ul id="something-else" class="tab" data-tab="72e92489-a0e5-49e4-9414-a6ba34592e4f" data-name="something-else"> <li class="active" id="something-else-text"> <a href="#">text </a> </li> <li id="something-else-quote"> <a href="#">quote </a> </li> <li id="something-else-list"> <a href="#">list </a> </li> </ul> <ul class="tab-content" id="72e92489-a0e5-49e4-9414-a6ba34592e4f" data-name="something-else"> <li class="active"> <p>Regular text</p> </li> <li> <blockquote> <p>A quote</p> </blockquote> </li> <li> <p>Hipster list</p> <ul> <li>brunch</li> <li>fixie</li> <li>raybans</li> <li>messenger bag</li> </ul> </li> </ul>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="code"/><summary type="html"><![CDATA[this is what included tabs in a post could look like]]></summary></entry><entry><title type="html">a post with typograms</title><link href="https://isurumaduranga.github.io/blog/2024/typograms/" rel="alternate" type="text/html" title="a post with typograms"/><published>2024-04-29T23:36:10+00:00</published><updated>2024-04-29T23:36:10+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/typograms</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/typograms/"><![CDATA[<p>This is an example post with some <a href="https://github.com/google/typograms/">typograms</a> code.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">typograms
-</span><span class="sb">+----+
-|    |---&gt; My first diagram!
-+----+</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-typograms">+----+
-|    |---&gt; My first diagram!
-+----+
-</code></pre> <p>Another example:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">typograms
-</span><span class="sb">.------------------------.
-|.----------------------.|
-||"https://example.com" ||
-|'----------------------'|
-| ______________________ |
-||                      ||
-||   Welcome!           ||
-||                      ||
-||                      ||
-||  .----------------.  ||
-||  | username       |  ||
-||  '----------------'  ||
-||  .----------------.  ||
-||  |"*******"       |  ||
-||  '----------------'  ||
-||                      ||
-||  .----------------.  ||
-||  |   "Sign-up"    |  ||
-||  '----------------'  ||
-||                      ||
-|+----------------------+|
-.------------------------.</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>which generates:</p> <pre><code class="language-typograms">.------------------------.
-|.----------------------.|
-||"https://example.com" ||
-|'----------------------'|
-| ______________________ |
-||                      ||
-||   Welcome!           ||
-||                      ||
-||                      ||
-||  .----------------.  ||
-||  | username       |  ||
-||  '----------------'  ||
-||  .----------------.  ||
-||  |"*******"       |  ||
-||  '----------------'  ||
-||                      ||
-||  .----------------.  ||
-||  |   "Sign-up"    |  ||
-||  '----------------'  ||
-||                      ||
-|+----------------------+|
-.------------------------.
-</code></pre> <p>For more examples, check out the <a href="https://google.github.io/typograms/#examples">typograms documentation</a>.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="diagrams"/><summary type="html"><![CDATA[this is what included typograms code could look like]]></summary></entry><entry><title type="html">a post that can be cited</title><link href="https://isurumaduranga.github.io/blog/2024/post-citation/" rel="alternate" type="text/html" title="a post that can be cited"/><published>2024-04-28T15:06:00+00:00</published><updated>2024-04-28T15:06:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/post-citation</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/post-citation/"><![CDATA[<p>This is an example post that can be cited. The content of the post ends here, while the citation information is automatically provided below. The only thing needed is for you to set the <code class="language-plaintext highlighter-rouge">citation</code> key in the front matter to <code class="language-plaintext highlighter-rouge">true</code>.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="citation"/><summary type="html"><![CDATA[this is what a post that can be cited looks like]]></summary></entry><entry><title type="html">a post with pseudo code</title><link href="https://isurumaduranga.github.io/blog/2024/pseudocode/" rel="alternate" type="text/html" title="a post with pseudo code"/><published>2024-04-15T00:01:00+00:00</published><updated>2024-04-15T00:01:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/pseudocode</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/pseudocode/"><![CDATA[<p>This is an example post with some pseudo code rendered by <a href="https://github.com/SaswatPadhi/pseudocode.js">pseudocode</a>. The example presented here is the same as the one in the <a href="https://saswat.padhi.me/pseudocode.js/">pseudocode.js</a> documentation, with only one simple but important change: everytime you would use <code class="language-plaintext highlighter-rouge">$</code>, you should use <code class="language-plaintext highlighter-rouge">$$</code> instead. Also, note that the <code class="language-plaintext highlighter-rouge">pseudocode</code> key in the front matter is set to <code class="language-plaintext highlighter-rouge">true</code> to enable the rendering of pseudo code. As an example, using this code:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">pseudocode
-</span><span class="sb">% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
-\begin{algorithm}
-\caption{Quicksort}
-\begin{algorithmic}
-\PROCEDURE{Quicksort}{$$A, p, r$$}
-    \IF{$$p &lt; r$$}
-        \STATE $$q = $$ \CALL{Partition}{$$A, p, r$$}
-        \STATE \CALL{Quicksort}{$$A, p, q - 1$$}
-        \STATE \CALL{Quicksort}{$$A, q + 1, r$$}
-    \ENDIF
-\ENDPROCEDURE
-\PROCEDURE{Partition}{$$A, p, r$$}
-    \STATE $$x = A[r]$$
-    \STATE $$i = p - 1$$
-    \FOR{$$j = p$$ \TO $$r - 1$$}
-        \IF{$$A[j] &lt; x$$}
-            \STATE $$i = i + 1$$
-            \STATE exchange
-            $$A[i]$$ with $$A[j]$$
-        \ENDIF
-        \STATE exchange $$A[i]$$ with $$A[r]$$
-    \ENDFOR
-\ENDPROCEDURE
-\end{algorithmic}
-\end{algorithm}</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>Generates:</p> <pre><code class="language-pseudocode">% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
-\begin{algorithm}
-\caption{Quicksort}
-\begin{algorithmic}
-\PROCEDURE{Quicksort}{$$A, p, r$$}
-    \IF{$$p &lt; r$$}
-        \STATE $$q = $$ \CALL{Partition}{$$A, p, r$$}
-        \STATE \CALL{Quicksort}{$$A, p, q - 1$$}
-        \STATE \CALL{Quicksort}{$$A, q + 1, r$$}
-    \ENDIF
-\ENDPROCEDURE
-\PROCEDURE{Partition}{$$A, p, r$$}
-    \STATE $$x = A[r]$$
-    \STATE $$i = p - 1$$
-    \FOR{$$j = p$$ \TO $$r - 1$$}
-        \IF{$$A[j] &lt; x$$}
-            \STATE $$i = i + 1$$
-            \STATE exchange
-            $$A[i]$$ with $$A[j]$$
-        \ENDIF
-        \STATE exchange $$A[i]$$ with $$A[r]$$
-    \ENDFOR
-\ENDPROCEDURE
-\end{algorithmic}
-\end{algorithm}
-</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="code"/><summary type="html"><![CDATA[this is what included pseudo code could look like]]></summary></entry><entry><title type="html">a post with code diff</title><link href="https://isurumaduranga.github.io/blog/2024/code-diff/" rel="alternate" type="text/html" title="a post with code diff"/><published>2024-01-27T19:22:00+00:00</published><updated>2024-01-27T19:22:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/code-diff</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/code-diff/"><![CDATA[<p>You can display diff code by using the regular markdown syntax:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">diff
-</span><span class="gh">diff --git a/sample.js b/sample.js
-index 0000001..0ddf2ba
-</span><span class="gd">--- a/sample.js
-</span><span class="gi">+++ b/sample.js
-</span><span class="p">@@ -1 +1 @@</span>
-<span class="gd">-console.log("Hello World!")
-</span><span class="gi">+console.log("Hello from Diff2Html!")</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>Which generates:</p> <div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --git a/sample.js b/sample.js
-index 0000001..0ddf2ba
-</span><span class="gd">--- a/sample.js
-</span><span class="gi">+++ b/sample.js
-</span><span class="p">@@ -1 +1 @@</span>
-<span class="gd">-console.log("Hello World!")
-</span><span class="gi">+console.log("Hello from Diff2Html!")
-</span></code></pre></div></div> <p>But this is difficult to read, specially if you have a large diff. You can use <a href="https://diff2html.xyz/">diff2html</a> to display a more readable version of the diff. For this, just use <code class="language-plaintext highlighter-rouge">diff2html</code> instead of <code class="language-plaintext highlighter-rouge">diff</code> for the code block language:</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">diff2html
-</span><span class="sb">diff --git a/sample.js b/sample.js
-index 0000001..0ddf2ba
---- a/sample.js
-+++ b/sample.js
-@@ -1 +1 @@
--console.log("Hello World!")
-+console.log("Hello from Diff2Html!")</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>If we use a longer example, for example <a href="https://github.com/rtfpessoa/diff2html/commit/c2c253d3e3f8b8b267f551e659f72b44ca2ac927">this commit from diff2html</a>, it will generate the following output:</p> <pre><code class="language-diff2html">From 2aaae31cc2a37bfff83430c2c914b140bee59b6a Mon Sep 17 00:00:00 2001
-From: Rodrigo Fernandes &lt;rtfrodrigo@gmail.com&gt;
-Date: Sun, 9 Oct 2016 16:41:54 +0100
-Subject: [PATCH 1/2] Initial template override support
-
----
- scripts/hulk.js                    |  4 ++--
- src/diff2html.js                   |  3 +--
- src/file-list-printer.js           | 11 ++++++++---
- src/hoganjs-utils.js               | 29 +++++++++++++++++------------
- src/html-printer.js                |  6 ++++++
- src/line-by-line-printer.js        |  6 +++++-
- src/side-by-side-printer.js        |  6 +++++-
- test/file-list-printer-tests.js    |  2 +-
- test/hogan-cache-tests.js          | 18 +++++++++++++++---
- test/line-by-line-tests.js         |  3 +--
- test/side-by-side-printer-tests.js |  3 +--
- 11 files changed, 62 insertions(+), 29 deletions(-)
-
-diff --git a/scripts/hulk.js b/scripts/hulk.js
-index 5a793c18..a4b1a4d5 100755
---- a/scripts/hulk.js
-+++ b/scripts/hulk.js
-@@ -173,11 +173,11 @@ function namespace(name) {
- // write a template foreach file that matches template extension
- templates = extractFiles(options.argv.remain)
-   .map(function(file) {
--    var openedFile = fs.readFileSync(file, 'utf-8');
-+    var openedFile = fs.readFileSync(file, 'utf-8').trim();
-     var name;
-     if (!openedFile) return;
-     name = namespace(path.basename(file).replace(/\..*$/, ''));
--    openedFile = removeByteOrderMark(openedFile.trim());
-+    openedFile = removeByteOrderMark(openedFile);
-     openedFile = wrap(file, name, openedFile);
-     if (!options.outputdir) return openedFile;
-     fs.writeFileSync(path.join(options.outputdir, name + '.js')
-diff --git a/src/diff2html.js b/src/diff2html.js
-index 21b0119e..64e138f5 100644
---- a/src/diff2html.js
-+++ b/src/diff2html.js
-@@ -7,7 +7,6 @@
-
- (function() {
-   var diffParser = require('./diff-parser.js').DiffParser;
--  var fileLister = require('./file-list-printer.js').FileListPrinter;
-   var htmlPrinter = require('./html-printer.js').HtmlPrinter;
-
-   function Diff2Html() {
-@@ -43,7 +42,7 @@
-
-     var fileList = '';
-     if (configOrEmpty.showFiles === true) {
--      fileList = fileLister.generateFileList(diffJson, configOrEmpty);
-+      fileList = htmlPrinter.generateFileListSummary(diffJson, configOrEmpty);
-     }
-
-     var diffOutput = '';
-diff --git a/src/file-list-printer.js b/src/file-list-printer.js
-index e408d9b2..1e0a2c61 100644
---- a/src/file-list-printer.js
-+++ b/src/file-list-printer.js
-@@ -8,11 +8,16 @@
- (function() {
-   var printerUtils = require('./printer-utils.js').PrinterUtils;
-
--  var hoganUtils = require('./hoganjs-utils.js').HoganJsUtils;
-+  var hoganUtils;
-+
-   var baseTemplatesPath = 'file-summary';
-   var iconsBaseTemplatesPath = 'icon';
-
--  function FileListPrinter() {
-+  function FileListPrinter(config) {
-+    this.config = config;
-+
-+    var HoganJsUtils = require('./hoganjs-utils.js').HoganJsUtils;
-+    hoganUtils = new HoganJsUtils(config);
-   }
-
-   FileListPrinter.prototype.generateFileList = function(diffFiles) {
-@@ -38,5 +43,5 @@
-     });
-   };
-
--  module.exports.FileListPrinter = new FileListPrinter();
-+  module.exports.FileListPrinter = FileListPrinter;
- })();
-diff --git a/src/hoganjs-utils.js b/src/hoganjs-utils.js
-index 9949e5fa..0dda08d7 100644
---- a/src/hoganjs-utils.js
-+++ b/src/hoganjs-utils.js
-@@ -8,18 +8,19 @@
- (function() {
-   var fs = require('fs');
-   var path = require('path');
--
-   var hogan = require('hogan.js');
-
-   var hoganTemplates = require('./templates/diff2html-templates.js');
-
--  var templatesPath = path.resolve(__dirname, 'templates');
-+  var extraTemplates;
-
--  function HoganJsUtils() {
-+  function HoganJsUtils(configuration) {
-+    this.config = configuration || {};
-+    extraTemplates = this.config.templates || {};
-   }
-
--  HoganJsUtils.prototype.render = function(namespace, view, params, configuration) {
--    var template = this.template(namespace, view, configuration);
-+  HoganJsUtils.prototype.render = function(namespace, view, params) {
-+    var template = this.template(namespace, view);
-     if (template) {
-       return template.render(params);
-     }
-@@ -27,17 +28,16 @@
-     return null;
-   };
-
--  HoganJsUtils.prototype.template = function(namespace, view, configuration) {
--    var config = configuration || {};
-+  HoganJsUtils.prototype.template = function(namespace, view) {
-     var templateKey = this._templateKey(namespace, view);
-
--    return this._getTemplate(templateKey, config);
-+    return this._getTemplate(templateKey);
-   };
-
--  HoganJsUtils.prototype._getTemplate = function(templateKey, config) {
-+  HoganJsUtils.prototype._getTemplate = function(templateKey) {
-     var template;
-
--    if (!config.noCache) {
-+    if (!this.config.noCache) {
-       template = this._readFromCache(templateKey);
-     }
-
-@@ -53,6 +53,7 @@
-
-     try {
-       if (fs.readFileSync) {
-+        var templatesPath = path.resolve(__dirname, 'templates');
-         var templatePath = path.join(templatesPath, templateKey);
-         var templateContent = fs.readFileSync(templatePath + '.mustache', 'utf8');
-         template = hogan.compile(templateContent);
-@@ -66,12 +67,16 @@
-   };
-
-   HoganJsUtils.prototype._readFromCache = function(templateKey) {
--    return hoganTemplates[templateKey];
-+    return extraTemplates[templateKey] || hoganTemplates[templateKey];
-   };
-
-   HoganJsUtils.prototype._templateKey = function(namespace, view) {
-     return namespace + '-' + view;
-   };
-
--  module.exports.HoganJsUtils = new HoganJsUtils();
-+  HoganJsUtils.prototype.compile = function(templateStr) {
-+    return hogan.compile(templateStr);
-+  };
-+
-+  module.exports.HoganJsUtils = HoganJsUtils;
- })();
-diff --git a/src/html-printer.js b/src/html-printer.js
-index 585d5b66..13f83047 100644
---- a/src/html-printer.js
-+++ b/src/html-printer.js
-@@ -8,6 +8,7 @@
- (function() {
-   var LineByLinePrinter = require('./line-by-line-printer.js').LineByLinePrinter;
-   var SideBySidePrinter = require('./side-by-side-printer.js').SideBySidePrinter;
-+  var FileListPrinter = require('./file-list-printer.js').FileListPrinter;
-
-   function HtmlPrinter() {
-   }
-@@ -22,5 +23,10 @@
-     return sideBySidePrinter.generateSideBySideJsonHtml(diffFiles);
-   };
-
-+  HtmlPrinter.prototype.generateFileListSummary = function(diffJson, config) {
-+    var fileListPrinter = new FileListPrinter(config);
-+    return fileListPrinter.generateFileList(diffJson);
-+  };
-+
-   module.exports.HtmlPrinter = new HtmlPrinter();
- })();
-diff --git a/src/line-by-line-printer.js b/src/line-by-line-printer.js
-index b07eb53c..d230bedd 100644
---- a/src/line-by-line-printer.js
-+++ b/src/line-by-line-printer.js
-@@ -11,7 +11,8 @@
-   var utils = require('./utils.js').Utils;
-   var Rematch = require('./rematch.js').Rematch;
-
--  var hoganUtils = require('./hoganjs-utils.js').HoganJsUtils;
-+  var hoganUtils;
-+
-   var genericTemplatesPath = 'generic';
-   var baseTemplatesPath = 'line-by-line';
-   var iconsBaseTemplatesPath = 'icon';
-@@ -19,6 +20,9 @@
-
-   function LineByLinePrinter(config) {
-     this.config = config;
-+
-+    var HoganJsUtils = require('./hoganjs-utils.js').HoganJsUtils;
-+    hoganUtils = new HoganJsUtils(config);
-   }
-
-   LineByLinePrinter.prototype.makeFileDiffHtml = function(file, diffs) {
-diff --git a/src/side-by-side-printer.js b/src/side-by-side-printer.js
-index bbf1dc8d..5e3033b3 100644
---- a/src/side-by-side-printer.js
-+++ b/src/side-by-side-printer.js
-@@ -11,7 +11,8 @@
-   var utils = require('./utils.js').Utils;
-   var Rematch = require('./rematch.js').Rematch;
-
--  var hoganUtils = require('./hoganjs-utils.js').HoganJsUtils;
-+  var hoganUtils;
-+
-   var genericTemplatesPath = 'generic';
-   var baseTemplatesPath = 'side-by-side';
-   var iconsBaseTemplatesPath = 'icon';
-@@ -26,6 +27,9 @@
-
-   function SideBySidePrinter(config) {
-     this.config = config;
-+
-+    var HoganJsUtils = require('./hoganjs-utils.js').HoganJsUtils;
-+    hoganUtils = new HoganJsUtils(config);
-   }
-
-   SideBySidePrinter.prototype.makeDiffHtml = function(file, diffs) {
-diff --git a/test/file-list-printer-tests.js b/test/file-list-printer-tests.js
-index a502a46f..60ea3208 100644
---- a/test/file-list-printer-tests.js
-+++ b/test/file-list-printer-tests.js
-@@ -1,6 +1,6 @@
- var assert = require('assert');
-
--var fileListPrinter = require('../src/file-list-printer.js').FileListPrinter;
-+var fileListPrinter = new (require('../src/file-list-printer.js').FileListPrinter)();
-
- describe('FileListPrinter', function() {
-   describe('generateFileList', function() {
-diff --git a/test/hogan-cache-tests.js b/test/hogan-cache-tests.js
-index 190bf6f8..3bb754ac 100644
---- a/test/hogan-cache-tests.js
-+++ b/test/hogan-cache-tests.js
-@@ -1,6 +1,6 @@
- var assert = require('assert');
-
--var HoganJsUtils = require('../src/hoganjs-utils.js').HoganJsUtils;
-+var HoganJsUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)();
- var diffParser = require('../src/diff-parser.js').DiffParser;
-
- describe('HoganJsUtils', function() {
-@@ -21,16 +21,28 @@ describe('HoganJsUtils', function() {
-       });
-       assert.equal(emptyDiffHtml, result);
-     });
-+
-     it('should render view without cache', function() {
-       var result = HoganJsUtils.render('generic', 'empty-diff', {
-         contentClass: 'd2h-code-line',
-         diffParser: diffParser
-       }, {noCache: true});
--      assert.equal(emptyDiffHtml + '\n', result);
-+      assert.equal(emptyDiffHtml, result);
-     });
-+
-     it('should return null if template is missing', function() {
--      var result = HoganJsUtils.render('generic', 'missing-template', {}, {noCache: true});
-+      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)({noCache: true});
-+      var result = hoganUtils.render('generic', 'missing-template', {});
-       assert.equal(null, result);
-     });
-+
-+    it('should allow templates to be overridden', function() {
-+      var emptyDiffTemplate = HoganJsUtils.compile('&lt;p&gt;&lt;/p&gt;');
-+
-+      var config = {templates: {'generic-empty-diff': emptyDiffTemplate}};
-+      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)(config);
-+      var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
-+      assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
-+    });
-   });
- });
-diff --git a/test/line-by-line-tests.js b/test/line-by-line-tests.js
-index 1cd92073..8869b3df 100644
---- a/test/line-by-line-tests.js
-+++ b/test/line-by-line-tests.js
-@@ -14,7 +14,7 @@ describe('LineByLinePrinter', function() {
-         '            File without changes\n' +
-         '        &lt;/div&gt;\n' +
-         '    &lt;/td&gt;\n' +
--        '&lt;/tr&gt;\n';
-+        '&lt;/tr&gt;';
-
-       assert.equal(expected, fileHtml);
-     });
-@@ -422,7 +422,6 @@ describe('LineByLinePrinter', function() {
-         '        &lt;/div&gt;\n' +
-         '    &lt;/td&gt;\n' +
-         '&lt;/tr&gt;\n' +
--        '\n' +
-         '                &lt;/tbody&gt;\n' +
-         '            &lt;/table&gt;\n' +
-         '        &lt;/div&gt;\n' +
-diff --git a/test/side-by-side-printer-tests.js b/test/side-by-side-printer-tests.js
-index 76625f8e..771daaa5 100644
---- a/test/side-by-side-printer-tests.js
-+++ b/test/side-by-side-printer-tests.js
-@@ -14,7 +14,7 @@ describe('SideBySidePrinter', function() {
-         '            File without changes\n' +
-         '        &lt;/div&gt;\n' +
-         '    &lt;/td&gt;\n' +
--        '&lt;/tr&gt;\n';
-+        '&lt;/tr&gt;';
-
-       assert.equal(expectedRight, fileHtml.right);
-       assert.equal(expectedLeft, fileHtml.left);
-@@ -324,7 +324,6 @@ describe('SideBySidePrinter', function() {
-         '        &lt;/div&gt;\n' +
-         '    &lt;/td&gt;\n' +
-         '&lt;/tr&gt;\n' +
--        '\n' +
-         '                    &lt;/tbody&gt;\n' +
-         '                &lt;/table&gt;\n' +
-         '            &lt;/div&gt;\n' +
-
-From f3cadb96677d0eb82fc2752dc3ffbf35ca9b5bdb Mon Sep 17 00:00:00 2001
-From: Rodrigo Fernandes &lt;rtfrodrigo@gmail.com&gt;
-Date: Sat, 15 Oct 2016 13:21:22 +0100
-Subject: [PATCH 2/2] Allow uncompiled templates
-
----
- README.md                 |  3 +++
- src/hoganjs-utils.js      |  7 +++++++
- test/hogan-cache-tests.js | 24 +++++++++++++++++++++++-
- 3 files changed, 33 insertions(+), 1 deletion(-)
-
-diff --git a/README.md b/README.md
-index 132c8a28..46909f25 100644
---- a/README.md
-+++ b/README.md
-@@ -98,6 +98,9 @@ The HTML output accepts a Javascript object with configuration. Possible options
-   - `synchronisedScroll`: scroll both panes in side-by-side mode: `true` or `false`, default is `false`
-   - `matchWordsThreshold`: similarity threshold for word matching, default is 0.25
-   - `matchingMaxComparisons`: perform at most this much comparisons for line matching a block of changes, default is `2500`
-+  - `templates`: object with previously compiled templates to replace parts of the html
-+  - `rawTemplates`: object with raw not compiled templates to replace parts of the html
-+  &gt; For more information regarding the possible templates look into [src/templates](https://github.com/rtfpessoa/diff2html/tree/master/src/templates)
-
- ## Diff2HtmlUI Helper
-
-diff --git a/src/hoganjs-utils.js b/src/hoganjs-utils.js
-index 0dda08d7..b2e9c275 100644
---- a/src/hoganjs-utils.js
-+++ b/src/hoganjs-utils.js
-@@ -17,6 +17,13 @@
-   function HoganJsUtils(configuration) {
-     this.config = configuration || {};
-     extraTemplates = this.config.templates || {};
-+
-+    var rawTemplates = this.config.rawTemplates || {};
-+    for (var templateName in rawTemplates) {
-+      if (rawTemplates.hasOwnProperty(templateName)) {
-+        if (!extraTemplates[templateName]) extraTemplates[templateName] = this.compile(rawTemplates[templateName]);
-+      }
-+    }
-   }
-
-   HoganJsUtils.prototype.render = function(namespace, view, params) {
-diff --git a/test/hogan-cache-tests.js b/test/hogan-cache-tests.js
-index 3bb754ac..a34839c0 100644
---- a/test/hogan-cache-tests.js
-+++ b/test/hogan-cache-tests.js
-@@ -36,7 +36,7 @@ describe('HoganJsUtils', function() {
-       assert.equal(null, result);
-     });
-
--    it('should allow templates to be overridden', function() {
-+    it('should allow templates to be overridden with compiled templates', function() {
-       var emptyDiffTemplate = HoganJsUtils.compile('&lt;p&gt;&lt;/p&gt;');
-
-       var config = {templates: {'generic-empty-diff': emptyDiffTemplate}};
-@@ -44,5 +44,27 @@ describe('HoganJsUtils', function() {
-       var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
-       assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
-     });
-+
-+    it('should allow templates to be overridden with uncompiled templates', function() {
-+      var emptyDiffTemplate = '&lt;p&gt;&lt;/p&gt;';
-+
-+      var config = {rawTemplates: {'generic-empty-diff': emptyDiffTemplate}};
-+      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)(config);
-+      var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
-+      assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
-+    });
-+
-+    it('should allow templates to be overridden giving priority to compiled templates', function() {
-+      var emptyDiffTemplate = HoganJsUtils.compile('&lt;p&gt;&lt;/p&gt;');
-+      var emptyDiffTemplateUncompiled = '&lt;p&gt;Not used!&lt;/p&gt;';
-+
-+      var config = {
-+        templates: {'generic-empty-diff': emptyDiffTemplate},
-+        rawTemplates: {'generic-empty-diff': emptyDiffTemplateUncompiled}
-+      };
-+      var hoganUtils = new (require('../src/hoganjs-utils.js').HoganJsUtils)(config);
-+      var result = hoganUtils.render('generic', 'empty-diff', {myName: 'Rodrigo Fernandes'});
-+      assert.equal('&lt;p&gt;Rodrigo Fernandes&lt;/p&gt;', result);
-+    });
-   });
- });
-</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="code"/><summary type="html"><![CDATA[this is how you can display code diffs]]></summary></entry><entry><title type="html">a post with advanced image components</title><link href="https://isurumaduranga.github.io/blog/2024/advanced-images/" rel="alternate" type="text/html" title="a post with advanced image components"/><published>2024-01-27T11:46:00+00:00</published><updated>2024-01-27T11:46:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/advanced-images</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/advanced-images/"><![CDATA[<p>This is an example post with advanced image components.</p> <h2 id="image-slider">Image Slider</h2> <p>This is a simple image slider. It uses the <a href="https://swiperjs.com/">Swiper</a> library. Check the <a href="https://swiperjs.com/demos">examples page</a> for more information of what you can achieve with it.</p> <swiper-container keyboard="true" navigation="true" pagination="true" pagination-clickable="true" pagination-dynamic-bullets="true" rewind="true"> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/9-480.webp 480w,/assets/img/9-800.webp 800w,/assets/img/9-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/9.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/7-480.webp 480w,/assets/img/7-800.webp 800w,/assets/img/7-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/7.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/8-480.webp 480w,/assets/img/8-800.webp 800w,/assets/img/8-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/8.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/10-480.webp 480w,/assets/img/10-800.webp 800w,/assets/img/10-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/10.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> <swiper-slide> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/12-480.webp 480w,/assets/img/12-800.webp 800w,/assets/img/12-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/12.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </swiper-slide> </swiper-container> <h2 id="image-comparison-slider">Image Comparison Slider</h2> <p>This is a simple image comparison slider. It uses the <a href="https://img-comparison-slider.sneas.io/">img-comparison-slider</a> library. Check the <a href="https://img-comparison-slider.sneas.io/examples.html">examples page</a> for more information of what you can achieve with it.</p> <img-comparison-slider> <figure slot="first"> <picture> <source class="responsive-img-srcset" srcset="/assets/img/prof_pic-480.webp 480w,/assets/img/prof_pic-800.webp 800w,/assets/img/prof_pic-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/prof_pic.jpg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <figure slot="second"> <picture> <source class="responsive-img-srcset" srcset="/assets/img/prof_pic_color-480.webp 480w,/assets/img/prof_pic_color-800.webp 800w,/assets/img/prof_pic_color-1400.webp 1400w," type="image/webp" sizes="95vw"/> <img src="/assets/img/prof_pic_color.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="lazy" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> </img-comparison-slider>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="images"/><summary type="html"><![CDATA[this is what advanced image components could look like]]></summary></entry><entry><title type="html">a post with vega lite</title><link href="https://isurumaduranga.github.io/blog/2024/vega-lite/" rel="alternate" type="text/html" title="a post with vega lite"/><published>2024-01-27T00:20:00+00:00</published><updated>2024-04-14T04:30:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/vega-lite</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/vega-lite/"><![CDATA[<p>This is an example post with some <a href="https://vega.github.io/vega-lite/">vega lite</a> code.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">vega_lite
-</span><span class="sb">{
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "A dot plot showing each movie in the database, and the difference from the average movie rating. The display is sorted by year to visualize everything in sequential order. The graph is for all Movies before 2019.",
-  "data": {
-    "url": "https://raw.githubusercontent.com/vega/vega/main/docs/data/movies.json"
-  },
-  "transform": [
-    {"filter": "datum['IMDB Rating'] != null"},
-    {"filter": {"timeUnit": "year", "field": "Release Date", "range": [null, 2019]}},
-    {
-      "joinaggregate": [{
-        "op": "mean",
-        "field": "IMDB Rating",
-        "as": "AverageRating"
-      }]
-    },
-    {
-      "calculate": "datum['IMDB Rating'] - datum.AverageRating",
-      "as": "RatingDelta"
-    }
-  ],
-  "mark": "point",
-  "encoding": {
-    "x": {
-      "field": "Release Date",
-      "type": "temporal"
-    },
-    "y": {
-      "field": "RatingDelta",
-      "type": "quantitative",
-      "title": "Rating Delta"
-    },
-    "color": {
-      "field": "RatingDelta",
-      "type": "quantitative",
-      "scale": {"domainMid": 0},
-      "title": "Rating Delta"
-    }
-  }
-}</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-vega_lite">{
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "A dot plot showing each movie in the database, and the difference from the average movie rating. The display is sorted by year to visualize everything in sequential order. The graph is for all Movies before 2019.",
-  "data": {
-    "url": "https://raw.githubusercontent.com/vega/vega/main/docs/data/movies.json"
-  },
-  "transform": [
-    {"filter": "datum['IMDB Rating'] != null"},
-    {"filter": {"timeUnit": "year", "field": "Release Date", "range": [null, 2019]}},
-    {
-      "joinaggregate": [{
-        "op": "mean",
-        "field": "IMDB Rating",
-        "as": "AverageRating"
-      }]
-    },
-    {
-      "calculate": "datum['IMDB Rating'] - datum.AverageRating",
-      "as": "RatingDelta"
-    }
-  ],
-  "mark": "point",
-  "encoding": {
-    "x": {
-      "field": "Release Date",
-      "type": "temporal"
-    },
-    "y": {
-      "field": "RatingDelta",
-      "type": "quantitative",
-      "title": "Rating Delta"
-    },
-    "color": {
-      "field": "RatingDelta",
-      "type": "quantitative",
-      "scale": {"domainMid": 0},
-      "title": "Rating Delta"
-    }
-  }
-}
-</code></pre> <p>This plot supports both light and dark themes.</p>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="charts"/><summary type="html"><![CDATA[this is what included vega lite code could look like]]></summary></entry><entry><title type="html">a post with geojson</title><link href="https://isurumaduranga.github.io/blog/2024/geojson-map/" rel="alternate" type="text/html" title="a post with geojson"/><published>2024-01-26T17:57:00+00:00</published><updated>2024-01-26T17:57:00+00:00</updated><id>https://isurumaduranga.github.io/blog/2024/geojson-map</id><content type="html" xml:base="https://isurumaduranga.github.io/blog/2024/geojson-map/"><![CDATA[<p>This is an example post with some <a href="https://geojson.org/">geojson</a> code. The support is provided thanks to <a href="https://leafletjs.com/">Leaflet</a>. To create your own visualization, go to <a href="https://geojson.io/">geojson.io</a>.</p> <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">geojson
-</span><span class="sb">{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {},
-      "geometry": {
-        "coordinates": [
-          [
-            [
-              -60.11363029935569,
-              -2.904625022183211
-            ],
-            [
-              -60.11363029935569,
-              -3.162613728707967
-            ],
-            [
-              -59.820894493858034,
-              -3.162613728707967
-            ],
-            [
-              -59.820894493858034,
-              -2.904625022183211
-            ],
-            [
-              -60.11363029935569,
-              -2.904625022183211
-            ]
-          ]
-        ],
-        "type": "Polygon"
-      }
-    }
-  ]
-}</span>
-<span class="p">```</span>
-</code></pre></div></div> <p>Which generates:</p> <pre><code class="language-geojson">{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {},
-      "geometry": {
-        "coordinates": [
-          [
-            [
-              -60.11363029935569,
-              -2.904625022183211
-            ],
-            [
-              -60.11363029935569,
-              -3.162613728707967
-            ],
-            [
-              -59.820894493858034,
-              -3.162613728707967
-            ],
-            [
-              -59.820894493858034,
-              -2.904625022183211
-            ],
-            [
-              -60.11363029935569,
-              -2.904625022183211
-            ]
-          ]
-        ],
-        "type": "Polygon"
-      }
-    }
-  ]
-}
-</code></pre>]]></content><author><name></name></author><category term="sample-posts"/><category term="formatting"/><category term="charts"/><category term="maps"/><summary type="html"><![CDATA[this is what included geojson code could look like]]></summary></entry></feed>
+    ELSE:
+        RETURN original_execute(args)    // full access in EDIT mode
+</code></pre></div></div> <p>Why? Because removing tools from the schema changes the model’s behavior in unpredictable ways — it may try to accomplish the same goal through other means (like writing a shell command instead of using <code class="language-plaintext highlighter-rouge">file_edit</code>). Keeping tools visible but returning a clear error lets the model understand <em>why</em> it can’t act and suggest the appropriate mode switch to the user.</p> <h3 id="plan-mode-design-before-build">Plan Mode: Design Before Build</h3> <p>Plan mode implements a structured planning workflow inspired by the “think before you act” pattern in the agent literature. The agent can investigate the codebase, load documentation, and ask questions — but it cannot modify any project files. It writes its plan to a dedicated plan file:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.wso2-mi/copilot/projects/{key}/{session}/plan/plan.md
+</code></pre></div></div> <p>The <code class="language-plaintext highlighter-rouge">exit_plan_mode</code> tool blocks execution until the user approves or rejects the plan. This creates a human-in-the-loop checkpoint for complex tasks where the cost of a wrong implementation is high.</p> <hr/> <h2 id="10-what-didnt-work-approaches-we-tried-and-discarded">10. What Didn’t Work: Approaches We Tried and Discarded</h2> <p>No architecture emerges fully formed. Several design decisions in MI Copilot were born from approaches that failed or underperformed. These are worth documenting because they make the surviving architecture feel earned rather than obvious.</p> <h3 id="the-everything-in-the-system-prompt-phase">The “Everything in the System Prompt” Phase</h3> <p>Our first approach was straightforward: put all Synapse documentation — guides, connector definitions, expression references — into the system prompt. This reached ~60K tokens before the user even typed a message. The results were poor in three ways: (1) the model couldn’t find relevant information buried in an enormous prompt, (2) every API call was expensive, and (3) information about connectors the user wasn’t using actively diluted attention from the connectors they needed.</p> <p>The dynamic knowledge graph (Section 4) was the direct response. By making the agent <em>decide</em> what to load, we cut baseline context by 75% and improved accuracy on domain-specific questions because the loaded context was always relevant.</p> <h3 id="single-agent-doing-everything">Single-Agent Doing Everything</h3> <p>The initial architecture had one agent doing all tasks: codebase search, documentation lookup, code generation, and validation. For simple tasks, this worked fine. For complex tasks, the agent would spend 15-20 tool calls just <em>finding</em> the right files before it could start <em>reasoning</em> about them — and those search steps consumed context that was needed for the actual implementation.</p> <p>Delegating search to lightweight Explore and SynapseContext subagents (Section 5) solved this. The main agent stays focused on reasoning and implementation while subagents handle the information-gathering legwork. The step count asymmetry (30 for Explore, 6 for SynapseContext) emerged from observing real usage patterns — exploration is iterative, but reference lookups should be fast or not attempted.</p> <h3 id="the-rag-attempt">The RAG Attempt</h3> <p>We prototyped a vector search system for Synapse documentation early on. It performed well on broad questions (“how do I handle errors in Synapse?”) but failed on precise lookups (“what is the type coercion rule for integer + double?”). The problem is that our reference documentation contains tables, operator precedence charts, and code examples where <em>every row matters</em>. A vector search returning the 5 most similar chunks would often return the right <em>section</em> but miss the critical <em>row</em> in a table.</p> <p>We kept the structured knowledge graph for platform documentation where precision is paramount, but our position has evolved: semantic search is the right tool for a <em>different</em> query type — searching user code for conceptual patterns rather than looking up exact specifications. That’s what the planned vector search layer (Section 11) addresses.</p> <h3 id="subagent-failure-what-happens-when-things-go-wrong">Subagent Failure: What Happens When Things Go Wrong</h3> <p>One area we iterated on significantly: subagent error handling. The current approach is explicit failure surfacing rather than silent retry:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ON subagent error (timeout, model error, abort):
+    IF background subagent:
+        Mark task as completed with success = false
+        Store error message in output
+        Main agent discovers failure on next TASK_OUTPUT poll
+        → Agent decides: retry with different prompt, try different approach, or report to user
+    IF foreground subagent:
+        Return error result directly to main agent's tool call
+        → Agent sees: { success: false, message: "Subagent failed: {error}" }
+        → Agent decides next action (no automatic retry)
+</code></pre></div></div> <p>We deliberately chose <em>not</em> to implement automatic retries. The main agent (Sonnet) is smarter than the subagent (Haiku) and better positioned to decide whether to retry the same approach, reformulate the query, or try a different strategy entirely. Silent retries would waste tokens on the same failing approach and hide information from the orchestrator.</p> <p>The auto-cleanup timer (1 hour) prevents orphaned background subagents from accumulating — a production concern that only became visible under sustained usage.</p> <hr/> <h2 id="11-whats-next-local-embeddings-and-semantic-code-retrieval">11. What’s Next: Local Embeddings and Semantic Code Retrieval</h2> <p>The current knowledge system is powerful but has a limitation: the agent’s codebase exploration relies on lexical search (<code class="language-plaintext highlighter-rouge">grep</code>, <code class="language-plaintext highlighter-rouge">glob</code>) and model-driven reasoning about what to look for. For large projects, this can be slow — the Explore subagent might need 10-15 tool calls to find the right files.</p> <h3 id="planned-local-embedding-model--sqlite-vector-database">Planned: Local Embedding Model + SQLite Vector Database</h3> <p>We’re building a <strong>local semantic search layer</strong> that will dramatically accelerate code discovery:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────────────────────────────────────────────┐
+│              Enhanced Explore Subagent                │
+│                                                       │
+│  ┌─────────────┐    ┌──────────────────────────────┐ │
+│  │ Lexical      │    │ Semantic Search              │ │
+│  │ (grep, glob) │    │ (embedding model + SQLite)   │ │
+│  │              │    │                              │ │
+│  │ Exact match  │    │ "Find code that handles      │ │
+│  │ "find files  │    │  authentication errors and   │ │
+│  │  containing  │    │  retries with backoff"       │ │
+│  │  'Database'" │    │                              │ │
+│  └──────┬───────┘    └──────────┬───────────────────┘ │
+│         │                       │                     │
+│         └───────┬───────────────┘                     │
+│                 ▼                                      │
+│         Combined Results → Agent Reasoning             │
+└─────────────────────────────────────────────────────┘
+</code></pre></div></div> <p><strong>Architecture</strong>:</p> <ul> <li>A lightweight embedding model running locally (no API calls, no data leaves the machine)</li> <li>SQLite with vector extensions for the index (single-file, zero-config)</li> <li>Incremental indexing triggered by file changes</li> <li>The Explore subagent gets a new <code class="language-plaintext highlighter-rouge">semantic_search</code> tool alongside <code class="language-plaintext highlighter-rouge">grep</code>/<code class="language-plaintext highlighter-rouge">glob</code></li> </ul> <p><strong>The key workflow change</strong>: Instead of the Explore subagent making 10+ <code class="language-plaintext highlighter-rouge">grep</code> calls to triangulate on the right files, it starts with a semantic query:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>semantic_search("error handling with retry logic for external API calls")
+→ Returns top-5 file snippets ranked by cosine similarity
+→ Agent reads 1-2 most relevant files
+→ Task complete in 3 steps instead of 15
+</code></pre></div></div> <p>This is complementary to the structured knowledge graph (Section 4). The knowledge graph handles <em>platform documentation</em> where precision over recall is critical; the vector search handles <em>user code</em> where conceptual similarity is the right retrieval strategy. Two different query types, two different retrieval mechanisms.</p> <h3 id="planned-mi-documentation-subagent">Planned: MI Documentation Subagent</h3> <p>We also plan to add a dedicated subagent for searching WSO2 MI’s external documentation — similar to how SynapseContext queries embedded reference docs, but backed by the full product documentation with web search capability. This will handle questions that go beyond the core reference material: deployment guides, configuration best practices, version migration paths, and community solutions.</p> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/future_architecture.svg" sizes="95vw"/> <img src="/assets/img/future_architecture.svg" class="img-fluid rounded z-depth-1" width="100%" height="auto" loading="eager" onerror="this.onerror=null; $('.responsive-img-srcset').remove();"/> </picture> </figure> <hr/> <h2 id="conclusion-what-surprised-us">Conclusion: What Surprised Us</h2> <p>If you’ve read this far, you have the architecture. What follows is what we didn’t expect when we started.</p> <p><strong>Context engineering mattered more than model selection.</strong> We assumed upgrading from Haiku to Sonnet to Opus would be the primary quality lever. It wasn’t. The single biggest accuracy improvement came from adding the edge case documentation — a static text file. The second biggest came from LSP validation. Model upgrades were third. For domain-specific agents, <em>what you put in the context window</em> matters more than <em>which model reads it</em>.</p> <p><strong>The agent is better when it doesn’t trust itself.</strong> Our most counterintuitive finding: the agent produces better results when we give it tools to <em>check</em> its work rather than prompts to <em>be more careful</em>. Telling the model “be precise with Synapse expressions” in the system prompt had negligible impact. Giving it a <code class="language-plaintext highlighter-rouge">validate_code</code> tool that returns schema errors had massive impact. External verification beats internal confidence.</p> <p><strong>Cheap models are surprisingly good at retrieval.</strong> We expected to need Sonnet for the Explore and SynapseContext subagents. Haiku turned out to be sufficient — and often preferable. Retrieval tasks (find files, load docs, extract relevant sections) don’t benefit from stronger reasoning. The subagent step limits (30 for Explore, 6 for SynapseContext) emerged from the realization that if Haiku can’t find it in that budget, more steps won’t help — the query needs reformulation, and the orchestrator is better at that.</p> <p><strong>Sandboxing complexity scales faster than tool count.</strong> Adding the <code class="language-plaintext highlighter-rouge">shell</code> tool was a single function. Making it safe required path resolution, symlink detection, command classification, session approval rules, plan-mode restrictions, and sensitive file pattern matching — an order of magnitude more code than the tool itself. Every new mutation tool pulls in security considerations that compound.</p> <p><strong>If we started over</strong>, we’d build the LSP integration and the knowledge graph <em>first</em>, before any agent logic. Those two systems — ground-truth validation and precise domain context — are the foundation everything else stands on. The ReAct loop, subagents, caching, and sandboxing are all important, but they amplify the value of correct context and verified output. Without those, you’re just making a fast, cheap agent that’s confidently wrong.</p> <p>These patterns are not MI-specific. Any domain-specific coding assistant — for Terraform, Kubernetes, database schemas, game engines — would benefit from the same architecture. The key insight is that <em>domain specificity is a feature, not a limitation</em>. When you know your domain, you can engineer context that a general-purpose assistant never could. The model doesn’t need to be an expert in your domain — it needs the right information, the right tools, and a way to verify its own work.</p> <hr/> <h2 id="references">References</h2> <hr/> <p><em>WSO2 MI Copilot is available in the <a href="https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator">WSO2 Integrator: MI</a> VS Code extension. The architecture described here is production code, not a prototype.</em></p> <div class="footnotes" role="doc-endnotes"> <ol> <li id="fn:1"> <p>Yao, S., et al. (2023). “ReAct: Synergizing Reasoning and Acting in Language Models.” <em>ICLR 2023</em>. https://arxiv.org/abs/2210.03629 <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p> </li> <li id="fn:4"> <p>Wei, J., et al. (2022). “Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.” <em>NeurIPS 2022</em>. https://arxiv.org/abs/2201.11903 <a href="#fnref:4" class="reversefootnote" role="doc-backlink">&#8617;</a></p> </li> <li id="fn:2"> <p>Anthropic. (2025). “Building Effective Agents.” Anthropic Documentation. https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p> </li> <li id="fn:5"> <p>Lewis, P., et al. (2020). “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.” <em>NeurIPS 2020</em>. https://arxiv.org/abs/2005.11401 <a href="#fnref:5" class="reversefootnote" role="doc-backlink">&#8617;</a></p> </li> <li id="fn:3"> <p>Anthropic. (2025). “Agent Design Patterns: Orchestrator-Workers.” Anthropic Documentation. https://docs.anthropic.com/en/docs/build-with-claude/agentic-patterns <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p> </li> </ol> </div>]]></content><author><name></name></author><category term="research"/><category term="agentic-ai"/><category term="NLP"/><category term="context-engineering"/><category term="multi-agent"/><category term="LLM"/><summary type="html"><![CDATA[How we built WSO2 MI Copilot — a domain-specific agentic coding assistant with 23 tools, 4 subagents, a dynamic knowledge graph, and a context engineering strategy that achieves 81-90% prompt cache hit rates.]]></summary></entry></feed>
