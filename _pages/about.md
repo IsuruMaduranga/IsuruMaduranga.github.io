@@ -3,8 +3,8 @@ layout: about
 title: about
 permalink: /
 subtitle: >
-  Associate Technical Lead (AI Research) · <a href="https://wso2.com" target="_blank">WSO2</a> &
-  Lead Research Collaborator · <a href="https://uom.lk" target="_blank">University of Moratuwa</a>
+  Associate Technical Lead (AI R&D) · <a href="https://wso2.com" target="_blank">WSO2</a> &
+  External Research Collaborator · <a href="https://uom.lk" target="_blank">University of Moratuwa</a>
 
 profile:
   align: right
@@ -23,15 +23,17 @@ announcements:
   limit: 5
 
 latest_posts:
-  enabled: false
+  enabled: true
   scrollable: true
   limit: 3
 ---
 
-My research focuses on scalable and reliable natural language processing systems, particularly for low-resource and program synthesis settings. I study how language models can be adapted to operate under real-world constraints such as limited data, distributed environments, and deployment restrictions.
+Interdisciplinary ML researcher and engineer spanning NLP, agentic AI, privacy-preserving graph ML, and computer vision. I build end-to-end AI systems that ship to production and also publish research on scalable learning systems.
 
-My recent work includes **Google-funded** research on automatic post-editing for low-resource languages and multi-agent approaches to natural-language-to-code synthesis. I am currently a **Lead Research Collaborator** at the University of Moratuwa (supervised by Dr. Surangika Ranathunga and Dr. Nisansa de Silva) and an **Associate Technical Lead (AI Research)** at WSO2, where I lead the development of [MI Copilot](https://github.com/wso2/vscode-extensions) — a Cursor/Claude Code style coding agent for WSO2 MI with 300+ daily active users.
+At WSO2 (AI R&D), I lead applied NLP and intelligent automation for enterprise integration — most notably natural-language to Synapse DSL / Ballerina code generation with version-aware retrieval and execution-guided verification. The deployed system ([MI Copilot](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/)) currently serves **300+ active daily users**.
 
-Previously, I worked on federated graph neural networks (**IEEE Big Data 2020**) and multimodal anomaly detection for autonomous systems (**IEEE Signal Processing Cup 2020, 2nd globally**), which shaped my interest in scalable and privacy-aware learning.
+My earlier research includes a memory-efficient federated GCN for distributed link prediction that enables training on billion-edge graphs on commodity hardware (**IEEE Big Data 2020**), and a self-supervised multimodal anomaly detection approach for autonomous drones (**IEEE Signal Processing Cup 2020 -- runner-up, arXiv preprint**).
 
-I hold a **B.Sc. Engineering (Honours) in Computer Science and Engineering** from the University of Moratuwa (First Class Honours, GPA 3.87).
+Most recently, I joined a **Google-funded** project as an External Research Collaborator with the University of Moratuwa, leading research on Automatic Post-Editing (APE) for low-resource languages (Sinhala, Tamil).
+
+**Interests:** NLP, Agentic AI, Retrieval-augmented generation, Code/DSL synthesis, Federated Learning, Privacy-preserving ML, Graph ML

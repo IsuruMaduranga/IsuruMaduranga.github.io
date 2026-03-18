@@ -9,13 +9,17 @@ category: work
 
 MI Copilot is a production-deployed AI coding assistant for WSO2 Micro Integrator (MI), similar in design to Cursor or Claude Code. It enables developers to generate, debug, and refine WSO2 Synapse integration artifacts through natural language.
 
-**Key Features:**
+**Key Capabilities:**
 
-- Multi-step planning and execution with tool use and subagent orchestration
-- Static + semantic code analysis: LSP diagnostics, schema-aware validation
-- Execution-guided repair: autonomous debugging and patching loops for complex Synapse integration tasks
-- Domain-specific embedding models for low-latency semantic code search in RAG system
+- **Natural Language to Synapse DSL** with version-aware retrieval (connector-specific + schema-aware context)
+- **Agent Mode:** A Cursor/Claude Code-style upgrade that turns MI Copilot into an agentic integration engineer inside VS Code
+  - End-to-end agent architecture using Vercel AI SDK with streaming, multi-step tool calling, and autonomous task execution
+  - 22 tools across 8 categories: read/edit projects, manage connectors, validate via XML LSP (LemMinx), run builds, and control runtime workflows
+  - Ask / Edit / Plan modes with safe tool-gating, plan approval, todo tracking, and user-question blocking for guided autonomy
+- **Execution-guided verification:** XSD/Schematron validation, LSP diagnostics, MI sandbox tests + automated repair loops
+- **Developer experience:** Multi-session chat persistence, @file mentions, undo/checkpoint system, conversation compaction, multimodal attachments
+- **Operational efficiency:** Advanced prompt caching (~90% cost reduction) and production hardening/observability hooks
 
-**Status:** Deployed in production with **300+ daily active users**
+**Impact:** **300+ active daily users**
 
-**Source:** [GitHub](https://github.com/wso2/vscode-extensions)
+**Links:** [Documentation](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/) | [Source](https://github.com/wso2/vscode-extensions)

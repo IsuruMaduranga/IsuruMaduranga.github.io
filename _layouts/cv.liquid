@@ -175,6 +175,9 @@ layout: default
               {% elsif section_title == 'Projects' or section_title == 'Open Source Projects' %}
                 {% assign entries = section_entries %}
                 {% include cv/projects.liquid %}
+              {% elsif section_title == 'Teaching' %}
+                {% assign entries = section_entries %}
+                {% include cv/experience.liquid %}
               {% elsif section_title == 'References' %}
                 {% assign entries = section_entries %}
                 {% include cv/references.liquid %}

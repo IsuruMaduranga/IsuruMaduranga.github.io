@@ -2,14 +2,20 @@
 layout: page
 permalink: /teaching/
 title: teaching
-description: Course materials, schedules, and resources for classes taught.
+description: Teaching experience and mentoring.
 nav: true
 nav_order: 6
-calendar: true
 ---
 
-This page displays a collection of courses with detailed schedules, materials, and resources. You can organize your courses by years, terms, or topics.
-
-{% include calendar.liquid calendar_id='test@gmail.com' timezone='Asia/Shanghai' %}
+## Teaching & Mentoring
 
 {% include courses.liquid %}
+
+### Private Tutoring (2017 - 2021)
+
+Mentored 60+ students in Data Structures, Machine Learning, Physics, and Mathematics.
+
+### Conference Presentations
+
+- **WSO2 Technology Conference 2025** -- Delivered a technical deep-dive on blockchain architecture, consensus algorithms, and distributed ledger mechanisms.
+
