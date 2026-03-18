@@ -10,13 +10,13 @@ toc:
   sidebar: left
 ---
 
-*How we built WSO2 MI Copilot -a domain-specific agentic coding assistant with 23 tools, 4 subagents, a dynamic knowledge graph, and a context engineering strategy that achieves 81-90% prompt cache hit rates.*
+_How we built WSO2 MI Copilot -a domain-specific agentic coding assistant with 23 tools, 4 subagents, a dynamic knowledge graph, and a context engineering strategy that achieves 81-90% prompt cache hit rates._
 
 ---
 
 ## Introduction
 
-The emergence of agentic coding assistants -Claude Code, Cursor, Windsurf, Codex -has demonstrated that LLMs become dramatically more useful when given tools to act on the world, not just generate text. But these are general-purpose. What happens when you apply the same architectural patterns to a *domain-specific* development environment?
+The emergence of agentic coding assistants -Claude Code, Cursor, Windsurf, Codex -has demonstrated that LLMs become dramatically more useful when given tools to act on the world, not just generate text. But these are general-purpose. What happens when you apply the same architectural patterns to a _domain-specific_ development environment?
 
 We built **WSO2 MI Copilot**: an agentic AI assistant embedded in VS Code for developing enterprise integrations on the WSO2 Micro Integrator platform. The architecture draws heavy inspiration from Claude Code -the ReAct loop, tool-based autonomy, multi-agent delegation, conversation compaction, undo checkpoints -but adapts these patterns for a constrained domain where the context engineering challenge is fundamentally different.
 
@@ -78,7 +78,7 @@ Claude's extended thinking (adaptive mode) adds a reasoning trace before the mod
 thinking_start → thinking_delta (streamed) → thinking_end → text or tool_call
 ```
 
-The system prompt explicitly instructs: *"Extended thinking adds latency and should only be used when it will meaningfully improve answer quality -typically for problems that require multi-step reasoning. When in doubt, respond directly. More importantly: Do not Overthink."*
+The system prompt explicitly instructs: _"Extended thinking adds latency and should only be used when it will meaningfully improve answer quality -typically for problems that require multi-step reasoning. When in doubt, respond directly. More importantly: Do not Overthink."_
 
 This aligns with findings from the chain-of-thought literature [^4] -shallow problems don't benefit from explicit reasoning traces, and forcing them can actually degrade performance on simple tasks.
 
@@ -88,14 +88,14 @@ This aligns with findings from the chain-of-thought literature [^4] -shallow pro
 
 The streaming loop processes multiple event types in real-time:
 
-| Stream Event | Handler | UI Effect |
-|-------------|---------|-----------|
-| `text-delta` | Accumulate text | Live markdown rendering |
-| `reasoning-start/delta/end` | Track thinking blocks | Collapsible thinking display |
-| `tool-input-start` | Early tool detection | Show "Running tool..." immediately |
-| `tool-call` | Execute tool | Status indicator (spinner → check/error) |
-| `tool-result` | Feed back to model | Next reasoning step |
-| `finish` | Persist to JSONL | Save conversation state |
+| Stream Event                | Handler               | UI Effect                                |
+| --------------------------- | --------------------- | ---------------------------------------- |
+| `text-delta`                | Accumulate text       | Live markdown rendering                  |
+| `reasoning-start/delta/end` | Track thinking blocks | Collapsible thinking display             |
+| `tool-input-start`          | Early tool detection  | Show "Running tool..." immediately       |
+| `tool-call`                 | Execute tool          | Status indicator (spinner → check/error) |
+| `tool-result`               | Feed back to model    | Next reasoning step                      |
+| `finish`                    | Persist to JSONL      | Save conversation state                  |
 
 The `tool-input-start` event deserves special mention -it fires when the model begins generating tool input JSON, before the tool actually executes. This lets us show a loading indicator to the user immediately, reducing perceived latency.
 
@@ -117,7 +117,7 @@ The idle timeout pauses during tool execution (some tools like `build_project` t
 
 ## 2. Why Domain-Specific is Harder Than General-Purpose
 
-It might seem like building a domain-specific agent would be *easier* than a general-purpose tool like Claude Code -smaller scope, fewer languages, constrained problem space. The opposite is true.
+It might seem like building a domain-specific agent would be _easier_ than a general-purpose tool like Claude Code -smaller scope, fewer languages, constrained problem space. The opposite is true.
 
 ### The Model Doesn't Know Your Domain
 
@@ -133,11 +133,11 @@ Or this null check: `payload.age == null or payload.age > 18`. Seems defensive. 
 
 Or this equality check: `1 == 1.0`. Returns `false` in Synapse -it compares as strings `"1"` vs `"1.0"`.
 
-Or this perfectly reasonable-looking API definition: `<send/>` at the end of an inSequence. In most integration platforms, "send" means "send the response." In Synapse, `<send/>` sends the message to the *endpoint* and `<respond/>` sends the response to the *client*. The model will generate `<send/>` because every HTTP framework it's trained on uses "send" for responses -and the integration silently hangs, waiting for a backend that was never called.
+Or this perfectly reasonable-looking API definition: `<send/>` at the end of an inSequence. In most integration platforms, "send" means "send the response." In Synapse, `<send/>` sends the message to the _endpoint_ and `<respond/>` sends the response to the _client_. The model will generate `<send/>` because every HTTP framework it's trained on uses "send" for responses -and the integration silently hangs, waiting for a backend that was never called.
 
-These aren't corner cases in obscure features. They're fundamental type system behaviors that a model trained primarily on mainstream languages will get wrong *every time* -because the patterns that are correct in 99% of programming languages are incorrect in Synapse.
+These aren't corner cases in obscure features. They're fundamental type system behaviors that a model trained primarily on mainstream languages will get wrong _every time_ -because the patterns that are correct in 99% of programming languages are incorrect in Synapse.
 
-We documented **dozens** of these edge cases across type coercion, null handling, integer overflow, XML escaping, payload factory pitfalls, and error propagation. Without this context, the agent generates code that *looks* correct, passes a casual review, and fails at runtime.
+We documented **dozens** of these edge cases across type coercion, null handling, integer overflow, XML escaping, payload factory pitfalls, and error propagation. Without this context, the agent generates code that _looks_ correct, passes a casual review, and fails at runtime.
 
 This is the fundamental challenge of domain-specific agents: **the model's priors are wrong, and you have to override them with precise, verified context at every turn.**
 
@@ -152,23 +152,23 @@ A tool like Claude Code can edit Synapse XML files -it's just text. But it can't
 - **Build and deploy the project** -it doesn't know how MI's Maven build or runtime server work
 - **Look up mediator semantics** -it will guess from the XML tag name and often guess wrong
 
-MI Copilot fills these gaps with engineered context, specialized tools, and a language server integration that provides ground-truth validation. The model doesn't need to *know* Synapse -it needs to be given the right information at the right time and have tools to verify its work.
+MI Copilot fills these gaps with engineered context, specialized tools, and a language server integration that provides ground-truth validation. The model doesn't need to _know_ Synapse -it needs to be given the right information at the right time and have tools to verify its work.
 
 ### The 23-Tool Surface
 
 We mention "23 tools" throughout this post. Here's the full inventory -each tool exists because a general-purpose agent would need it but doesn't have it:
 
-| Category | Tools | Count | Why It Exists |
-|----------|-------|-------|---------------|
-| **File Operations** | `file_read`, `file_write`, `file_edit`, `grep`, `glob` | 5 | Structured editing with LSP sync, not raw filesystem writes |
-| **Connectors & Context** | `get_connector_definitions`, `load_context_reference` | 2 | 100+ connectors from live Store API; 12 deep reference docs |
-| **Project Management** | `add_or_remove_connector` | 1 | Updates `pom.xml` dependencies -model can't guess Maven coordinates |
-| **Validation** | `validate_code` | 1 | LemMinx LSP diagnostics with code actions |
-| **Data Mapper** | `create_data_mapper`, `generate_data_mapping` | 2 | TypeScript schema-to-schema mappings via specialized sub-agent |
-| **Runtime** | `build_project`, `server_management` | 2 | Maven build + MI server start/stop/status |
-| **Planning & Subagents** | `create_subagent`, `ask_user_question`, `enter_plan_mode`, `exit_plan_mode`, `todo_write` | 5 | Multi-agent delegation, human-in-the-loop, task tracking |
-| **Shell** | `shell`, `kill_task`, `task_output` | 3 | Sandboxed command execution with background process support |
-| **Web** | `web_search`, `web_fetch` | 2 | Approval-gated web access for external information |
+| Category                 | Tools                                                                                     | Count | Why It Exists                                                       |
+| ------------------------ | ----------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------- |
+| **File Operations**      | `file_read`, `file_write`, `file_edit`, `grep`, `glob`                                    | 5     | Structured editing with LSP sync, not raw filesystem writes         |
+| **Connectors & Context** | `get_connector_definitions`, `load_context_reference`                                     | 2     | 100+ connectors from live Store API; 12 deep reference docs         |
+| **Project Management**   | `add_or_remove_connector`                                                                 | 1     | Updates `pom.xml` dependencies -model can't guess Maven coordinates |
+| **Validation**           | `validate_code`                                                                           | 1     | LemMinx LSP diagnostics with code actions                           |
+| **Data Mapper**          | `create_data_mapper`, `generate_data_mapping`                                             | 2     | TypeScript schema-to-schema mappings via specialized sub-agent      |
+| **Runtime**              | `build_project`, `server_management`                                                      | 2     | Maven build + MI server start/stop/status                           |
+| **Planning & Subagents** | `create_subagent`, `ask_user_question`, `enter_plan_mode`, `exit_plan_mode`, `todo_write` | 5     | Multi-agent delegation, human-in-the-loop, task tracking            |
+| **Shell**                | `shell`, `kill_task`, `task_output`                                                       | 3     | Sandboxed command execution with background process support         |
+| **Web**                  | `web_search`, `web_fetch`                                                                 | 2     | Approval-gated web access for external information                  |
 
 ---
 
@@ -182,7 +182,7 @@ For a domain-specific agent, context engineering is where you win or lose. A gen
 
 MI Copilot structures its context into three layers, each with different caching characteristics:
 
-This layered approach is inspired by the observation from Anthropic's context engineering guide that *"the most effective agents separate static knowledge (system prompts) from dynamic knowledge (tool results)"*.
+This layered approach is inspired by the observation from Anthropic's context engineering guide that _"the most effective agents separate static knowledge (system prompts) from dynamic knowledge (tool results)"_.
 
 ### Layer 1: The Static System Prompt (~3,100 lines)
 
@@ -264,7 +264,7 @@ The insight: **most questions only need 1-2 specific reference documents**. An a
 
 ### The `load_context_reference` Tool: Agent-Driven Knowledge Retrieval
 
-We implemented a tool that lets the agent *decide* what knowledge it needs and load it on demand:
+We implemented a tool that lets the agent _decide_ what knowledge it needs and load it on demand:
 
 ```
 KNOWLEDGE_GRAPH = registry of context references, each with:
@@ -291,20 +291,20 @@ load_context_reference("synapse-expression-spec:type_coercion") → One section 
 
 ### The 12 Context References
 
-| Reference | Sections | Typical Load |
-|-----------|----------|-------------|
-| `synapse-expression-spec` | operators, type_system, type_coercion, null_handling, jsonpath, ... | 1-6K tokens |
-| `synapse-function-reference` | string_functions, math_functions, datetime_functions, ... | 1-5K tokens |
-| `synapse-variable-resolution` | payload, headers, properties, params, configs, registry | 1-4K tokens |
-| `synapse-mediator-expression-matrix` | per-mediator expression support, payload state transitions | 2-5K tokens |
-| `synapse-edge-cases` | type gotchas, null handling, XML escaping, error catalog | 2-4K tokens |
-| `synapse-endpoint-reference` | HTTP, Address, WSDL, failover, loadbalance patterns | 2-5K tokens |
-| `synapse-mediator-reference` | enrich, call, send, payloadFactory, property, ... | 3-6K tokens |
-| `synapse-payload-patterns` | JSON/XML construction, format conversion, FreeMarker | 2-5K tokens |
-| `synapse-property-reference` | HTTP properties, content-type, error handling, scopes | 2-4K tokens |
-| `synapse-soap-namespace-guide` | SOAP calls, WSDL namespace, WS-Addressing | 2-4K tokens |
-| `unit-test-reference` | test schema, assertions, mock services, examples | 2-5K tokens |
-| `ai-connector-app-development` | AI connector: chat, RAG, knowledge base, agents | 3-5K tokens |
+| Reference                            | Sections                                                            | Typical Load |
+| ------------------------------------ | ------------------------------------------------------------------- | ------------ |
+| `synapse-expression-spec`            | operators, type_system, type_coercion, null_handling, jsonpath, ... | 1-6K tokens  |
+| `synapse-function-reference`         | string_functions, math_functions, datetime_functions, ...           | 1-5K tokens  |
+| `synapse-variable-resolution`        | payload, headers, properties, params, configs, registry             | 1-4K tokens  |
+| `synapse-mediator-expression-matrix` | per-mediator expression support, payload state transitions          | 2-5K tokens  |
+| `synapse-edge-cases`                 | type gotchas, null handling, XML escaping, error catalog            | 2-4K tokens  |
+| `synapse-endpoint-reference`         | HTTP, Address, WSDL, failover, loadbalance patterns                 | 2-5K tokens  |
+| `synapse-mediator-reference`         | enrich, call, send, payloadFactory, property, ...                   | 3-6K tokens  |
+| `synapse-payload-patterns`           | JSON/XML construction, format conversion, FreeMarker                | 2-5K tokens  |
+| `synapse-property-reference`         | HTTP properties, content-type, error handling, scopes               | 2-4K tokens  |
+| `synapse-soap-namespace-guide`       | SOAP calls, WSDL namespace, WS-Addressing                           | 2-4K tokens  |
+| `unit-test-reference`                | test schema, assertions, mock services, examples                    | 2-5K tokens  |
+| `ai-connector-app-development`       | AI connector: chat, RAG, knowledge base, agents                     | 3-5K tokens  |
 
 ### Context Selector Parser: Flexible Input Normalization
 
@@ -325,6 +325,7 @@ NORMALIZE_SECTION_NAME(input):
 This eliminates a class of errors where the model hallucinates slightly wrong names -`synapse_expression_spec` works just as well as `synapse-expression-spec`.
 
 Alias support adds another layer of robustness -a context can be found by any of its names:
+
 ```
 "unit-test-reference"  aliases: ["unit_test_reference", "unit-test-guide"]
 ```
@@ -348,15 +349,15 @@ This prevents the agent from generating code that uses features unavailable in t
 
 Traditional RAG (Retrieval-Augmented Generation) [^5] with vector embeddings would seem like the obvious approach. We chose structured references instead for several reasons:
 
-1. **Precision over recall**: For a domain-specific agent, we need *exact* reference information (operator precedence tables, type coercion rules), not "similar" chunks. A vector search might return the right neighborhood but miss the critical table.
+1. **Precision over recall**: For a domain-specific agent, we need _exact_ reference information (operator precedence tables, type coercion rules), not "similar" chunks. A vector search might return the right neighborhood but miss the critical table.
 
 2. **Section-level granularity**: Our section structure gives the agent control over how much context to load. Vector search returns fixed-size chunks that may split a table or combine unrelated content.
 
-3. **Agent-driven selection**: The agent reads the section *descriptions* in its system prompt and decides what to load based on reasoning, not embedding similarity. This leverages the model's understanding of what information it needs.
+3. **Agent-driven selection**: The agent reads the section _descriptions_ in its system prompt and decides what to load based on reasoning, not embedding similarity. This leverages the model's understanding of what information it needs.
 
 4. **Determinism**: Given the same query, the agent loads the same reference. No embedding drift, no index staleness.
 
-That said, this position has nuance -structured references win for *platform documentation* where precision matters, but we're adding vector search for a fundamentally different query type: searching *user code* for conceptual patterns. We discuss this evolution in Section 10 (What Didn't Work) and Section 11 (What's Next).
+That said, this position has nuance -structured references win for _platform documentation_ where precision matters, but we're adding vector search for a fundamentally different query type: searching _user code_ for conceptual patterns. We discuss this evolution in Section 10 (What Didn't Work) and Section 11 (What's Next).
 
 {% include figure.liquid loading="eager" path="assets/img/knowledge_graph.svg" class="img-fluid rounded z-depth-1" %}
 
@@ -384,15 +385,15 @@ EXPLORE_SUBAGENT = run_agent(
 )
 ```
 
-The system prompt is carefully scoped: *"Be fast and efficient -don't read unnecessary files. Answer the specific question."* It includes common MI project paths so the subagent knows where to look.
+The system prompt is carefully scoped: _"Be fast and efficient -don't read unnecessary files. Answer the specific question."_ It includes common MI project paths so the subagent knows where to look.
 
 The 30-step limit is intentional -it allows 10+ cycles of "glob to find files → grep to search content → read to verify", which is sufficient for most exploration tasks.
 
 ### SynapseContext Subagent: Deep Documentation Lookup
 
-The SynapseContext subagent gets the same three file tools *plus* `load_context_reference` -access to the full knowledge graph. But it's constrained to just **6 steps** (intentionally tight).
+The SynapseContext subagent gets the same three file tools _plus_ `load_context_reference` -access to the full knowledge graph. But it's constrained to just **6 steps** (intentionally tight).
 
-Its system prompt is more opinionated: *"You are a subagent -the main agent is smarter than you. Your value is fast, accurate reference lookups. Load 1-2 docs, extract what's relevant, return it. Don't keep loading hoping to find it."*
+Its system prompt is more opinionated: _"You are a subagent -the main agent is smarter than you. Your value is fast, accurate reference lookups. Load 1-2 docs, extract what's relevant, return it. Don't keep loading hoping to find it."_
 
 This asymmetry is deliberate. The SynapseContext subagent's job is retrieval, not reasoning. It loads reference documents, extracts the relevant portions, and returns them. The main agent does the reasoning.
 
@@ -541,24 +542,25 @@ Turn 3: [SYSTEM ✓cached] [User+Asst+User ✓cached] [Assistant ✓cached] [Use
 
 For a typical 10-turn conversation:
 
-| Turn | Input Tokens | Cached Tokens | Cache Ratio | Effective Cost |
-|------|-------------|---------------|-------------|----------------|
-| 1 | 12,500 | 0 | 0% | 12,500 (+ 1.25x write) |
-| 2 | 15,000 | 12,500 | 83% | ~3,750 |
-| 3 | 20,000 | 17,000 | 85% | ~4,700 |
-| 5 | 35,000 | 30,000 | 86% | ~8,500 |
-| 10 | 60,000 | 52,000 | 87% | ~13,200 |
+| Turn | Input Tokens | Cached Tokens | Cache Ratio | Effective Cost         |
+| ---- | ------------ | ------------- | ----------- | ---------------------- |
+| 1    | 12,500       | 0             | 0%          | 12,500 (+ 1.25x write) |
+| 2    | 15,000       | 12,500        | 83%         | ~3,750                 |
+| 3    | 20,000       | 17,000        | 85%         | ~4,700                 |
+| 5    | 35,000       | 30,000        | 86%         | ~8,500                 |
+| 10   | 60,000       | 52,000        | 87%         | ~13,200                |
 
 **Cumulative savings: ~81% average across the session, reaching 87-90% on individual turns in longer conversations.** The 81% figure is the session-wide average weighed down by the first turn (0% cache). By turn 5+, individual turn ratios consistently exceed 85%.
 
 The agent logs cache metrics on every step:
+
 ```
 [agent] Cache ratio: 86.7% | Input: 8,234 | Cached: 53,412 | Output: 1,847
 ```
 
 ### The Other Side of Context Economics: Tool Result Bloat
 
-Caching makes the *input* cheap, but there's a second cost dimension: tool results accumulate in the conversation. A single `grep` across a large project can return 30KB+ of results. After a few tool calls, the context window fills with tool results, not useful reasoning.
+Caching makes the _input_ cheap, but there's a second cost dimension: tool results accumulate in the conversation. A single `grep` across a large project can return 30KB+ of results. After a few tool calls, the context window fills with tool results, not useful reasoning.
 
 MI Copilot addresses this with a persistence layer that intercepts oversized tool results:
 
@@ -591,7 +593,7 @@ This pattern keeps the conversation lean while ensuring no information is lost.
 
 ## 7. Shell Sandboxing: Letting an Agent Run Commands Safely
 
-> *Trust the agent to reason; don't trust it with `sudo`.*
+> _Trust the agent to reason; don't trust it with `sudo`._
 
 An agent that can only read and write files is fundamentally limited. Real development workflows require running builds, starting servers, checking logs, and executing project scripts. MI Copilot gives the agent a `shell` tool -but with a security sandbox that prevents the class of catastrophic failures that make unsandboxed agents dangerous.
 
@@ -809,7 +811,7 @@ WRAP_TOOL_FOR_MODE(tool_name, mode, original_execute):
         RETURN original_execute(args)    // full access in EDIT mode
 ```
 
-Why? Because removing tools from the schema changes the model's behavior in unpredictable ways -it may try to accomplish the same goal through other means (like writing a shell command instead of using `file_edit`). Keeping tools visible but returning a clear error lets the model understand *why* it can't act and suggest the appropriate mode switch to the user.
+Why? Because removing tools from the schema changes the model's behavior in unpredictable ways -it may try to accomplish the same goal through other means (like writing a shell command instead of using `file_edit`). Keeping tools visible but returning a clear error lets the model understand _why_ it can't act and suggest the appropriate mode switch to the user.
 
 ### Plan Mode: Design Before Build
 
@@ -831,19 +833,19 @@ No architecture emerges fully formed. Several design decisions in MI Copilot wer
 
 Our first approach was straightforward: put all Synapse documentation -guides, connector definitions, expression references -into the system prompt. This reached ~60K tokens before the user even typed a message. The results were poor in three ways: (1) the model couldn't find relevant information buried in an enormous prompt, (2) every API call was expensive, and (3) information about connectors the user wasn't using actively diluted attention from the connectors they needed.
 
-The dynamic knowledge graph (Section 4) was the direct response. By making the agent *decide* what to load, we cut baseline context by 75% and improved accuracy on domain-specific questions because the loaded context was always relevant.
+The dynamic knowledge graph (Section 4) was the direct response. By making the agent _decide_ what to load, we cut baseline context by 75% and improved accuracy on domain-specific questions because the loaded context was always relevant.
 
 ### Single-Agent Doing Everything
 
-The initial architecture had one agent doing all tasks: codebase search, documentation lookup, code generation, and validation. For simple tasks, this worked fine. For complex tasks, the agent would spend 15-20 tool calls just *finding* the right files before it could start *reasoning* about them -and those search steps consumed context that was needed for the actual implementation.
+The initial architecture had one agent doing all tasks: codebase search, documentation lookup, code generation, and validation. For simple tasks, this worked fine. For complex tasks, the agent would spend 15-20 tool calls just _finding_ the right files before it could start _reasoning_ about them -and those search steps consumed context that was needed for the actual implementation.
 
 Delegating search to lightweight Explore and SynapseContext subagents (Section 5) solved this. The main agent stays focused on reasoning and implementation while subagents handle the information-gathering legwork. The step count asymmetry (30 for Explore, 6 for SynapseContext) emerged from observing real usage patterns -exploration is iterative, but reference lookups should be fast or not attempted.
 
 ### The RAG Attempt
 
-We prototyped a vector search system for Synapse documentation early on. It performed well on broad questions ("how do I handle errors in Synapse?") but failed on precise lookups ("what is the type coercion rule for integer + double?"). The problem is that our reference documentation contains tables, operator precedence charts, and code examples where *every row matters*. A vector search returning the 5 most similar chunks would often return the right *section* but miss the critical *row* in a table.
+We prototyped a vector search system for Synapse documentation early on. It performed well on broad questions ("how do I handle errors in Synapse?") but failed on precise lookups ("what is the type coercion rule for integer + double?"). The problem is that our reference documentation contains tables, operator precedence charts, and code examples where _every row matters_. A vector search returning the 5 most similar chunks would often return the right _section_ but miss the critical _row_ in a table.
 
-We kept the structured knowledge graph for platform documentation where precision is paramount, but our position has evolved: semantic search is the right tool for a *different* query type -searching user code for conceptual patterns rather than looking up exact specifications. That's what the planned vector search layer (Section 11) addresses.
+We kept the structured knowledge graph for platform documentation where precision is paramount, but our position has evolved: semantic search is the right tool for a _different_ query type -searching user code for conceptual patterns rather than looking up exact specifications. That's what the planned vector search layer (Section 11) addresses.
 
 ### Subagent Failure: What Happens When Things Go Wrong
 
@@ -862,7 +864,7 @@ ON subagent error (timeout, model error, abort):
         → Agent decides next action (no automatic retry)
 ```
 
-We deliberately chose *not* to implement automatic retries. The main agent (Sonnet) is smarter than the subagent (Haiku) and better positioned to decide whether to retry the same approach, reformulate the query, or try a different strategy entirely. Silent retries would waste tokens on the same failing approach and hide information from the orchestrator.
+We deliberately chose _not_ to implement automatic retries. The main agent (Sonnet) is smarter than the subagent (Haiku) and better positioned to decide whether to retry the same approach, reformulate the query, or try a different strategy entirely. Silent retries would waste tokens on the same failing approach and hide information from the orchestrator.
 
 The auto-cleanup timer (1 hour) prevents orphaned background subagents from accumulating -a production concern that only became visible under sustained usage.
 
@@ -877,6 +879,7 @@ The current knowledge system is powerful but has a limitation: the agent's codeb
 We're building a **local semantic search layer** that will dramatically accelerate code discovery:
 
 **Architecture**:
+
 - A lightweight embedding model running locally (no API calls, no data leaves the machine)
 - SQLite with vector extensions for the index (single-file, zero-config)
 - Incremental indexing triggered by file changes
@@ -891,7 +894,7 @@ semantic_search("error handling with retry logic for external API calls")
 → Task complete in 3 steps instead of 15
 ```
 
-This is complementary to the structured knowledge graph (Section 4). The knowledge graph handles *platform documentation* where precision over recall is critical; the vector search handles *user code* where conceptual similarity is the right retrieval strategy. Two different query types, two different retrieval mechanisms.
+This is complementary to the structured knowledge graph (Section 4). The knowledge graph handles _platform documentation_ where precision over recall is critical; the vector search handles _user code_ where conceptual similarity is the right retrieval strategy. Two different query types, two different retrieval mechanisms.
 
 ### Planned: MI Documentation Subagent
 
@@ -905,32 +908,32 @@ We also plan to add a dedicated subagent for searching WSO2 MI's external docume
 
 If you've read this far, you have the architecture. What follows is what we didn't expect when we started.
 
-**Context engineering mattered more than model selection.** We assumed upgrading from Haiku to Sonnet to Opus would be the primary quality lever. It wasn't. The single biggest accuracy improvement came from adding the edge case documentation -a static text file. The second biggest came from LSP validation. Model upgrades were third. For domain-specific agents, *what you put in the context window* matters more than *which model reads it*.
+**Context engineering mattered more than model selection.** We assumed upgrading from Haiku to Sonnet to Opus would be the primary quality lever. It wasn't. The single biggest accuracy improvement came from adding the edge case documentation -a static text file. The second biggest came from LSP validation. Model upgrades were third. For domain-specific agents, _what you put in the context window_ matters more than _which model reads it_.
 
-**The agent is better when it doesn't trust itself.** Our most counterintuitive finding: the agent produces better results when we give it tools to *check* its work rather than prompts to *be more careful*. Telling the model "be precise with Synapse expressions" in the system prompt had negligible impact. Giving it a `validate_code` tool that returns schema errors had massive impact. External verification beats internal confidence.
+**The agent is better when it doesn't trust itself.** Our most counterintuitive finding: the agent produces better results when we give it tools to _check_ its work rather than prompts to _be more careful_. Telling the model "be precise with Synapse expressions" in the system prompt had negligible impact. Giving it a `validate_code` tool that returns schema errors had massive impact. External verification beats internal confidence.
 
 **Cheap models are surprisingly good at retrieval.** We expected to need Sonnet for the Explore and SynapseContext subagents. Haiku turned out to be sufficient -and often preferable. Retrieval tasks (find files, load docs, extract relevant sections) don't benefit from stronger reasoning. The subagent step limits (30 for Explore, 6 for SynapseContext) emerged from the realization that if Haiku can't find it in that budget, more steps won't help -the query needs reformulation, and the orchestrator is better at that.
 
 **Sandboxing complexity scales faster than tool count.** Adding the `shell` tool was a single function. Making it safe required path resolution, symlink detection, command classification, session approval rules, plan-mode restrictions, and sensitive file pattern matching -an order of magnitude more code than the tool itself. Every new mutation tool pulls in security considerations that compound.
 
-**If we started over**, we'd build the LSP integration and the knowledge graph *first*, before any agent logic. Those two systems -ground-truth validation and precise domain context -are the foundation everything else stands on. The ReAct loop, subagents, caching, and sandboxing are all important, but they amplify the value of correct context and verified output. Without those, you're just making a fast, cheap agent that's confidently wrong.
+**If we started over**, we'd build the LSP integration and the knowledge graph _first_, before any agent logic. Those two systems -ground-truth validation and precise domain context -are the foundation everything else stands on. The ReAct loop, subagents, caching, and sandboxing are all important, but they amplify the value of correct context and verified output. Without those, you're just making a fast, cheap agent that's confidently wrong.
 
-These patterns are not MI-specific. Any domain-specific coding assistant -for Terraform, Kubernetes, database schemas, game engines -would benefit from the same architecture. The key insight is that *domain specificity is a feature, not a limitation*. When you know your domain, you can engineer context that a general-purpose assistant never could. The model doesn't need to be an expert in your domain -it needs the right information, the right tools, and a way to verify its own work.
+These patterns are not MI-specific. Any domain-specific coding assistant -for Terraform, Kubernetes, database schemas, game engines -would benefit from the same architecture. The key insight is that _domain specificity is a feature, not a limitation_. When you know your domain, you can engineer context that a general-purpose assistant never could. The model doesn't need to be an expert in your domain -it needs the right information, the right tools, and a way to verify its own work.
 
 ---
 
 ## References
 
-[^1]: Yao, S., et al. (2023). "ReAct: Synergizing Reasoning and Acting in Language Models." *ICLR 2023*. https://arxiv.org/abs/2210.03629
+[^1]: Yao, S., et al. (2023). "ReAct: Synergizing Reasoning and Acting in Language Models." _ICLR 2023_. https://arxiv.org/abs/2210.03629
 
 [^2]: Anthropic. (2025). "Building Effective Agents." Anthropic Documentation. https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview
 
 [^3]: Anthropic. (2025). "Agent Design Patterns: Orchestrator-Workers." Anthropic Documentation. https://docs.anthropic.com/en/docs/build-with-claude/agentic-patterns
 
-[^4]: Wei, J., et al. (2022). "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models." *NeurIPS 2022*. https://arxiv.org/abs/2201.11903
+[^4]: Wei, J., et al. (2022). "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models." _NeurIPS 2022_. https://arxiv.org/abs/2201.11903
 
-[^5]: Lewis, P., et al. (2020). "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." *NeurIPS 2020*. https://arxiv.org/abs/2005.11401
+[^5]: Lewis, P., et al. (2020). "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." _NeurIPS 2020_. https://arxiv.org/abs/2005.11401
 
 ---
 
-*WSO2 MI Copilot is available in the [WSO2 Integrator: MI](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator) VS Code extension. The architecture described here is production code, not a prototype.*
+_WSO2 MI Copilot is available in the [WSO2 Integrator: MI](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator) VS Code extension. The architecture described here is production code, not a prototype._
