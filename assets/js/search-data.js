@@ -55,7 +55,7 @@ ninja.data = [{
         
           title: "Building a Claude Code-Style AI Agent for Enterprise Integration",
         
-        description: "How we built WSO2 MI Copilot — a domain-specific agentic coding assistant with 23 tools, 4 subagents, a dynamic knowledge graph, and a context engineering strategy that achieves 81-90% prompt cache hit rates.",
+        description: "How we built WSO2 MI Copilot -a domain-specific agentic coding assistant with 23 tools, 4 subagents, a dynamic knowledge graph, and a context engineering strategy that achieves 81-90% prompt cache hit rates.",
         section: "Posts",
         handler: () => {
           
