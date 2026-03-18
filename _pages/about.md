@@ -30,7 +30,7 @@ latest_posts:
 
 Interdisciplinary ML researcher and engineer spanning NLP, agentic AI, privacy-preserving graph ML, and computer vision. I build end-to-end AI systems that ship to production and also publish research on scalable learning systems.
 
-At WSO2 (AI R&D), I lead applied NLP and intelligent automation for enterprise integration — most notably natural-language to Synapse DSL / Ballerina code generation with version-aware retrieval and execution-guided verification. The deployed system ([MI Copilot](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/)) currently serves **300+ active daily users**.
+At WSO2 (AI R&D), I lead applied NLP and intelligent automation for enterprise integration, most notably natural-language to Synapse DSL / Ballerina code generation with version-aware retrieval and execution-guided verification. The deployed system ([MI Copilot](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/)) currently serves **300+ active daily users**.
 
 My earlier research includes a memory-efficient federated GCN for distributed link prediction that enables training on billion-edge graphs on commodity hardware (**IEEE Big Data 2020**), and a self-supervised multimodal anomaly detection approach for autonomous drones (**IEEE Signal Processing Cup 2020 -- runner-up, arXiv preprint**).
 

@@ -44,7 +44,7 @@ cv:
         end_date: 2026-02
         summary: "Led the end-to-end initiative to modernize WSO2 Micro Integrator with AI."
         highlights:
-          - "MI Copilot: Owned from ideation to production — NL to Synapse DSL code generation with version-aware retrieval, XSD/Schematron validation, LSP diagnostics, and automated repair loops. 300+ active daily users."
+          - "MI Copilot: Owned from ideation to production. NL to Synapse DSL code generation with version-aware retrieval, XSD/Schematron validation, LSP diagnostics, and automated repair loops. 300+ active daily users."
           - "MI Copilot Agent Mode: Cursor/Claude Code-style agentic integration engineer inside VS Code with 22 tools across 8 categories, multi-step planning, and autonomous task execution."
           - "Optimized operational cost via advanced prompt caching (~90% cost reduction) and production hardening/observability hooks."
           - "Small Language Model initiative: Initiated domain-specialized SLM training for Ballerina to enable low-latency on-prem code generation."
