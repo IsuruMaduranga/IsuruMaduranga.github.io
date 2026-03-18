@@ -25,7 +25,7 @@ ninja.data = [{
           },
         },{id: "nav-projects",
           title: "projects",
-          description: "A growing collection of your cool projects.",
+          description: "Selected work and research projects.",
           section: "Navigation",
           handler: () => {
             window.location.href = "/projects/";
@@ -65,7 +65,7 @@ ninja.data = [{
       },{id: "news-released-lightweight-code-retrieval-models-22m-33m-parameters-on-hugging-face-l6-and-l12-achieving-97-recall-10-for-domain-specific-code-search",
           title: 'Released lightweight code retrieval models (22M/33M parameters) on Hugging Face: L6 and L12...',
           description: "",
-          section: "News",},{id: "news-presented-a-technical-deep-dive-on-blockchain-architecture-consensus-algorithms-and-distributed-ledger-mechanisms-at-wso2-technology-conference-2025",
+          section: "News",},{id: "news-presented-a-technical-deep-dive-on-blockchain-architecture-consensus-algorithms-and-distributed-ledger-mechanisms-at-wso2-technology-conference-2025-watch-the-talk",
           title: 'Presented a technical deep-dive on blockchain architecture, consensus algorithms, and distributed ledger mechanisms...',
           description: "",
           section: "News",},{id: "news-started-as-lead-research-collaborator-at-university-of-moratuwa-on-google-funded-research-on-automatic-post-editing-for-low-resource-languages-sinhala-tamil",
@@ -96,6 +96,21 @@ ninja.data = [{
           description: "Low-code agent framework for rapid deployment of NLP applications in enterprise environments",
           section: "Projects",handler: () => {
               window.location.href = "/projects/5_mi_agent_framework/";
+            },},{id: "projects-distributed-transaction-counter",
+          title: 'Distributed Transaction Counter',
+          description: "Scalable transaction counting for high-throughput API gateways handling 10,000+ TPS with sub-millisecond latency",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/6_transaction_counter/";
+            },},{id: "projects-federated-gnn-for-distributed-link-prediction",
+          title: 'Federated GNN for Distributed Link Prediction',
+          description: "Memory-efficient federated graph convolutional network training on commodity hardware (IEEE Big Data 2020)",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/7_federated_gnn/";
+            },},{id: "projects-anomaly-detection-for-autonomous-drones",
+          title: 'Anomaly Detection for Autonomous Drones',
+          description: "Self-supervised multimodal anomaly detection using deep reconstruction and forecasting (IEEE SPC 2020 runner-up)",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/8_anomaly_detection/";
             },},{id: "teachings-programming-fundamentals-cs1033",
           title: 'Programming Fundamentals (CS1033)',
           description: "Lab assistant for the introductory programming course at the Department of Computer Science and Engineering, University of Moratuwa. Guided students through practical exercises in C programming, data types, control structures, and basic algorithms.",
