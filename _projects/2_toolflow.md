@@ -7,6 +7,10 @@ importance: 2
 category: research
 ---
 
-Toolflow is a lightweight research framework for LLM-based agents with structured output guarantees and automatic tool invocation. It is designed to study reliability and orchestration patterns in multi-step reasoning systems.
+Minimal Python framework for LLM agents with structured outputs and automatic tool calling. Designed for production pipeline integration.
+
+- Structured output guarantees via schema validation
+- Automatic tool invocation and multi-step reasoning
+- Lightweight design for easy integration into existing systems
 
 **Source:** [GitHub](https://github.com/IsuruMaduranga/toolflow)

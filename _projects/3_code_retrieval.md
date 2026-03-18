@@ -7,7 +7,11 @@ importance: 3
 category: research
 ---
 
-Designed and fine-tuned MiniLM-based sentence-transformer models (512-dim embeddings) for domain-specific code retrieval using contrastive learning. Optimized for low-latency semantic search in RAG systems.
+Trained and published lightweight sentence-transformer embedding models optimized for code search (512-dim) to enable fast semantic retrieval over codebases and technical text.
+
+- Fine-tuned a MiniLM-based embedding model for code-to-code / text-to-code retrieval use cases.
+- Designed for low-latency similarity search and practical deployment in RAG and developer tooling.
+- Packaged and released on Hugging Face for easy integration into embedding pipelines and vector databases.
 
 **Results:** 97% Recall@10 and 95% MRR@10 on internal benchmarks.
 

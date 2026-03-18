@@ -22,4 +22,6 @@ MI Copilot is a production-deployed AI coding assistant for WSO2 Micro Integrato
 
 **Impact:** **300+ active daily users**
 
-**Links:** [Documentation](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/) | [Source](https://github.com/wso2/vscode-extensions)
+**Impact:** Hardened for enterprise use with security controls, throttling, caching, and production stability.
+
+**Links:** [Documentation](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/) | [Source](https://github.com/wso2/vscode-extensions) | [Agent Mode Branch](https://github.com/wso2/vscode-extensions/tree/mi-agent-mode)
