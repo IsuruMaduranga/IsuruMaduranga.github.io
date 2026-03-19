@@ -9,7 +9,7 @@ last_name: Wijesiri
 contact_note: >
   The best way to reach me is by email at imwijesiri@gmail.com.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  Personal academic website of Isuru Wijesiri – NLP Researcher, AI Engineer at WSO2.
+  Isuru Wijesiri - ML Researcher at WSO2 and University of Moratuwa. Working on NLP, agentic code generation, and graph ML for low-resource and enterprise settings.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
   Hosted by <a href="https://pages.cloudflare.com/" target="_blank">Cloudflare Pages</a>.
@@ -68,8 +68,8 @@ max_width: 930px
 # -----------------------------------------------------------------------------
 # Display links to the page with a preview object on social media.
 # see https://schema.org/docs/faq.html for more information
-serve_og_meta: false # Include Open Graph meta tags in the HTML head
-serve_schema_org: false # Include Schema.org in the HTML head
+serve_og_meta: true # Include Open Graph meta tags in the HTML head
+serve_schema_org: true # Include Schema.org in the HTML head
 og_image: # The site-wide (default for all links) Open Graph preview image
 
 # -----------------------------------------------------------------------------
