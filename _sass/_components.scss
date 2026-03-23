@@ -38,6 +38,16 @@ ul.task-list input[type="checkbox"] {
 
 .card {
   background-color: var(--global-card-bg-color);
+  border: 1px solid var(--global-divider-color);
+  border-radius: 8px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
 
   .card-img {
     width: 100%;
@@ -46,10 +56,11 @@ ul.task-list input[type="checkbox"] {
 
   .card-title {
     color: var(--global-text-color);
+    transition: color 0.2s ease;
   }
 
   .card-body {
-    padding: 1.25rem 1.25rem 1.25rem 1.25rem;
+    padding: 1.25rem;
   }
 }
 
@@ -58,10 +69,16 @@ ul.task-list input[type="checkbox"] {
 .profile {
   width: 100%;
 
+  img {
+    border-radius: 12px;
+  }
+
   .more-info {
     margin-bottom: 5px;
-    margin-top: 5px;
-    font-family: monospace;
+    margin-top: 10px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.9rem;
+    color: var(--global-text-color-light);
 
     p {
       display: inline-block;
@@ -71,11 +88,11 @@ ul.task-list input[type="checkbox"] {
 }
 
 .profile.float-right {
-  margin-left: 1rem;
+  margin-left: 1.5rem;
 }
 
 .profile.float-left {
-  margin-right: 1rem;
+  margin-right: 1.5rem;
 }
 
 @media (min-width: 576px) {
@@ -197,7 +214,7 @@ ul.task-list input[type="checkbox"] {
 
       i::before {
         color: var(--global-text-color);
-        transition-property: all 0.2s ease-in-out;
+        transition: color 0.2s ease;
       }
 
       &:hover {

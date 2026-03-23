@@ -603,3 +603,50 @@ figure.cover {
 mjx-container[jax="CHTML"][display="true"] {
   overflow-x: auto;
 }
+
+// Entrance animations
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container > article,
+.container > .row,
+.post-content,
+.profile {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.news,
+.latest-posts,
+.selected-publications {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.news {
+  animation-delay: 0.1s;
+}
+
+.latest-posts {
+  animation-delay: 0.15s;
+}
+
+.selected-publications {
+  animation-delay: 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+  }
+}

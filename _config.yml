@@ -15,7 +15,7 @@ footer_text: >
   Hosted by <a href="https://pages.cloudflare.com/" target="_blank">Cloudflare Pages</a>.
 keywords: NLP, agentic AI, machine learning, code generation, federated learning, privacy-preserving ML, graph neural networks
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
-icon: ⚛️ # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
+icon: logo.png # brain icon logo in /assets/img/
 
 url: https://isuruwijesiri.com # the base hostname & protocol for your site
 baseurl: "" # the subpath of your site, e.g. /blog/. Leave blank for root
@@ -451,7 +451,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap"
+      fonts: "https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Material+Icons&display=swap"
   highlightjs:
     integrity:
       css:

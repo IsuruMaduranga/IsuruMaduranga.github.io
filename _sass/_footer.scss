@@ -5,6 +5,7 @@
 footer.fixed-bottom {
   background-color: var(--global-footer-bg-color);
   font-size: 0.75rem;
+  border-top: 1px solid var(--global-divider-color);
 
   .container {
     color: var(--global-footer-text-color);
@@ -15,6 +16,7 @@ footer.fixed-bottom {
 
   a {
     color: var(--global-footer-link-color);
+    transition: color 0.2s ease;
 
     &:hover {
       color: var(--global-theme-color);
@@ -31,5 +33,9 @@ footer.sticky-bottom {
 
   .container {
     text-align: center;
+  }
+
+  a {
+    transition: color 0.2s ease;
   }
 }

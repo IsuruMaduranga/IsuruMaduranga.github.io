@@ -9,8 +9,9 @@
   padding-bottom: 3rem;
 
   h1 {
-    color: var(--global-theme-color);
-    font-size: 5rem;
+    color: var(--global-text-color);
+    font-size: 4rem;
+    font-weight: 700;
   }
 }
 
@@ -49,11 +50,12 @@
     list-style: none;
     padding-top: 2rem;
     padding-bottom: 2rem;
+    transition: background-color 0.2s ease;
 
     .post-meta {
       color: var(--global-text-color-light);
       font-size: 0.875rem;
-      margin-bottom: 0;
+      margin-bottom: 0.25rem;
     }
 
     .post-tags {
@@ -66,6 +68,7 @@
     a {
       color: var(--global-text-color);
       text-decoration: none;
+      transition: color 0.2s ease;
 
       &:hover {
         color: var(--global-theme-color);
@@ -128,6 +131,7 @@
   a {
     color: var(--global-text-color-light);
     text-decoration: none;
+    transition: color 0.2s ease;
 
     .card-text {
       overflow: hidden;

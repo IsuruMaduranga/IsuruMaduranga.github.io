@@ -19,6 +19,22 @@ strong {
   color: var(--global-text-color);
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Crimson Pro", "Georgia", serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p,
+li {
+  line-height: 1.7;
+}
+
 hr {
   border-top: 1px solid var(--global-divider-color);
 }
@@ -38,14 +54,19 @@ table {
 a,
 table.table a {
   color: var(--global-theme-color);
+  text-decoration: none;
+  background-image: linear-gradient(var(--global-theme-color), var(--global-theme-color));
+  background-size: 0% 1px;
+  background-position: 0% 100%;
+  background-repeat: no-repeat;
+  transition:
+    color 0.2s ease,
+    background-size 0.3s ease;
 
   &:hover {
-    color: var(--global-theme-color);
-    text-decoration: underline;
-  }
-
-  &:hover:after :not(.nav-item.dropdown) {
-    width: 100%;
+    color: var(--global-hover-color);
+    text-decoration: none;
+    background-size: 100% 1px;
   }
 }
 

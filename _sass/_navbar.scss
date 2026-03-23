@@ -7,8 +7,10 @@
 .navbar {
   box-shadow: none;
   border-bottom: 1px solid var(--global-divider-color);
-  background-color: var(--global-bg-color);
-  opacity: 0.95;
+  background-color: color-mix(in srgb, var(--global-bg-color) 85%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  transition: box-shadow 0.3s ease;
 }
 
 .navbar .dropdown-menu,
@@ -57,13 +59,22 @@
 
   .navbar-brand {
     color: var(--global-text-color);
+    background-image: none;
+
+    &:hover {
+      background-image: none;
+    }
   }
 
   .navbar-nav .nav-item .nav-link {
     color: var(--global-text-color);
+    transition: color 0.2s ease;
+    position: relative;
+    background-image: none;
 
     &:hover {
       color: var(--global-hover-color);
+      background-image: none;
     }
   }
 
@@ -103,7 +114,7 @@
 
       i::before {
         color: var(--global-text-color);
-        transition-property: all 0.2s ease-in-out;
+        transition: color 0.2s ease;
       }
 
       &:hover {

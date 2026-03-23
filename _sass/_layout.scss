@@ -8,6 +8,16 @@ body {
   padding-bottom: 70px;
   color: var(--global-text-color);
   background-color: var(--global-bg-color);
+  background-image: radial-gradient(ellipse at 50% 0%, var(--global-bg-gradient-hint) 0%, transparent 60%);
+  background-attachment: fixed;
+  font-family:
+    "DM Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 1rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
   h1,
   h2,
@@ -43,6 +53,46 @@ body.sticky-bottom-footer {
 // Content layout uses Bootstrap's grid system with responsive columns
 // Main content flows naturally through container-mt-5 and Bootstrap grid classes
 // See _layouts/default.liquid and _includes/projects.liquid for examples
+
+// About page section spacing
+.post article {
+  > h2 {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--global-divider-color);
+
+    a {
+      background-image: none;
+
+      &:hover {
+        background-image: none;
+      }
+    }
+  }
+
+  > h2:first-of-type {
+    margin-top: 2rem;
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+// Post header
+.post-header {
+  margin-bottom: 1.5rem;
+
+  .post-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .desc {
+    color: var(--global-text-color-light);
+    font-size: 1.1rem;
+    margin-top: 0.25rem;
+  }
+}
 
 /******************************************************************************
  * Publications
