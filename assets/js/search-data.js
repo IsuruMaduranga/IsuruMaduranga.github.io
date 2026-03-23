@@ -71,7 +71,12 @@ ninja.data = [{
           section: "News",},{id: "news-started-as-lead-research-collaborator-at-university-of-moratuwa-on-google-funded-research-on-automatic-post-editing-for-low-resource-languages-sinhala-tamil",
           title: 'Started as Lead Research Collaborator at University of Moratuwa on Google-funded research on...',
           description: "",
-          section: "News",},{id: "projects-mi-copilot",
+          section: "News",},{id: "projects-ai-cookbooks",
+          title: 'AI Cookbooks',
+          description: "Curated collection of Colab/Jupyter notebooks for real-world AI tasks. Includes training pipelines, model fine-tuning, and custom implementations that go beyond the defaults.",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/0_ai_cookbooks/";
+            },},{id: "projects-mi-copilot",
           title: 'MI Copilot',
           description: "Cursor/Claude Code style coding agent for WSO2 Micro Integrator with 300+ daily active users",
           section: "Projects",handler: () => {
