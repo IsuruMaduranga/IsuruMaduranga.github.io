@@ -8,7 +8,9 @@ body {
   padding-bottom: 70px;
   color: var(--global-text-color);
   background-color: var(--global-bg-color);
-  background-image: radial-gradient(ellipse at 50% 0%, var(--global-bg-gradient-hint) 0%, transparent 60%);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, var(--global-bg-gradient-hint) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, var(--global-bg-gradient-hint-secondary) 0%, transparent 50%);
   background-attachment: fixed;
   font-family:
     "DM Sans",
