@@ -4,6 +4,7 @@ github_users:
 repo_description_lines_max: 2
 
 github_repos:
+  - IsuruMaduranga/ai-cookbooks
   - IsuruMaduranga/toolflow
   - IsuruMaduranga/natural-python
   - wso2/vscode-extensions
