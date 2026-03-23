@@ -131,6 +131,7 @@
   a {
     color: var(--global-text-color-light);
     text-decoration: none;
+    background-image: none;
     transition: color 0.2s ease;
 
     .card-text {
@@ -141,6 +142,7 @@
 
     &:hover {
       color: var(--global-theme-color);
+      background-image: none;
 
       .card-title {
         color: var(--global-theme-color);
