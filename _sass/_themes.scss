@@ -80,23 +80,23 @@
 
 html[data-theme="dark"] {
   color-scheme: dark;
-  --global-bg-color: #000000;
+  --global-bg-color: #0d1117;
   --global-code-bg-color: #{v.$code-bg-color-dark};
-  --global-text-color: #e8eaed;
-  --global-text-color-light: #9aa0a6;
-  --global-theme-color: #7a9eff;
-  --global-hover-color: #a8c0ff;
+  --global-text-color: #e6edf3;
+  --global-text-color-light: #8b949e;
+  --global-theme-color: #58a6ff;
+  --global-hover-color: #79c0ff;
   --global-hover-text-color: #{v.$white-color};
-  --global-footer-bg-color: #000000;
-  --global-footer-text-color: #9aa0a6;
-  --global-footer-link-color: #e8eaed;
+  --global-footer-bg-color: #010409;
+  --global-footer-text-color: #8b949e;
+  --global-footer-link-color: #e6edf3;
   --global-distill-app-color: #{v.$grey-color-light};
-  --global-divider-color: rgba(255, 255, 255, 0.06);
-  --global-card-bg-color: rgba(26, 34, 48, 0.8);
-  --global-card-shadow: rgba(0, 122, 244, 0.25);
-  --global-card-border-hover: rgba(122, 158, 255, 0.3);
-  --global-bg-gradient-hint: rgba(0, 122, 244, 0.1);
-  --global-bg-gradient-hint-secondary: rgba(60, 80, 200, 0.06);
+  --global-divider-color: #30363d;
+  --global-card-bg-color: #161b22;
+  --global-card-shadow: rgba(0, 122, 244, 0.2);
+  --global-card-border-hover: rgba(88, 166, 255, 0.3);
+  --global-bg-gradient-hint: rgba(56, 139, 253, 0.06);
+  --global-bg-gradient-hint-secondary: rgba(56, 139, 253, 0.03);
   --global-back-to-top-bg-color: rgba(
     #{color.channel(v.$white-color, "red", v.$space: rgb)},
     #{color.channel(v.$white-color, "green", v.$space: rgb)},
