@@ -2,6 +2,7 @@
 layout: about
 title: about
 permalink: /
+description: Isuru Wijesiri - AI researcher and engineer working on NLP, agentic code generation, and graph ML at WSO2 and University of Moratuwa.
 subtitle: >
   Associate Technical Lead (AI R&D) · <a href="https://wso2.com" target="_blank">WSO2</a> &
   External Research Collaborator · <a href="https://uom.lk" target="_blank">University of Moratuwa</a>

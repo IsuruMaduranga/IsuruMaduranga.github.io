@@ -2,7 +2,7 @@
 layout: page
 title: projects
 permalink: /projects/
-description: Selected work and research projects.
+description: Projects by Isuru Wijesiri including MI Copilot, federated GNN, code retrieval models, and agentic AI frameworks.
 nav: true
 nav_order: 3
 display_categories: [work, research]

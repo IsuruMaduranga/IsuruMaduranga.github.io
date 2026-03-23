@@ -2,7 +2,7 @@
 layout: page
 permalink: /teaching/
 title: teaching
-description: Teaching experience and mentoring.
+description: Teaching and mentoring by Isuru Wijesiri - university courses, private tutoring, and conference presentations on AI and integration.
 nav: true
 nav_order: 6
 ---

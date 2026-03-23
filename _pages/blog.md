@@ -2,6 +2,7 @@
 layout: default
 permalink: /blog/
 title: blog
+description: Blog posts by Isuru Wijesiri on NLP, agentic AI, code generation, and machine learning research.
 nav: true
 nav_order: 1
 pagination:

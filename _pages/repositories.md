@@ -2,7 +2,7 @@
 layout: page
 permalink: /repositories/
 title: repositories
-description: A selection of my open-source projects and contributions.
+description: Open-source projects and GitHub contributions by Isuru Wijesiri - AI tools, NLP frameworks, and research code.
 nav: true
 nav_order: 5
 ---
