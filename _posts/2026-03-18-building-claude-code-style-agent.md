@@ -2,7 +2,7 @@
 layout: post
 title: "Context Beats the Model: Building a Domain-Specific Coding Agent"
 date: 2026-03-18
-description: "How we built WSO2 MI Copilot, a domain-specific coding agent with 23 tools, 4 subagents, an on-demand knowledge graph, and a caching strategy that hits 81-90% prompt cache reuse."
+description: "How we built WSO2 Integrator Copilot, a domain-specific coding agent with 23 tools, 4 subagents, an on-demand knowledge graph, and a caching strategy that hits 81-90% prompt cache reuse."
 tags: [agentic-ai, NLP, context-engineering, multi-agent, LLM]
 categories: [research]
 featured: true
@@ -10,7 +10,7 @@ toc:
   sidebar: left
 ---
 
-_How we built WSO2 MI Copilot, a domain-specific coding agent with 23 tools, 4 subagents, an on-demand knowledge graph, and a caching strategy that hits 81-90% prompt cache reuse._
+_How we built WSO2 Integrator Copilot, a domain-specific coding agent with 23 tools, 4 subagents, an on-demand knowledge graph, and a caching strategy that hits 81-90% prompt cache reuse._
 
 ---
 
@@ -18,7 +18,7 @@ _How we built WSO2 MI Copilot, a domain-specific coding agent with 23 tools, 4 s
 
 Agentic coding assistants like Claude Code, Cursor, Windsurf, and Codex all make the same bet: an LLM gets far more useful when you give it tools to act on the world instead of only generating text. Those tools are general-purpose. What happens when you take the same patterns and point them at one narrow, unusual development environment?
 
-We built **WSO2 MI Copilot**: an AI assistant that lives inside VS Code and helps developers build enterprise integrations on the WSO2 Micro Integrator platform. The design borrows heavily from Claude Code, including the reason-and-act loop, tool-based autonomy, multi-agent delegation, conversation compaction, and undo checkpoints. But the domain is constrained, and that changes the hard part of the job: getting the right information in front of the model.
+We built **WSO2 Integrator Copilot**: an AI assistant that lives inside VS Code and helps developers build enterprise integrations on the WSO2 Micro Integrator platform. The design borrows heavily from Claude Code, including the reason-and-act loop, tool-based autonomy, multi-agent delegation, conversation compaction, and undo checkpoints. But the domain is constrained, and that changes the hard part of the job: getting the right information in front of the model.
 
 > If you want the ground-up version of the ideas below, I wrote a companion series, [**Harness Engineering 101**](/blog/2026/harness-engineering-101/), that builds an agent from a single JSON array up. This post is that theory applied to one hard production domain, so I link to the relevant chapter whenever a pattern shows up.
 
@@ -42,7 +42,7 @@ Where a pattern lines up with published research, I cite it, and I give concrete
 
 ## 1. The Reason-and-Act Loop
 
-At its core, MI Copilot runs the ReAct loop (Reasoning + Acting), introduced by Yao et al. (2023) [^1]. The idea is simple: the model thinks about the problem, calls a tool, reads the result, thinks again, calls another tool, and repeats until the task is done. This is the same agent loop covered in [Chapter 4 of the series](/blog/2026/harness-04-agent-loop/) - a `while` loop that keeps calling the model until it stops asking for tools.
+At its core, WSO2 Integrator Copilot runs the ReAct loop (Reasoning + Acting), introduced by Yao et al. (2023) [^1]. The idea is simple: the model thinks about the problem, calls a tool, reads the result, thinks again, calls another tool, and repeats until the task is done. This is the same agent loop covered in [Chapter 4 of the series](/blog/2026/harness-04-agent-loop/) - a `while` loop that keeps calling the model until it stops asking for tools.
 
 ### How it runs: streaming tool calls
 
@@ -154,7 +154,7 @@ A tool like Claude Code can edit Synapse XML - it is just text. But it cannot:
 - **Build and deploy the project** - it does not know MI's Maven build or runtime server
 - **Look up what a mediator means** - it guesses from the XML tag name, and often guesses wrong
 
-MI Copilot fills those gaps with engineered context, purpose-built tools, and a language server that checks the work. The model does not need to _know_ Synapse. It needs the right information at the right moment and tools to verify what it produced.
+WSO2 Integrator Copilot fills those gaps with engineered context, purpose-built tools, and a language server that checks the work. The model does not need to _know_ Synapse. It needs the right information at the right moment and tools to verify what it produced.
 
 ### The 23 tools
 
@@ -182,7 +182,7 @@ A general-purpose assistant has to handle whatever a user throws at it. A domain
 
 ### Three layers of context
 
-MI Copilot splits its context into three layers, each with different caching behavior. The split follows a simple observation from Anthropic's context engineering guide: _"the most effective agents separate static knowledge (system prompts) from dynamic knowledge (tool results)."_
+WSO2 Integrator Copilot splits its context into three layers, each with different caching behavior. The split follows a simple observation from Anthropic's context engineering guide: _"the most effective agents separate static knowledge (system prompts) from dynamic knowledge (tool results)."_
 
 ### Layer 1: the static system prompt (~3,100 lines)
 
@@ -246,7 +246,7 @@ The file tree is capped at 50 files and 10K characters, and it skips the noise (
 
 ### Layer 3: dynamic knowledge (the knowledge graph)
 
-This is where MI Copilot departs most from a general-purpose assistant. Instead of trusting the model's sparse, often outdated training data for Synapse XML, we built a **structured knowledge graph** the agent queries when it needs it, through the `load_context_reference` tool. The next section covers it in full.
+This is where WSO2 Integrator Copilot departs most from a general-purpose assistant. Instead of trusting the model's sparse, often outdated training data for Synapse XML, we built a **structured knowledge graph** the agent queries when it needs it, through the `load_context_reference` tool. The next section covers it in full.
 
 {% include figure.liquid loading="eager" path="assets/img/context_layers.svg" class="img-fluid rounded z-depth-1" %}
 
@@ -363,7 +363,7 @@ There is nuance here, and we come back to it. Structured references win for _pla
 
 ## 5. Multi-Agent Orchestration
 
-A single agent hits a wall when a task needs both breadth (searching a codebase) and depth (reasoning about design). MI Copilot handles this with a set of subagents, following the orchestrator-worker pattern from Anthropic's agent design guide [^3]. [Chapter 7 of the series](/blog/2026/harness-07-subagents/) makes the case for why: a subagent buys a lot of exploration for the price of a short summary in the main agent's context.
+A single agent hits a wall when a task needs both breadth (searching a codebase) and depth (reasoning about design). WSO2 Integrator Copilot handles this with a set of subagents, following the orchestrator-worker pattern from Anthropic's agent design guide [^3]. [Chapter 7 of the series](/blog/2026/harness-07-subagents/) makes the case for why: a subagent buys a lot of exploration for the price of a short summary in the main agent's context.
 
 ### Different agents for different jobs
 
@@ -501,7 +501,7 @@ The summary takes the place of the old history, and the main agent carries on kn
 
 Anthropic's prompt caching lets you mark part of a request as cacheable. A cache read costs 0.1x the base price (a 90% discount); the first write costs 1.25x. The cache lives for 5 minutes and needs at least 1,024 tokens. [Chapter 5 of the series](/blog/2026/harness-05-caching/) explains the mechanism and why the order of your array is what makes or breaks the discount.
 
-MI Copilot caches in two tiers.
+WSO2 Integrator Copilot caches in two tiers.
 
 ### Tier 1: the system prompt, always cached
 
@@ -587,7 +587,7 @@ The model gets a 2KB preview and a file path. If it needs the rest, it reads the
 
 > _Trust the agent to reason; don't trust it with `sudo`._
 
-An agent that can only read and write files is boxed in. Real work means running builds, starting servers, checking logs, and running project scripts. So MI Copilot gives the agent a `shell` tool - wrapped in a sandbox that blocks the catastrophic mistakes that make an unsandboxed agent dangerous. This is [Chapter 13](/blog/2026/harness-13-guardrails/) in practice: the body decides which of the brain's requests actually run.
+An agent that can only read and write files is boxed in. Real work means running builds, starting servers, checking logs, and running project scripts. So WSO2 Integrator Copilot gives the agent a `shell` tool - wrapped in a sandbox that blocks the catastrophic mistakes that make an unsandboxed agent dangerous. This is [Chapter 13](/blog/2026/harness-13-guardrails/) in practice: the body decides which of the brain's requests actually run.
 
 ### Three tiers of commands
 
@@ -689,13 +689,13 @@ So the agent can study the project while planning without changing anything by a
 
 ## 8. Language Server Integration: Real Validation in the Loop
 
-This is probably MI Copilot's single biggest advantage over a general-purpose agent: **a language server that tells the agent, for real, whether its code is valid.**
+This is probably WSO2 Integrator Copilot's single biggest advantage over a general-purpose agent: **a language server that tells the agent, for real, whether its code is valid.**
 
 ### The validation problem
 
 When Claude Code writes a Python function, the user can run it and see what happens. When an agent writes Synapse XML, the feedback loop is slow: you build the project, deploy to MI, send a test request, and read the logs. By the time you find out the XML was invalid, the agent has already moved on.
 
-MI Copilot closes that loop by wiring the LemMinx XML Language Server straight into the agent's tools.
+WSO2 Integrator Copilot closes that loop by wiring the LemMinx XML Language Server straight into the agent's tools.
 
 ### How it works: every write is validated
 
@@ -759,7 +759,7 @@ Without validation, the agent falls back on its training data to produce valid X
 - **Connector misconfiguration** - invalid operation names, wrong parameter types
 - **Deprecation warnings** - old element names when newer ones exist
 
-This is a real break from how general-purpose agents work. Claude Code writes Python and hopes the user runs it. MI Copilot writes XML, checks it against the schema immediately, and fixes problems before the user sees them. This is the lesson we come back to in the conclusion: giving the model a way to _check_ its work beats telling it to _be careful_.
+This is a real break from how general-purpose agents work. Claude Code writes Python and hopes the user runs it. WSO2 Integrator Copilot writes XML, checks it against the schema immediately, and fixes problems before the user sees them. This is the lesson we come back to in the conclusion: giving the model a way to _check_ its work beats telling it to _be careful_.
 
 ### Validation as its own tool
 
@@ -819,7 +819,7 @@ The `exit_plan_mode` tool holds until the user approves or rejects the plan. Tha
 
 ## 10. What Didn't Work
 
-No architecture arrives fully formed. Several of MI Copilot's decisions grew out of approaches that failed or fell short. They are worth writing down, because they make the design that survived feel earned rather than obvious.
+No architecture arrives fully formed. Several of WSO2 Integrator Copilot's decisions grew out of approaches that failed or fell short. They are worth writing down, because they make the design that survived feel earned rather than obvious.
 
 ### The "everything in the system prompt" phase
 
@@ -926,4 +926,4 @@ None of this is specific to MI. Any domain coding assistant - for Terraform, Kub
 
 ---
 
-_WSO2 MI Copilot is available in the [WSO2 Integrator: MI](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator) VS Code extension. The architecture described here is production code, not a prototype._
+_WSO2 Integrator Copilot is available in the [WSO2 Integrator: MI](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator) VS Code extension. The architecture described here is production code, not a prototype._

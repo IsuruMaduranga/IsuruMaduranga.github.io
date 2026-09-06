@@ -4,6 +4,8 @@ github_users:
 repo_description_lines_max: 2
 
 github_repos:
+  - IsuruMaduranga/one-code
+  - IsuruMaduranga/confident-but-wrong
   - IsuruMaduranga/ai-cookbooks
   - IsuruMaduranga/toolflow
   - IsuruMaduranga/natural-python

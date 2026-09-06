@@ -21,7 +21,7 @@ cv:
         studyType: "B.Sc. Engineering (Honours)"
         start_date: 2017
         end_date: 2021
-        score: "GPA: 3.89 - First Class Honours"
+        score: "GPA: 3.87 - First Class Honours"
         highlights:
           - "Dean's List: 7 out of 8 semesters (Semesters 1, 3, 4, 5, 6, 7, 8)"
           - "Thesis: Privacy-Preserving Machine Learning on Distributed Graphs (Grade: A+)"
@@ -32,11 +32,12 @@ cv:
         position: Associate Technical Lead (AI R&D)
         location: Sri Lanka
         start_date: 2026-02
-        summary: "Technical lead for AI capabilities in the WSO2 Integrator platform."
+        summary: "Technical lead for AI capabilities in the WSO2 Integrator platform. Research focus: LLM failures in low-resource code generation and benchmarking LLM agents on enterprise integration."
         highlights:
           - "Designing multi-agent systems and developing/training custom models for agentic workflows."
-          - "Owning architecture, execution, and delivery of agentic developer workflows."
-          - "Driving roadmap, coordinating contributors, and ensuring production readiness (security, scalability, reliability)."
+          - "IntegrationBench: Leading a 100-task, behavior-graded benchmark that evaluates LLM agents by the runtime behavior of the integrations they build (targeting ICLR 2027)."
+          - "Domain-specific SLM: Developing a lightweight small language model for on-prem domain-specific code generation."
+          - "Owning architecture, execution, and delivery of agentic developer workflows, and production readiness (security, scalability, reliability)."
           - "Mentoring engineers and interns to ship high-quality AI features."
 
       - company: WSO2
@@ -46,9 +47,9 @@ cv:
         end_date: 2026-02
         summary: "Led the end-to-end initiative to modernize WSO2 Micro Integrator with AI."
         highlights:
-          - "MI Copilot: Owned from ideation to production. NL to Synapse DSL code generation with version-aware retrieval, XSD/Schematron validation, LSP diagnostics, and automated repair loops. 300+ active daily users."
-          - "MI Copilot Agent Mode: Cursor/Claude Code-style agentic integration engineer inside VS Code with 22 tools across 8 categories, multi-step planning, and autonomous task execution."
-          - "Integrated domain-specific embedding models into MI Copilot retrieval system for low-latency semantic code search."
+          - "WSO2 Integrator Copilot: Owned from ideation to production. NL to Synapse DSL code generation with version-aware retrieval, XSD/Schematron validation, LSP diagnostics, and automated repair loops. 700+ active daily users."
+          - "WSO2 Integrator Copilot Agent Mode: Cursor/Claude Code-style agentic integration engineer inside VS Code with 23 tools across 8 categories, multi-step planning, and autonomous task execution."
+          - "Integrated domain-specific embedding models into WSO2 Integrator Copilot retrieval system for low-latency semantic code search."
           - "Optimized operational cost via advanced prompt caching (~90% cost reduction) and production hardening/observability hooks."
           - "Small Language Model initiative: Initiated domain-specialized SLM training for Ballerina to enable low-latency on-prem code generation."
 
@@ -114,6 +115,26 @@ cv:
           - "Built using Python, Scikit-learn, pandas, NumPy. Deployed with Docker and AWS."
 
     Publications:
+      - title: "Confident but Wrong: A Constrained Decoding Diagnostic for Low-Resource Automatic Post-Editing"
+        authors:
+          - Isuru Wijesiri
+        date: "2026"
+        journal: "Findings of EMNLP 2026 (first author)"
+        url: "https://github.com/IsuruMaduranga/confident-but-wrong"
+
+      - title: "EnSiTa: A Trilingual Multi-Domain Parallel Dataset and Benchmark for Domain-Specific Machine Translation"
+        authors:
+          - Isuru Wijesiri
+        date: "2026"
+        journal: "Preprint (targeting TACL)"
+        url: "https://doi.org/10.13140/RG.2.2.28180.87688"
+
+      - title: "IntegrationBench: Evaluating LLM Agents on Enterprise Integration Tasks"
+        authors:
+          - Isuru Wijesiri
+        date: "2026"
+        journal: "Manuscript in preparation (targeting ICLR 2027, first author)"
+
       - title: "Memory-Efficient Graph Convolutional Network-Based Distributed Link Prediction"
         authors:
           - Isuru Wijesiri
@@ -132,20 +153,32 @@ cv:
         journal: "arXiv:2006.14556"
         url: "https://arxiv.org/abs/2006.14556"
 
+      - title: "High Accuracy Link Prediction in a Collaborative Multi-Organization Graph Learning System"
+        authors:
+          - Isuru Wijesiri
+        date: "2026"
+        journal: "Manuscript in preparation"
+
     Projects:
-      - name: "MI Copilot - Agentic Coding Assistant for WSO2 MI"
+      - name: "One Code - Cross-Model Agent Harness"
+        url: "https://github.com/IsuruMaduranga/one-code"
+        date: "2026"
+        highlights:
+          - "An agent harness that brings Claude Code-style features to any model and provider."
+
+      - name: "WSO2 Integrator Copilot - Agentic Coding Assistant for WSO2 MI"
         url: "https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/"
         date: "2023 - present"
         highlights:
-          - "Cursor/Claude Code-style coding agent for enterprise integration with 300+ daily active users."
-          - "22 tools across 8 categories: project management, connector management, XML LSP validation, builds, and runtime workflows."
-          - "+24 percentage-point improvement on HumanEval over base LLM (0-shot) using multi-agent iterative refinement and execution-guided verification."
+          - "Cursor/Claude Code-style coding agent for enterprise integration with 700+ daily active users."
+          - "23 tools across 8 categories: project management, connector management, XML LSP validation, builds, and runtime workflows."
+          - "+29 percentage-point improvement on HumanEval over base LLM (0-shot) using multi-agent iterative refinement and execution-guided verification."
 
       - name: "Lightweight Code Retrieval Models (22M/33M parameters)"
         date: "2025"
         highlights:
           - "Fine-tuned MiniLM-based sentence-transformer models (512-dim) for domain-specific code retrieval using contrastive learning."
-          - "97% Recall@10 and 95% MRR@10. Released on Hugging Face."
+          - "97% Recall@10 and 95% MRR@10. Released on Hugging Face (700+ downloads/month)."
 
       - name: "Toolflow - Structured Agent Framework"
         url: "https://github.com/IsuruMaduranga/toolflow"
@@ -232,3 +265,15 @@ cv:
         date: "2025"
         highlights:
           - "Technical deep-dive on blockchain architecture, consensus algorithms, and distributed ledger mechanisms."
+
+      - company: "Harness Engineering 101 (Blog Series)"
+        position: Author
+        date: "2026"
+        highlights:
+          - "A 16-chapter blog series on building LLM agents and harnesses from first principles."
+
+      - company: WSO2
+        position: "Mentor & Technical Lead, Integration AI Team"
+        start_date: 2024
+        highlights:
+          - "Supervise and mentor junior AI engineers and interns."
