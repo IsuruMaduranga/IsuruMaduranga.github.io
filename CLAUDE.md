@@ -41,6 +41,8 @@ bundle exec jekyll build
 
 - **Cloudflare Pages:** Auto-builds on push to `main`
   - Build command: `RUBYOPT="-E utf-8" bundle exec jekyll build`
+  - The `bundle exec` is load-bearing, not decorative. Without it the build
+    dies on a `public_suffix` version clash - see `docs/findings.md`.
   - Output directory: `_site`
   - ImageMagick is NOT available (disabled in config)
 - **GitHub Pages:** `deploy.yml` workflow builds and pushes to `gh-pages` branch

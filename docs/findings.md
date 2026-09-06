@@ -101,6 +101,44 @@ anyway: the content-type breakdown was html 15.95k against css 146, so HTML is
 about 81% of requests and static assets are a rounding error. Long asset TTLs
 buy very little here.
 
+## The Pages build command must include `bundle exec`
+
+Every Cloudflare Pages build failed from 2026-03-23 to 2026-09-07. The last
+good deploy was `5424cd9`; roughly six months of commits never reached the live
+site. Confirmed from the outside before the log was available:
+`/assets/img/huggingface.svg`, added that September, returned 404, and the live
+homepage contained "One Code" zero times despite two commits adding it.
+
+The build log shows the configured command was:
+
+```
+Executing user command: RUBYOPT="-E utf-8" jekyll build
+```
+
+with no `bundle exec`, and it ends in:
+
+```
+You have already activated public_suffix 7.0.5, but your Gemfile requires
+public_suffix 7.0.2. (Gem::LoadError)
+```
+
+Without `bundle exec`, the asdf `jekyll` shim starts under plain RubyGems,
+which activates the newest `public_suffix` present in the build image (7.0.5).
+Jekyll then calls `Bundler.setup` through `PluginManager.require_from_bundler`,
+Bundler sees a gem already activated at a version the lockfile does not allow,
+and aborts. `public_suffix` is transitive here, pulled in by `addressable`
+(`>= 2.0.2, < 8.0`) and locked at 7.0.2.
+
+This was a latent bug, not a regression in this repo. The missing `bundle exec`
+was harmless until Cloudflare's build image changed - it now runs Ruby 3.4.4
+with Bundler 4.0.4 and ships a newer `public_suffix` - which is why the failure
+starts in March with no matching code change.
+
+Fix: set the build command in the dashboard to
+`RUBYOPT="-E utf-8" bundle exec jekyll build`. Cloudflare Pages takes the build
+command from project settings, not from a file in the repo, so this cannot be
+fixed by a commit.
+
 ## There is no Cloudflare CLI for cache analytics
 
 `wrangler` (official, runs via `npx wrangler`) covers Workers and Pages deploys
