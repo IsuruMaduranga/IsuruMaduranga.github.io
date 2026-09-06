@@ -166,6 +166,13 @@ the terminal for the long tail, and guardrails around both.**
   feedback, and weak-model floors.
 - Ship both. Let the model choose. Gate everything.
 
+> **A worked example.** For a real production coding body built on exactly
+> these patterns - the agent loop, subagents, caching, context budgets,
+> guardrails, and a domain-specific twist - see
+> [Building a Claude Code-Style AI Agent for Enterprise Integration](/blog/2026/building-claude-code-style-agent/).
+> It is what happens when you take this chapter's structured organs and
+> specialize the body for one unusual domain, WSO2 Synapse XML.
+
 One chapter of the main sequence remains, and it is the retrospective one:
 the pattern this whole series has been circling (put the right data in the
 array at the right time) had a famous name before agents were mainstream.
