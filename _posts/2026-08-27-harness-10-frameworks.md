@@ -73,7 +73,7 @@ integration, and the vocabulary stayed.
 
 Meanwhile, notice what the strongest production agents do. Claude Code is a
 bespoke harness over the raw API. So are most serious coding agents, and so
-is One Code (over a minimal general-purpose runtime, pi). When Anthropic
+is [One Code](/projects/one_code/) (over a minimal general-purpose runtime, pi). When Anthropic
 ships the Claude Agent SDK, it is a _thin_ layer: the loop, tool dispatch,
 context management: chapter 4 and 6, productized. The trend line of the
 field points at models-plus-thin-harness, not at deep abstraction stacks.

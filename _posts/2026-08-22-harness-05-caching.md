@@ -105,7 +105,7 @@ whole steering mechanism on this principle, and it exists _because_ of this
 chapter.
 
 Production harnesses treat prefix stability as an invariant with tests. In
-One Code, the system prompt is required to be byte-stable across turns
+[One Code](/projects/one_code/), the system prompt is required to be byte-stable across turns
 unless something genuinely changed, and payload-capture tests (chapter 12)
 verify it, because a single careless byte up top is an invisible 10x price
 increase. Nothing breaks. No error appears. You just quietly pay full price

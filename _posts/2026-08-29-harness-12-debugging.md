@@ -92,7 +92,7 @@ _nothing else surfaces it_: no error, no behavior change, just money. A
 timestamp crept into the system prompt; a tool list serialized in a
 different order; some feature "helpfully" edited an old message. Cache-read
 tokens are the harness's pulse. Production harnesses watch it continuously;
-One Code surfaces the cache-hit rate in its status line, on the theory that
+[One Code](/projects/one_code/) surfaces the cache-hit rate in its status line, on the theory that
 a vital sign belongs on the dashboard, not in a postmortem.
 
 ## Replay: the experiment the architecture gives you for free

@@ -37,7 +37,7 @@ HTTP, no SDK) grows across the series. By the epilogue you will have a working
 mini coding agent in about 300 lines, and the durable knowledge that there is
 no magic anywhere in the stack.
 
-Production harnesses (Claude Code, and One Code, my reimplementation of it on
+Production harnesses (Claude Code, and [One Code](/projects/one_code/), my reimplementation of it on
 another agent runtime) appear as evidence that the patterns are real, never as
 the vehicle for the explanation.
 

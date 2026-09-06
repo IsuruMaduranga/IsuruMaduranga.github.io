@@ -70,7 +70,7 @@ Routing is half the pattern. The other half, less discussed: **the same
 harness should not send the same array to different brains.**
 
 Chapter 14 touched the reason: weaker models need more body. Concretely,
-in a harness that runs on multiple tiers (One Code runs the same loop on
+in a harness that runs on multiple tiers ([One Code](/projects/one_code/) runs the same loop on
 frontier models and on cheap local ones), the request itself is tiered:
 
 - **System prompt tiers.** The frontier model gets the lean prompt; it

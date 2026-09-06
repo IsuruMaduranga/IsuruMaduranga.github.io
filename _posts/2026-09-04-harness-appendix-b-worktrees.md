@@ -48,7 +48,7 @@ never saw a byte of the mess. An unchanged worktree can be deleted
 automatically; a changed one is evidence.
 
 Claude Code exposes exactly this as an option on its Agent tool and as
-`EnterWorktree` for the main session; One Code implements the same. The
+`EnterWorktree` for the main session; [One Code](/projects/one_code/) implements the same. The
 noteworthy design choice in both: isolation is _opt-in per task_, because
 worktrees have a cost (below), and read-only errands don't need them.
 

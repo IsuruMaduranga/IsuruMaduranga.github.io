@@ -138,7 +138,7 @@ not a smarts concern:
   dropping them costs actual quality today.
 - **Weaker brains need more body.** On frontier models, terminal-only is
   serviceable. Run the same experiment on a mid-tier model (I have, while
-  testing One Code against cheap models) and structured tools with tight
+  testing [One Code](/projects/one_code/) against cheap models) and structured tools with tight
   schemas and loud errors visibly outperform free-form shell: the
   structure is doing steering work the weak brain cannot do alone.
   Appendix A returns to this trade.
