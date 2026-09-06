@@ -1,0 +1,98 @@
+# Findings
+
+Facts about tools and services we do not control, each confirmed by running or
+testing against this repo or the live site.
+
+## Jekyll silently drops `_headers` unless it is in `include:`
+
+Jekyll ignores every path starting with an underscore unless `_config.yml`
+lists it under `include:`. `_headers` was tracked in git but never reached
+`_site`, so Cloudflare Pages never applied any of its cache rules. Confirmed by
+running `bundle exec jekyll build` and finding no `_site/_headers`, and by
+`https://isuruwijesiri.com/_headers` returning 404 while live responses carried
+none of the file's directives.
+
+The same trap applies to `_redirects` if one is ever added.
+
+## `jekyll-cache-bust`'s `bust_css_cache` filter does not work on this repo
+
+The gem (v0.0.1,
+`lib/jekyll-cache-bust.rb:46`) digests the glob `assets/_sass/**/*`. This site
+keeps its SCSS partials in `_sass/` at the repo root, so the glob matched
+nothing, `Dir[]` returned an empty array, and the filter hashed an empty
+string. Every build stamped `main.css` with
+`?v=d41d8cd98f00b204e9800998ecf8427e`, the MD5 of `""`, so the token could
+never change and a long browser or edge TTL would have pinned a stale
+stylesheet indefinitely.
+
+Replaced by `bust_sass_cache` in `_plugins/cache-bust-sass.rb`, which digests
+`assets/css/main.scss` plus `_sass/**/*`. Verified that editing a partial
+changes the token and that reverting the edit restores it.
+
+The gem's other filter, `bust_file_cache`, takes a different code path
+(`file_content`, not `directory_files_content`) and works correctly. Only the
+CSS filter was affected.
+
+## Cloudflare Pages serves 404s as uncacheable
+
+A missing path returns `cache-control: no-store` and
+`cf-cache-status: BYPASS`. These requests still count in the denominator of the
+account-level cache hit rate, so heavy bot scanning for non-existent paths
+drives that metric down no matter how well real content is cached.
+
+Measured 2026-09-07: about 66% of all requests to the zone were 404s, which
+capped the achievable cache hit rate near 34% and made the reported 3.26% look
+far worse than the ~10% actually achieved on non-404 traffic.
+
+## Cloudflare rewrites `Cache-Control` before it reaches the browser
+
+Live responses carried `public, max-age=7200, must-revalidate` on every URL
+including CSS, which matches none of the origin's own headers. A dashboard
+Browser Cache TTL setting overrides origin `max-age` for browsers. It does not
+affect edge TTL, which `s-maxage` and Cache Rules control. If `_headers` values
+do not show up in browser-visible responses after a deploy, check
+Caching > Configuration > Browser Cache TTL and set it to "Respect Existing
+Headers".
+
+## Most assets are not fingerprinted, so long TTLs are unsafe
+
+Only CSS and most JS carry a `?v=` cache-bust token. Auditing a build for
+`/assets/` references without one turned up 24 files: the RenderCV PDF at
+`/assets/rendercv/rendercv_output/Isuru_Wijesiri_CV.pdf`,
+`/assets/js/search-data.js`, `/assets/js/bootstrap.bundle.min.js`, and 21
+images. The first two are regenerated in place at a stable URL - the PDF by
+`render-cv.yml`, which commits it back to the repo, and the search index on
+every build. A long `immutable` TTL on `/assets/*` would have pinned a stale CV
+and a stale search index at unchanged URLs with no way to force a refresh.
+
+For a fingerprinted file a long TTL is harmless, because new content lives at a
+new URL and the stale entry is simply never requested again. What actually
+gates how fast an update reaches users is the HTML TTL, since the HTML carries
+the new asset URLs.
+
+Do not raise TTLs again without re-running that audit.
+
+## Do not rely on a Pages deployment purging the edge cache
+
+Cloudflare's docs imply a new deployment invalidates cached assets, but with a
+custom domain there are two cache layers - the Pages cache and the zone cache
+for isuruwijesiri.com - and community reports describe stale content surviving
+both a deploy and a manual "Purge Everything". This is from documentation and
+community threads, not from a test on this site.
+
+Consequence: pick TTLs that are safe without a purge. As of 2026-09-07
+`_headers` uses a single one-hour rule for everything, so a bad deploy or a
+stale file self-corrects within the hour.
+
+Caching HTML at the edge is where nearly all of the cache hit rate lives
+anyway: the content-type breakdown was html 15.95k against css 146, so HTML is
+about 81% of requests and static assets are a rounding error. Long asset TTLs
+buy very little here.
+
+## There is no Cloudflare CLI for cache analytics
+
+`wrangler` (official, runs via `npx wrangler`) covers Workers and Pages deploys
+only. Cache hit rate, status-code breakdowns and `cacheStatus` histograms come
+from the GraphQL Analytics API at `https://api.cloudflare.com/client/v4/graphql`,
+queried with curl and an API token that has Analytics read permission.
+`flarectl` is a third-party CLI for zone configuration, also not analytics.

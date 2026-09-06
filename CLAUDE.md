@@ -8,6 +8,12 @@ Personal academic website for **Isuru Wijesiri** built with the [al-folio](https
 - **Owner:** Isuru Wijesiri - Associate Technical Lead (AI R&D) at WSO2
 - **Stack:** Jekyll 4.x, Ruby, Liquid templates, SCSS, Bootstrap/MDB
 
+## Read these first
+
+| File               | What it holds                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| `docs/findings.md` | Confirmed Jekyll, `jekyll-cache-bust` and Cloudflare Pages caching gotchas that bit this site |
+
 ## Build & Development
 
 ### Local Development
@@ -41,53 +47,58 @@ bundle exec jekyll build
 
 ## Key Files
 
-| Path | Purpose |
-|------|---------|
-| `_config.yml` | Site configuration (url, features, plugins) |
-| `_data/cv.yml` | CV data in RenderCV format |
-| `_data/repositories.yml` | GitHub repos shown on repositories page |
-| `_bibliography/papers.bib` | Publications (BibTeX, must be ASCII-only) |
-| `_pages/about.md` | Homepage (permalink: /) |
-| `_posts/` | Blog posts |
-| `_projects/` | Project pages (categories: `work`, `research`) |
-| `_news/` | News announcements on homepage |
-| `_teachings/` | Course pages |
-| `CNAME` | Custom domain: isuruwijesiri.com |
-| `_headers` | Cloudflare Pages cache rules |
+| Path                       | Purpose                                        |
+| -------------------------- | ---------------------------------------------- |
+| `_config.yml`              | Site configuration (url, features, plugins)    |
+| `_data/cv.yml`             | CV data in RenderCV format                     |
+| `_data/repositories.yml`   | GitHub repos shown on repositories page        |
+| `_bibliography/papers.bib` | Publications (BibTeX, must be ASCII-only)      |
+| `_pages/about.md`          | Homepage (permalink: /)                        |
+| `_posts/`                  | Blog posts                                     |
+| `_projects/`               | Project pages (categories: `work`, `research`) |
+| `_news/`                   | News announcements on homepage                 |
+| `_teachings/`              | Course pages                                   |
+| `CNAME`                    | Custom domain: isuruwijesiri.com               |
+| `_headers`                 | Cloudflare Pages cache rules                   |
 
 ## Important Conventions
 
 ### Content Rules
-- **No em dashes** (`—`) anywhere - use hyphens with spaces (` - `) instead. Em dashes look AI-generated.
+
+- **No em dashes** (`—`) anywhere - use hyphens with spaces (`-`) instead. Em dashes look AI-generated.
 - **No emojis** in content unless explicitly requested.
 - **ASCII only** in `_bibliography/papers.bib` - non-ASCII characters break bibtex-ruby on Cloudflare's US-ASCII locale.
 - Blog post dates may need `future: true` in `_config.yml` since build servers run in UTC.
 
 ### CV Data Format (RenderCV)
+
 - Uses `headline` (not `label`) for subtitle
 - Awards use `name` (not `title`)
 - `authors` in Publications must be a YAML list, not a string
 - No `image` or `summary` at top level
 
 ### Templates
+
 - Awards template uses `{% assign award_title = entry.title | default: entry.name %}` to support both field names
 - Teaching section in `_layouts/cv.liquid` renders via `experience.liquid`
 - Projects page `display_categories` must match actual categories used: `[work, research]`
 
 ### Cloudflare Pages Constraints
+
 - No ImageMagick (responsive image generation disabled)
 - System locale is US-ASCII - use `RUBYOPT="-E utf-8"` in build command
 - `en_US.UTF-8` locale is not installed
 
 ## Workflows
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `deploy.yml` | push to main | Build Jekyll and push to gh-pages |
-| `render-cv.yml` | changes to cv.yml | Render CV PDF via RenderCV |
-| `prettier.yml` | push/PR | Check code formatting |
+| Workflow        | Trigger           | Purpose                           |
+| --------------- | ----------------- | --------------------------------- |
+| `deploy.yml`    | push to main      | Build Jekyll and push to gh-pages |
+| `render-cv.yml` | changes to cv.yml | Render CV PDF via RenderCV        |
+| `prettier.yml`  | push/PR           | Check code formatting             |
 
 ## Style Preferences
+
 - Keep responses concise, no trailing summaries
 - Use hyphens not em dashes
 - Don't add unnecessary comments, docstrings, or type annotations

@@ -173,11 +173,17 @@ kramdown:
       start_line: 1
 
 # Includes & excludes
-include: ["_pages", "_scripts"]
+# _headers is consumed by Cloudflare Pages for cache-control; Jekyll skips
+# underscore-prefixed paths unless they are listed here.
+include: ["_pages", "_scripts", "_headers"]
 exclude:
+  - AGENTS.md
+  - ANALYTICS.md
   - bin/
+  - CLAUDE.md
   - CONTRIBUTING.md
   - CUSTOMIZE.md
+  - docs/
   - Dockerfile
   - docker-compose.yml
   - docker-compose-slim.yml
@@ -191,8 +197,12 @@ exclude:
   - package-lock.json
   - _pages/about_einstein.md
   - purgecss.config.js
+  - QUICKSTART.md
   - README.md
   - readme_preview/
+  - requirements.txt
+  - SEO.md
+  - TROUBLESHOOTING.md
   - vendor
 keep_files:
   - CNAME
