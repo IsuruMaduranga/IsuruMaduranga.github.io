@@ -45,7 +45,7 @@ cv:
         location: Sri Lanka
         start_date: 2024-01
         end_date: 2026-02
-        summary: "Led the end-to-end initiative to modernize WSO2 Micro Integrator with AI."
+        summary: "Led the effort to bring AI into WSO2 Micro Integrator."
         highlights:
           - "WSO2 Integrator Copilot: Owned from ideation to production. NL to Synapse DSL code generation with version-aware retrieval, XSD/Schematron validation, LSP diagnostics, and automated repair loops. 700+ active daily users."
           - "WSO2 Integrator Copilot Agent Mode: Cursor/Claude Code-style agentic integration engineer inside VS Code with 23 tools across 8 categories, multi-step planning, and autonomous task execution."

@@ -7,7 +7,7 @@ importance: 7
 category: research
 ---
 
-Applied federated learning for facilitating collaborative, privacy-preserving graph learning among organizations that use distributed graph database systems. Implementation was based on JasmineGraph distributed graph database system.
+Federated learning for collaborative, privacy-preserving graph learning across organizations that run distributed graph databases. Built on the JasmineGraph distributed graph database.
 
 - Built memory-efficient distributed/federated GCN training enabling training on very large graphs on commodity hardware using JasmineGraph and parallel workers.
 - Developed novel aggregation mechanisms for heterogeneous multi-organization graph learning while maintaining privacy.

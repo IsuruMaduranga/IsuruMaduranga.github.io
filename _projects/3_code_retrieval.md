@@ -7,11 +7,11 @@ importance: 3
 category: research
 ---
 
-Trained and published lightweight sentence-transformer embedding models optimized for code search (512-dim) to enable fast semantic retrieval over codebases and technical text.
+Lightweight sentence-transformer embedding models (512-dim) for code search, small enough to run fast over a whole codebase.
 
-- Fine-tuned a MiniLM-based embedding model for code-to-code / text-to-code retrieval use cases.
-- Designed for low-latency similarity search and practical deployment in RAG and developer tooling.
-- Packaged and released on Hugging Face for easy integration into embedding pipelines and vector databases.
+- Fine-tuned a MiniLM-based model for code-to-code and text-to-code retrieval.
+- Built for low-latency similarity search in RAG and developer tooling.
+- Released on Hugging Face, ready to drop into an embedding pipeline or vector database.
 
 **Results:** 97% Recall@10 and 95% MRR@10 on internal benchmarks.
 

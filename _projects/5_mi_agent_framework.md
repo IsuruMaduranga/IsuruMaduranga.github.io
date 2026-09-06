@@ -7,6 +7,6 @@ importance: 5
 category: work
 ---
 
-Led development of a low-code agent framework enabling rapid deployment of NLP applications in enterprise environments. The framework reduces development time and supports multiple LLM backends and vector stores.
+Led a low-code framework for building NLP applications in enterprise environments. It supports multiple LLM backends and vector stores, so teams can ship an application without wiring each one up by hand.
 
 **Source:** [GitHub](https://github.com/wso2-extensions/mi-module-generative-ai)
