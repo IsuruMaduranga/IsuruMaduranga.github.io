@@ -439,6 +439,19 @@ nav[data-toggle="toc"] {
   display: none !important;
 }
 
+// Rendered mermaid diagrams: show them small and centered inline (they are
+// click-to-enlarge via medium-zoom, so detail is one click away). The compound
+// selector outranks .img-fluid's max-width:100%. Both caps preserve aspect
+// ratio, so a tall flowchart shrinks to fit the height cap.
+img.diagram-img {
+  display: block;
+  margin: 1rem auto;
+  max-width: 552px;
+  max-height: 624px;
+  height: auto;
+  cursor: zoom-in;
+}
+
 .medium-zoom-overlay,
 .medium-zoom-image--opened {
   z-index: 999;
