@@ -54,6 +54,18 @@ do not show up in browser-visible responses after a deploy, check
 Caching > Configuration > Browser Cache TTL and set it to "Respect Existing
 Headers".
 
+**Open check.** Immediately after pushing `0c9293c`, live responses still read
+`max-age=7200, must-revalidate`, which is expected while the Pages build is
+still running. Re-run the command below once the deployment finishes. If it
+still shows 7200 rather than 3600, the dashboard override above is the cause
+and `_headers` is being masked for browsers even though edge TTL now follows
+`s-maxage`.
+
+```bash
+curl -sSI https://isuruwijesiri.com/ | grep -i 'cache-control\|cf-cache-status'
+# want: cache-control: public, max-age=3600, s-maxage=3600
+```
+
 ## Most assets are not fingerprinted, so long TTLs are unsafe
 
 Only CSS and most JS carry a `?v=` cache-bust token. Auditing a build for
