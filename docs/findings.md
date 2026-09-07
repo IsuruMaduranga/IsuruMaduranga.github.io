@@ -192,15 +192,47 @@ whitespace (`min(300px, 80vw)` -> `min(300px,80vw)`). al-folio's own CSS is
 already minified and fingerprinted, so it is unaffected - only mdBook's readable
 CSS breaks.
 
-Fix: disable Auto Minify. Cloudflare removed the dashboard toggle in Aug 2024
-(the feature is deprecated), so it is API-only on existing zones:
+**Auto Minify cannot be turned off on this zone.** Both documented switches are
+no-ops here (the feature is deprecated and stuck "on"):
 
-```bash
-curl -X PATCH "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/settings/minify" \
-  -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
-  --data '{"value":{"css":"off","html":"off","js":"off"}}'
-```
+- `PATCH .../settings/minify {"value":{"css":"off",...}}` returns `success:true`
+  and reads back "off", but `modified_on` stays `null` and the edge keeps
+  minifying even with cache bypassed (Development Mode). The setting never
+  actually applies.
+- A Configuration Rule (`set_config -> autominify: {css:false,...}`, phase
+  `http_config_settings`) deploys and reads back active, but the edge still
+  minifies. Also ineffective.
 
-Token needs Zone > Zone Settings > Edit. Purge the cache afterwards so the
-mangled CSS is refetched. Do not rely on serving mdBook (or any unminified
-static CSS/JS) through this zone until Auto Minify is off.
+Its minifier is broken for modern CSS in more than one way, and it *re-minifies*
+CSS even when the file is already minified (unlike JS - mdBook's already-minified
+`book.js` is served byte-identical, so JS is skipped, but CSS is always
+reprocessed). Two corruptions observed:
+
+1. On mdBook's unminified CSS: `@media only screen and (min-width:620px)` ->
+   `@mediaonlyscreenand(min-width:620px)` (required keyword spaces stripped ->
+   invalid at-rule -> the whole media block is dropped).
+2. On our pre-minified CSS: inside `calc()`, a custom property is read as
+   arithmetic - `calc(var(--sidebar-width) + ...)` ->
+   `calc(var( - - sidebar - width)+...)` -> invalid calc -> the rule is dropped.
+
+Either way the dropped rule is mdBook's content offset
+(`#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper { margin-inline-start:
+calc(var(--sidebar-width) + ...) }`), so the content column is not pushed past
+the docked sidebar and the menu bar overlaps it.
+
+Working fix (build-side, no Cloudflare dependency), in `scripts/sync-to-blog.sh`
+and `book.toml` in the book repo:
+
+1. Pre-minify every book CSS file with esbuild after `mdbook build`. This keeps
+   `@media only screen and (...)` valid (a correct minifier preserves the
+   required spaces), which fixes corruption #1.
+2. Ship `sidebar-offset-fix.css` via `additional-css` - it restates the content
+   offset as a plain `margin-inline-start: 300px` (no `calc`, no `var`; 300px =
+   `--sidebar-width` for screens >= 620px), so there is nothing left for the
+   minifier to mangle. This fixes corruption #2.
+
+Verified live with the headless harness: served override is intact
+(`@media only screen and (min-width:620px){...margin-inline-start:300px}`) and
+the menu bar renders offset (x=315, past the 300px sidebar). If Cloudflare ever
+actually retires Auto Minify, both workarounds become harmless no-ops. Do not
+serve unminified static CSS through this zone.
