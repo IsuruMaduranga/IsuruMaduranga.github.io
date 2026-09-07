@@ -175,84 +175,89 @@ correctly - no competing web font on the labels, correct box sizing - verified
 with the same headless harness. See `HANDOFF.md` in the book repo for the full
 decision.
 
-## Cloudflare Auto Minify corrupts mdBook's unminified CSS
+## The blog's own jekyll-minifier corrupts the mdBook CSS (not Cloudflare)
 
-The mdBook at `/harness-engineering-101/` rendered with its top menu bar
-overlapping the sidebar - the content column (and its sticky menu bar) was not
-shifted right past the docked sidebar. The book files are byte-identical to the
-local build, and the exact same files render correctly under `jekyll serve`
-(menu bar at x=308, no overlap), so the break is introduced in transit.
+The mdBook at `/harness-engineering-101/` broke in two ways in production, and
+only in production: the sticky menu bar overlapped the docked sidebar, and the
+sidebar toggle did nothing - clicking it never collapsed the sidebar.
 
-Cause: Cloudflare Auto Minify (CSS) rewrites the stylesheets at the edge.
-mdBook ships *unminified* CSS, and the minifier corrupts the sidebar/menu-bar
-layout rules in `css/chrome-*.css`. Confirmed by comparing origin vs served
-bytes under the same content-hashed filename: `general-*.css` 11,478 -> 6,595
-bytes, `chrome-*.css` 18,032 -> 12,583, and `--sidebar-width` lost its
-whitespace (`min(300px, 80vw)` -> `min(300px,80vw)`). al-folio's own CSS is
-already minified and fingerprinted, so it is unaffected - only mdBook's readable
-CSS breaks.
+Cause: `jekyll-minifier`, an al-folio plugin listed in `_config.yml`, minifies
+every static `.css` file this site writes, using CSSminify2 (a Ruby port of the
+YUI compressor). Inside `calc()` that compressor reads the `--` of a custom
+property as two minus operators, so
 
-**Auto Minify cannot be turned off on this zone.** Both documented switches are
-no-ops here (the feature is deprecated and stuck "on"):
+    calc(var(--sidebar-width) + var(--sidebar-resize-indicator-width))
 
-- `PATCH .../settings/minify {"value":{"css":"off",...}}` returns `success:true`
-  and reads back "off", but `modified_on` stays `null` and the edge keeps
-  minifying even with cache bypassed (Development Mode). The setting never
-  actually applies.
-- A Configuration Rule (`set_config -> autominify: {css:false,...}`, phase
-  `http_config_settings`) deploys and reads back active, but the edge still
-  minifies. Also ineffective.
+is written out as
 
-Its minifier is broken for modern CSS in more than one way, and it *re-minifies*
-CSS even when the file is already minified (unlike JS - mdBook's already-minified
-`book.js` is served byte-identical, so JS is skipped, but CSS is always
-reprocessed). Two corruptions observed:
+    calc(var( -  - sidebar - width)+var(--sidebar-resize-indicator-width))
 
-1. On mdBook's unminified CSS: `@media only screen and (min-width:620px)` ->
-   `@mediaonlyscreenand(min-width:620px)` (required keyword spaces stripped ->
-   invalid at-rule -> the whole media block is dropped).
-2. On our pre-minified CSS: inside `calc()`, a custom property is read as
-   arithmetic - `calc(var(--sidebar-width) + ...)` ->
-   `calc(var( - - sidebar - width)+...)` -> invalid calc -> the rule is dropped.
+which is invalid, so the browser drops the whole declaration. Every mdBook rule
+that places the sidebar or offsets the content goes through such a `calc()`, so
+each of them disappears:
 
-Either way the dropped rule is mdBook's content offset
-(`#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper { margin-inline-start:
-calc(var(--sidebar-width) + ...) }`), so the content column is not pushed past
-the docked sidebar and the menu bar overlaps it.
+- `#mdbook-sidebar-toggle-anchor:not(:checked) ~ .sidebar { transform:
+  translate(calc(0px - var(--sidebar-width) - ...)) }` - the sidebar never
+  slides off-screen, so it cannot collapse.
+- `#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper { margin-inline-start:
+  calc(var(--sidebar-width) + ...) }` - the content column and its sticky menu
+  bar are not pushed past the sidebar, so they overlap it.
 
-Working fix (build-side, no Cloudflare dependency), in `scripts/sync-to-blog.sh`
-and `book.toml` in the book repo:
+Why this looks like an edge problem and is not: `output_css` in jekyll-minifier
+returns early unless `JEKYLL_ENV=production`, so `bundle exec jekyll serve`
+serves the book's CSS untouched and the local render is always correct. The
+committed files are byte-identical to the mdBook build, and only the deployed
+copy differs - which reads as "something rewrites it in transit". It is rewritten
+at build time, in this repo.
 
-1. Pre-minify every book CSS file with esbuild after `mdbook build`. This keeps
-   `@media only screen and (...)` valid (a correct minifier preserves the
-   required spaces), which fixes corruption #1.
-2. Ship `sidebar-offset-fix.css` via `additional-css` - it restates the content
-   offset as a plain `margin-inline-start: 300px` (no `calc`, no `var`; 300px =
-   `--sidebar-width` for screens >= 620px), so there is nothing left for the
-   minifier to mangle. This fixes corruption #2.
+Fix: exclude the book's directory in `_config.yml`, which makes jekyll-minifier
+copy those files verbatim:
 
-Verified live with the headless harness: served override is intact
-(`@media only screen and (min-width:620px){...margin-inline-start:300px}`) and
-the menu bar renders offset (x=315, past the 300px sidebar). If Cloudflare ever
-actually retires Auto Minify, both workarounds become harmless no-ops. Do not
-serve unminified static CSS through this zone.
+    jekyll-minifier:
+      exclude: ["robots.txt", "assets/js/search/*.js", "harness-engineering-101/*"]
 
-Operational notes from working this out:
+Verified two ways. Byte-level: run `JEKYLL_ENV=production bundle exec jekyll
+build`, then compare every `harness-engineering-101/**/*.css` against its source
+- all eight identical, no `var( -  - ` left anywhere in the output. Runtime:
+serve `_site`, drive headless Chrome, click the sidebar toggle exactly once, and
+sample the state over the next 1.5s. The fixed build animates the sidebar out
+(its right edge goes 300 -> 15 -> 0) and settles at `display:none` with the
+wrapper margin at `0px`. The deployed copy leaves it at right 300,
+`display:block`, `transform:none` indefinitely while the margin still drops to
+0, so the content slides underneath a sidebar that is still on screen. Click
+once and sample over time - a harness that clicks repeatedly and measures
+between clicks can toggle twice and report a false failure. Keep that exclude
+when merging al-folio upstream.
 
-- **Development Mode bypasses cache, not Auto Minify.** Turning it on
-  (`settings/development_mode {"value":"on"}`, 3h) made every request `DYNAMIC`
-  but the CSS was still minified, which is how we proved the minify happens at
-  the edge regardless of cache. It is not a workaround for this bug. (It also
-  disables all caching zone-wide while on, so turn it back off promptly - it was
-  left on after this session and needed a Zone-Settings-Edit token or the
-  dashboard to disable.)
-- **Purge does not reliably evict Pages static assets here.** `purge_everything`
-  and purge-by-file both returned `success:true` but the CSS kept coming back
-  `cf-cache-status: HIT` with the old bytes (reinforces the existing
-  "Do not rely on a Pages deployment purging the edge cache" finding). Query
-  strings do not force a miss either - Pages ignores them in the cache key.
-- **A standing `autominify: off` Configuration Rule** (phase
-  `http_config_settings`, expression `true`) was left on the zone. It is a
-  no-op today but harmless, and documents intent; it starts working if Cloudflare
-  ever fixes the deprecation. Editing it needs a token with `Config Rules: Edit`
-  (Zone Settings / Cache tokens get an auth error on the rulesets API).
+Notes:
+
+- **Pre-minifying the CSS ourselves does not help.** jekyll-minifier re-minifies
+  regardless of how compact the input already is; an earlier attempt to dodge
+  this with esbuild made no difference. The only skips are by path: the `exclude`
+  list, or a filename ending in `.min.css` / `.min.js`. The book's sync script
+  still pre-minifies with esbuild, but now only to cut the payload.
+- **JS goes through a different plugin.** `jekyll-terser` replaces every static
+  `.js` that does not end in `.min.js` and has no exclude option, so
+  jekyll-minifier's exclude does not cover it. Its output is correct, so the
+  book's JS is left to it.
+- **Cloudflare Auto Minify was never involved.** The earlier version of this
+  finding blamed it. `PATCH .../settings/minify` returning `success:true` with
+  `modified_on: null`, and an `autominify: off` Configuration Rule deploying with
+  no observable effect, are both consistent with the feature already being
+  retired on this zone - not with it being stuck on. That standing no-op
+  Configuration Rule (phase `http_config_settings`, expression `true`) is still
+  on the zone; it is harmless, and removing it needs a token with
+  `Config Rules: Edit`.
+- **Development Mode and cache purges were red herrings.** Turning on
+  Development Mode made every request `DYNAMIC` and the CSS was still mangled;
+  the right reading of that was "the origin is serving mangled bytes", not "the
+  edge minifies past the cache". Separately, `purge_everything` and purge-by-file
+  both returned `success:true` while the CSS kept coming back `HIT` with old
+  bytes, which reinforces the existing "do not rely on a Pages deployment purging
+  the edge cache" finding; query strings do not force a miss either, since Pages
+  ignores them in the cache key.
+
+To check this class of bug in future, compare the deployed bytes with the repo
+directly - `diff <(curl -s https://isuruwijesiri.com/<path>) <repo path>` - and
+then reproduce locally with `JEKYLL_ENV=production bundle exec jekyll build`
+rather than `jekyll serve`.
