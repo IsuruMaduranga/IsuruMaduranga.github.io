@@ -174,3 +174,33 @@ repo, committed here as static output). mdbook-mermaid renders the diagrams
 correctly - no competing web font on the labels, correct box sizing - verified
 with the same headless harness. See `HANDOFF.md` in the book repo for the full
 decision.
+
+## Cloudflare Auto Minify corrupts mdBook's unminified CSS
+
+The mdBook at `/harness-engineering-101/` rendered with its top menu bar
+overlapping the sidebar - the content column (and its sticky menu bar) was not
+shifted right past the docked sidebar. The book files are byte-identical to the
+local build, and the exact same files render correctly under `jekyll serve`
+(menu bar at x=308, no overlap), so the break is introduced in transit.
+
+Cause: Cloudflare Auto Minify (CSS) rewrites the stylesheets at the edge.
+mdBook ships *unminified* CSS, and the minifier corrupts the sidebar/menu-bar
+layout rules in `css/chrome-*.css`. Confirmed by comparing origin vs served
+bytes under the same content-hashed filename: `general-*.css` 11,478 -> 6,595
+bytes, `chrome-*.css` 18,032 -> 12,583, and `--sidebar-width` lost its
+whitespace (`min(300px, 80vw)` -> `min(300px,80vw)`). al-folio's own CSS is
+already minified and fingerprinted, so it is unaffected - only mdBook's readable
+CSS breaks.
+
+Fix: disable Auto Minify. Cloudflare removed the dashboard toggle in Aug 2024
+(the feature is deprecated), so it is API-only on existing zones:
+
+```bash
+curl -X PATCH "https://api.cloudflare.com/client/v4/zones/<ZONE_ID>/settings/minify" \
+  -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
+  --data '{"value":{"css":"off","html":"off","js":"off"}}'
+```
+
+Token needs Zone > Zone Settings > Edit. Purge the cache afterwards so the
+mangled CSS is refetched. Do not rely on serving mdBook (or any unminified
+static CSS/JS) through this zone until Auto Minify is off.
