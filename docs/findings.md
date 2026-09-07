@@ -146,3 +146,31 @@ only. Cache hit rate, status-code breakdowns and `cacheStatus` histograms come
 from the GraphQL Analytics API at `https://api.cloudflare.com/client/v4/graphql`,
 queried with curl and an API token that has Analytics read permission.
 `flarectl` is a third-party CLI for zone configuration, also not analytics.
+
+## al-folio clips mermaid diagrams; rendering the book with mdBook fixed it
+
+al-folio loads mermaid.js only when a post opts in with a
+`mermaid: {enabled: true}` front-matter block (`_includes/scripts.liquid` gates
+on `page.mermaid.enabled`); with `zoomable: true` it also loads d3 and wraps
+each diagram in a d3-zoom pan viewport. Two separate clipping bugs, both
+confirmed by rendering the local build in headless Chrome (puppeteer, Chrome for
+Testing) and measuring node boxes:
+
+1. `zoomable: true` renders the diagram in a fixed-size pannable viewport that
+   overflows the content column and clips the diagram vertically. Setting
+   `zoomable: false` removes the d3 wrapper.
+2. Even with `zoomable: false`, flowchart node text overflows its boxes.
+   mermaid sizes each box by measuring the label in its default
+   `"trebuchet ms", verdana, arial, sans-serif` stack, but al-folio renders the
+   labels as HTML inside `<foreignObject>`, which inherits the site web font
+   Plus Jakarta Sans (wider). The rendered text is ~13px wider than the box, so
+   it is clipped. The mermaid SVG is also emitted `width="100%"` with no
+   `height`, which mis-sizes it (the same percentage-width/no-height trap that
+   clipped the pre-rendered SVGs used as `<img>` before).
+
+Resolution: stop rendering these diagrams in al-folio. The series is served as
+an mdBook at `/harness-engineering-101/` (built from the harness-engineering-101
+repo, committed here as static output). mdbook-mermaid renders the diagrams
+correctly - no competing web font on the labels, correct box sizing - verified
+with the same headless harness. See `HANDOFF.md` in the book repo for the full
+decision.
