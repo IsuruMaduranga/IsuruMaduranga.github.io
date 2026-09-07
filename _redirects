@@ -1,0 +1,43 @@
+# Retired al-folio series chapters -> mdBook chapters (see _retired-posts/).
+# Cloudflare Pages consumes this file from the built site root.
+
+/blog/2026/harness-01-json-array/    /harness-engineering-101/01-its-just-a-json-array.html    301
+/blog/2026/harness-01-json-array     /harness-engineering-101/01-its-just-a-json-array.html    301
+/blog/2026/harness-02-the-brain/    /harness-engineering-101/02-the-brain.html    301
+/blog/2026/harness-02-the-brain     /harness-engineering-101/02-the-brain.html    301
+/blog/2026/harness-03-tools/    /harness-engineering-101/03-tools.html    301
+/blog/2026/harness-03-tools     /harness-engineering-101/03-tools.html    301
+/blog/2026/harness-04-agent-loop/    /harness-engineering-101/04-the-agent-loop.html    301
+/blog/2026/harness-04-agent-loop     /harness-engineering-101/04-the-agent-loop.html    301
+/blog/2026/harness-05-caching/    /harness-engineering-101/05-caching.html    301
+/blog/2026/harness-05-caching     /harness-engineering-101/05-caching.html    301
+/blog/2026/harness-06-context-budget/    /harness-engineering-101/06-context-is-a-budget.html    301
+/blog/2026/harness-06-context-budget     /harness-engineering-101/06-context-is-a-budget.html    301
+/blog/2026/harness-07-subagents/    /harness-engineering-101/07-subagents.html    301
+/blog/2026/harness-07-subagents     /harness-engineering-101/07-subagents.html    301
+/blog/2026/harness-08-steering/    /harness-engineering-101/08-steering.html    301
+/blog/2026/harness-08-steering     /harness-engineering-101/08-steering.html    301
+/blog/2026/harness-09-background-work/    /harness-engineering-101/09-background-work-and-time.html    301
+/blog/2026/harness-09-background-work     /harness-engineering-101/09-background-work-and-time.html    301
+/blog/2026/harness-10-frameworks/    /harness-engineering-101/10-frameworks-are-wrappers.html    301
+/blog/2026/harness-10-frameworks     /harness-engineering-101/10-frameworks-are-wrappers.html    301
+/blog/2026/harness-11-extending-the-body/    /harness-engineering-101/11-extending-the-body.html    301
+/blog/2026/harness-11-extending-the-body     /harness-engineering-101/11-extending-the-body.html    301
+/blog/2026/harness-12-debugging/    /harness-engineering-101/12-debugging-the-array.html    301
+/blog/2026/harness-12-debugging     /harness-engineering-101/12-debugging-the-array.html    301
+/blog/2026/harness-13-guardrails/    /harness-engineering-101/13-reflexes-and-guardrails.html    301
+/blog/2026/harness-13-guardrails     /harness-engineering-101/13-reflexes-and-guardrails.html    301
+/blog/2026/harness-14-coding-agents/    /harness-engineering-101/14-coding-agents.html    301
+/blog/2026/harness-14-coding-agents     /harness-engineering-101/14-coding-agents.html    301
+/blog/2026/harness-15-rag/    /harness-engineering-101/15-rag.html    301
+/blog/2026/harness-15-rag     /harness-engineering-101/15-rag.html    301
+/blog/2026/harness-16-epilogue/    /harness-engineering-101/16-epilogue-build-your-own.html    301
+/blog/2026/harness-16-epilogue     /harness-engineering-101/16-epilogue-build-your-own.html    301
+/blog/2026/harness-appendix-a-model-routing/    /harness-engineering-101/appendix-a-one-harness-many-brains.html    301
+/blog/2026/harness-appendix-a-model-routing     /harness-engineering-101/appendix-a-one-harness-many-brains.html    301
+/blog/2026/harness-appendix-b-worktrees/    /harness-engineering-101/appendix-b-worktrees-and-isolation.html    301
+/blog/2026/harness-appendix-b-worktrees     /harness-engineering-101/appendix-b-worktrees-and-isolation.html    301
+/blog/2026/harness-appendix-c-modes/    /harness-engineering-101/appendix-c-modes-and-plan-mode.html    301
+/blog/2026/harness-appendix-c-modes     /harness-engineering-101/appendix-c-modes-and-plan-mode.html    301
+/blog/2026/harness-appendix-d-retries/    /harness-engineering-101/appendix-d-retries-rate-limits-streaming.html    301
+/blog/2026/harness-appendix-d-retries     /harness-engineering-101/appendix-d-retries-rate-limits-streaming.html    301
