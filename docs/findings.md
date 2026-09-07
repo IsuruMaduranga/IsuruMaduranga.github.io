@@ -236,3 +236,23 @@ Verified live with the headless harness: served override is intact
 the menu bar renders offset (x=315, past the 300px sidebar). If Cloudflare ever
 actually retires Auto Minify, both workarounds become harmless no-ops. Do not
 serve unminified static CSS through this zone.
+
+Operational notes from working this out:
+
+- **Development Mode bypasses cache, not Auto Minify.** Turning it on
+  (`settings/development_mode {"value":"on"}`, 3h) made every request `DYNAMIC`
+  but the CSS was still minified, which is how we proved the minify happens at
+  the edge regardless of cache. It is not a workaround for this bug. (It also
+  disables all caching zone-wide while on, so turn it back off promptly - it was
+  left on after this session and needed a Zone-Settings-Edit token or the
+  dashboard to disable.)
+- **Purge does not reliably evict Pages static assets here.** `purge_everything`
+  and purge-by-file both returned `success:true` but the CSS kept coming back
+  `cf-cache-status: HIT` with the old bytes (reinforces the existing
+  "Do not rely on a Pages deployment purging the edge cache" finding). Query
+  strings do not force a miss either - Pages ignores them in the cache key.
+- **A standing `autominify: off` Configuration Rule** (phase
+  `http_config_settings`, expression `true`) was left on the zone. It is a
+  no-op today but harmless, and documents intent; it starts working if Cloudflare
+  ever fixes the deprecation. Editing it needs a token with `Config Rules: Edit`
+  (Zone Settings / Cache tokens get an auth error on the rulesets API).
