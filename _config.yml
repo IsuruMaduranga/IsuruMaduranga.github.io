@@ -175,7 +175,7 @@ kramdown:
 # Includes & excludes
 # _headers is consumed by Cloudflare Pages for cache-control; Jekyll skips
 # underscore-prefixed paths unless they are listed here.
-include: ["_pages", "_scripts", "_headers"]
+include: ["_pages", "_scripts", "_headers", "_redirects"]
 exclude:
   - AGENTS.md
   - ANALYTICS.md

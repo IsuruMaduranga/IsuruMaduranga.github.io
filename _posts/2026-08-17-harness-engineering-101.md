@@ -8,8 +8,6 @@ categories: [harness-engineering-101]
 featured: true
 giscus_comments: false
 related_posts: false
-toc:
-  sidebar: left
 ---
 
 _The LLM is the brain. The harness is the body._
@@ -48,70 +46,14 @@ Production harnesses (Claude Code, and [One Code](/projects/one_code/), my
 reimplementation of it on another agent runtime) appear as evidence that the
 patterns are real, never as the vehicle for the explanation.
 
-## Reading order
+## Read the series
 
-### Part I - The Wire (nothing is magic)
+The full series is a short book — sidebar, search, and all sixteen chapters
+plus the appendices in reading order. It grows a toy harness in plain Python
+(raw HTTP, no SDK) alongside the text; by the epilogue it's a working mini
+coding agent in about 300 lines.
 
-| #   | Chapter                                                               | The failure it patches              |
-| --- | --------------------------------------------------------------------- | ----------------------------------- |
-| 1   | [It's Just a JSON Array](/blog/2026/harness-01-json-array/)           | "How do I even talk to this thing?" |
-| 2   | [The Brain: A Next-Token Black Box](/blog/2026/harness-02-the-brain/) | "Why does it behave like that?"     |
-| 3   | [Tools: JSON Mapped to Functions](/blog/2026/harness-03-tools/)       | The brain can't touch the world     |
-| 4   | [The Agent Loop](/blog/2026/harness-04-agent-loop/)                   | One tool call isn't enough          |
-| 5   | [Caching: Why Order Is Load-Bearing](/blog/2026/harness-05-caching/)  | Resending the array gets expensive  |
+**[Read Harness Engineering 101 →](/harness-engineering-101/)**
 
-### Part II - Running Long (the array under pressure)
-
-| #   | Chapter                                                                 | The failure it patches                   |
-| --- | ----------------------------------------------------------------------- | ---------------------------------------- |
-| 6   | [Context Is a Budget, Not a Bag](/blog/2026/harness-06-context-budget/) | The window fills up                      |
-| 7   | [Subagents: Fork the Context](/blog/2026/harness-07-subagents/)         | One array can't hold all the work        |
-| 8   | [Steering the Running Loop](/blog/2026/harness-08-steering/)            | The brain drifts mid-task                |
-| 9   | [Background Work and Time](/blog/2026/harness-09-background-work/)      | The loop is synchronous; the world isn't |
-
-### Part III - The Ecosystem (naming what you already understand)
-
-| #   | Chapter                                                                                               | The failure it patches                 |
-| --- | ----------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 10  | [Every Framework Is a Wrapper Around Chapter 1](/blog/2026/harness-10-frameworks/)                    | Abstraction anxiety                    |
-| 11  | [Extending the Body: MCP, Skills, Deferred Loading, Hooks](/blog/2026/harness-11-extending-the-body/) | Capabilities don't fit in the array    |
-| 12  | [Debugging the Array](/blog/2026/harness-12-debugging/)                                               | You can't fix the prompt you can't see |
-
-### Part IV - Trust, Domains, and Data
-
-| #   | Chapter                                                           | The failure it patches                    |
-| --- | ----------------------------------------------------------------- | ----------------------------------------- |
-| 13  | [Reflexes and Guardrails](/blog/2026/harness-13-guardrails/)      | The loop will do something dumb           |
-| 14  | [Case Study: Coding Agents](/blog/2026/harness-14-coding-agents/) | How specialized does the body need to be? |
-| 15  | [RAG Was a Harness Pattern All Along](/blog/2026/harness-15-rag/) | A thousand names for one idea             |
-
-### Epilogue
-
-|     | Chapter                                           |                                     |
-| --- | ------------------------------------------------- | ----------------------------------- |
-| E   | [Build Your Own](/blog/2026/harness-16-epilogue/) | The complete toy harness, annotated |
-
-### Appendix - Advanced Topics
-
-Standalone pieces. Read them when you need them.
-
-- [A. One Harness, Many Brains](/blog/2026/harness-appendix-a-model-routing/) - model routing, prompt tiers, cost engineering
-- [B. Worktrees and Isolation](/blog/2026/harness-appendix-b-worktrees/) - giving parallel agents separate copies of the world
-- [C. Modes and Plan Mode](/blog/2026/harness-appendix-c-modes/) - harness-enforced operating states (coding-specific)
-- [D. Retries, Rate Limits, and Streaming](/blog/2026/harness-appendix-d-retries/) - the unglamorous plumbing, plus how streaming works on the wire
-
-## The toy harness
-
-The running example is a single Python program, built up chapter by chapter.
-Each version is the previous one plus that chapter's patch: `v1_chat.py` (the
-30-line chat loop) grows into `v2_tools.py`, then `v3_agent.py`, then
-`v4_subagents.py`, and finally the complete ~300-line agent in the epilogue.
-
-Python 3.10+, zero dependencies (raw `urllib`), Anthropic Messages API by
-default. Swapping the wire format for OpenAI's is chapter 1 homework, and the
-point of the whole series is that it's _only_ the wire format you'd swap.
-
-## Out of scope
-
-Training or fine-tuning models, TUI implementation, provider billing and
-OAuth plumbing. This series is about the body, not about growing a brain.
+The runnable harness and every chapter's source are on
+[GitHub](https://github.com/IsuruMaduranga/harness-engineering-101).
