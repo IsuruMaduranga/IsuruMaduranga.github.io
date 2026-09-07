@@ -247,7 +247,12 @@ sass:
 
 jekyll-minifier:
   compress_javascript: false # set to false since we are using terser as the js minifier
-  exclude: ["robots.txt", "assets/js/search/*.js"]
+  # harness-engineering-101 is pre-built mdBook output, already minified by the
+  # book's sync script. jekyll-minifier's CSS compressor (CSSminify2, a YUI port)
+  # corrupts it: inside calc() it reads the "--" of a custom property as two
+  # minus signs, so calc(var(--sidebar-width)) becomes calc(var( - - sidebar -
+  # width)) and the browser drops the rule. See docs/findings.md.
+  exclude: ["robots.txt", "assets/js/search/*.js", "harness-engineering-101/*"]
 
 # -----------------------------------------------------------------------------
 # Terser
