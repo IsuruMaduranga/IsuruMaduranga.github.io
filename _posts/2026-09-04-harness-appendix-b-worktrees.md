@@ -9,13 +9,13 @@ giscus_comments: false
 related_posts: false
 ---
 
-_Harness Engineering 101, Appendix - Advanced Topics.
-[Series index](/blog/2026/harness-engineering-101/)_
+*Harness Engineering 101, Appendix — Advanced Topics.
+[Series index](/blog/2026/harness-engineering-101/)*
 
 ---
 
-Chapter 7 gave each subagent its own _array_. That isolates their
-attention. It does not isolate their _world_: every agent still reads and
+Chapter 7 gave each subagent its own *array*. That isolates their
+attention. It does not isolate their *world*: every agent still reads and
 writes the same directory. The moment you run two agents concurrently on
 the same project (a fan-out of fixers, or just the main loop plus a
 background child), you have reinvented the race condition. Agent A edits
@@ -41,21 +41,21 @@ one is fast and cheap, unlike a full clone. Each agent gets:
 The harness pattern: when spawning an agent whose task is "make changes"
 (rather than "look things up"), create a worktree, point the child's tools
 at that directory as their root, and record the branch. When the child
-reports done, the _merge_ is a first-class step: show the human a diff, or
-run tests, then `git merge` / rebase, then remove the worktree. If the
-child failed or went sideways, removal is the whole cleanup: the main tree
+reports done, the *merge* is its own deliberate step: show the human a diff,
+or run tests, then `git merge` / rebase, then remove the worktree. If the
+child failed or went wrong, removal is the whole cleanup: the main tree
 never saw a byte of the mess. An unchanged worktree can be deleted
 automatically; a changed one is evidence.
 
 Claude Code exposes exactly this as an option on its Agent tool and as
-`EnterWorktree` for the main session; [One Code](/projects/one_code/) implements the same. The
-noteworthy design choice in both: isolation is _opt-in per task_, because
+`EnterWorktree` for the main session; One Code implements the same. The
+noteworthy design choice in both: isolation is *opt-in per task*, because
 worktrees have a cost (below), and read-only errands don't need them.
 
 ## What worktrees don't isolate
 
-A worktree fences the _files under version control_, and nothing else.
-The remaining shared surfaces, in the order they will bite you:
+A worktree fences the *files under version control*, and nothing else.
+The remaining shared surfaces, in the order they will cause you trouble:
 
 - **Untracked state**: `node_modules`, build caches, `.env` files.
   A fresh worktree has none of them, so the child's first `npm test`
@@ -65,35 +65,35 @@ The remaining shared surfaces, in the order they will bite you:
   worktree" sometimes disappoints people expecting magic.
 - **Global mutable state**: databases, docker daemons, package caches,
   the network. Two agents "isolated" in worktrees can still fight over
-  port 3000 or the same test database. Worktrees isolate the _code_, not
-  the _runtime_.
+  port 3000 or the same test database. Worktrees isolate the *code*, not
+  the *runtime*.
 - **The machine itself.** For that, you are back to chapter 13's
   sandboxes: containers or VMs per agent, of which a worktree is the
   lightweight, code-only special case. The spectrum is: same directory
   (free, unsafe) → worktree (cheap, code-isolated) → container (heavier,
   runtime-isolated) → VM (heaviest, machine-isolated). Pick per task
-  risk, and remember the spectrum composes: a worktree _inside_ a
+  risk, and remember the spectrum composes: a worktree *inside* a
   container is a perfectly sensible rung.
 
 ## The non-coding version
 
-The pattern generalizes past git, and it is worth stating because it is
+The pattern goes beyond git, and it is worth stating because it is
 the actual principle: **agents should work on transactions, not on the
 live world.** A draft email, not the send button. A staging table, not
 production. A proposed diff, not an applied one. The worktree is just the
 coding domain's excellent built-in transaction. When you build a harness
-for a domain without one, building the "propose, review, commit" seam is
-some of the highest-leverage safety work available (chapter 13's blast
+for a domain without one, building the "propose, review, commit" step is
+some of the most valuable safety work available (chapter 13's blast
 radius, implemented as workflow rather than walls).
 
 ## What to remember
 
-Context isolation (chapter 7) and world isolation are separate axes; you
-need the second the moment writers run in parallel. Git worktrees are the
+Context isolation (chapter 7) and world isolation are two separate things;
+you need the second the moment writers run in parallel. Git worktrees are the
 cheap, natural unit for code: directory + branch per agent, deliberate
 merge, trivial cleanup. They do not isolate runtime or untracked state,
 and they are one rung on a spectrum that ends at VMs. The principle
-underneath is transactions: let agents propose in private, and make
-integration a visible, human-gateable step.
+underneath is transactions: let agents propose in private, and make the
+integration a visible step a human can approve.
 
-_[Series index](/blog/2026/harness-engineering-101/)_
+*[Series index](/blog/2026/harness-engineering-101/)*

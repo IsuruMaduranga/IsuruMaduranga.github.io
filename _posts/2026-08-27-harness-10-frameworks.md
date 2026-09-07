@@ -9,9 +9,9 @@ giscus_comments: false
 related_posts: false
 ---
 
-_Harness Engineering 101, Part III - The Ecosystem.
+*Harness Engineering 101, Part III — The Ecosystem.
 [Series index](/blog/2026/harness-engineering-101/) · [Prev](/blog/2026/harness-09-background-work/) ·
-[Next: Extending the Body](/blog/2026/harness-11-extending-the-body/)_
+[Next: Extending the Body](/blog/2026/harness-11-extending-the-body/)*
 
 ---
 
@@ -26,35 +26,35 @@ build yourself.
 
 You have spent nine chapters building what they contain. This chapter is a
 decoder ring: for each kind of framework vocabulary, what it maps to in the
-toy harness. Not a takedown; several of these libraries are good, and I will
-say when to use them. But you should evaluate them the way you would
+toy harness. This is not an attack on them; several of these libraries are
+good, and I will say when to use them. But you should evaluate them the way you would
 evaluate any dependency, from a position of knowing what the job is, rather
 than adopting one because the job looks mysterious.
 
 ## The decoder ring
 
-| Framework word               | What it is underneath                                          | Where you built it |
-| ---------------------------- | -------------------------------------------------------------- | ------------------ |
-| Model / LLM wrapper          | `call_llm()` with provider dialects                            | ch. 1              |
-| Prompt template              | an f-string that builds a message                              | ch. 1              |
-| Memory                       | the messages array, kept and resent                            | ch. 1              |
-| Conversation store / thread  | the array, saved to disk                                       | ch. 1              |
-| Tool / function              | schema + a dispatch table entry                                | ch. 3              |
-| Structured output parser     | a forced tool call                                             | ch. 3, sidebar     |
-| Agent / AgentExecutor        | the while loop over stop_reason                                | ch. 4              |
-| ReAct agent                  | the same loop for models without tool training                 | ch. 4              |
-| Multi-agent / crew / handoff | the loop, called as a function with a fresh array              | ch. 7              |
-| Middleware / callbacks       | code at the append points of the array                         | ch. 8              |
-| Human-in-the-loop node       | an `ask_user` tool, or an approval gate                        | ch. 3, 13          |
-| Retriever                    | a search that pastes results into the array                    | ch. 15             |
-| Chain / graph / workflow     | ordinary control flow (function calls, ifs) around model calls | everywhere         |
+| Framework word | What it is underneath | Where you built it |
+|---|---|---|
+| Model / LLM wrapper | `call_llm()` with provider dialects | ch. 1 |
+| Prompt template | an f-string that builds a message | ch. 1 |
+| Memory | the messages array, kept and resent | ch. 1 |
+| Conversation store / thread | the array, saved to disk | ch. 1 |
+| Tool / function | schema + a dispatch table entry | ch. 3 |
+| Structured output parser | a forced tool call | ch. 3, sidebar |
+| Agent / AgentExecutor | the while loop over stop_reason | ch. 4 |
+| ReAct agent | the same loop for models without tool training | ch. 4 |
+| Multi-agent / crew / handoff | the loop, called as a function with a fresh array | ch. 7 |
+| Middleware / callbacks | code at the append points of the array | ch. 8 |
+| Human-in-the-loop node | an `ask_user` tool, or an approval gate | ch. 3, 13 |
+| Retriever | a search that pastes results into the array | ch. 15 |
+| Chain / graph / workflow | ordinary control flow (function calls, ifs) around model calls | everywhere |
 
 The last row deserves a sentence, because "chains" and "graphs" carry the
-most aura. A LangChain chain is function composition: do A, feed its output
-to B. A LangGraph graph is a state machine whose nodes call models. Both are
+most mystery. A LangChain chain is function composition: do A, feed its
+output to B. A LangGraph graph is a state machine whose nodes call models. Both are
 things Python already does with functions and `if`. The frameworks add
 observability hooks, retries, and parallelism conveniences on top; useful,
-but the _concept_ is control flow you have written since your first year of
+but the *concept* is control flow you have written since your first year of
 programming.
 
 ## Why frameworks look bigger than they are
@@ -65,7 +65,7 @@ ReAct-style output parsing with regex (ch. 4), few-shot templates for every
 task, chains of small calls because one call could not carry a multi-step
 task. LangChain (2022) is a museum of that era's necessary tricks, kept
 alive by compatibility. Then the RL training described in chapter 2 moved
-the hard parts _into the models_: tool calling replaced output parsing,
+the hard parts *into the models*: tool calling replaced output parsing,
 long contexts replaced elaborate chain topologies, trained agentic behavior
 replaced hand-built planning loops. The frameworks did not shrink when the
 models grew; they pivoted to orchestration, observability, and enterprise
@@ -73,14 +73,16 @@ integration, and the vocabulary stayed.
 
 Meanwhile, notice what the strongest production agents do. Claude Code is a
 bespoke harness over the raw API. So are most serious coding agents, and so
-is [One Code](/projects/one_code/) (over a minimal general-purpose runtime, pi). When Anthropic
-ships the Claude Agent SDK, it is a _thin_ layer: the loop, tool dispatch,
+is One Code (over a minimal general-purpose runtime, pi). When Anthropic
+ships the Claude Agent SDK, it is a *thin* layer: the loop, tool dispatch,
 context management: chapter 4 and 6, productized. The trend line of the
 field points at models-plus-thin-harness, not at deep abstraction stacks.
 
 ## The real costs and the real benefits
 
-What you actually get from a framework, stated without romance:
+The rule, stated up front because the rest of this section just argues for
+it: take the small, transparent layers, and be suspicious of any layer that
+wants to own the array. Here's what that's built on, stated plainly:
 
 **Worth paying for:**
 
@@ -129,7 +131,7 @@ scratch. Ask four questions of its documentation:
 3. **What is its unit of composition?** Chains (function composition),
    graphs (state machines), agents-as-tools (ch. 7): all fine, all just
    control flow. You are checking whether the unit fits your task's shape.
-4. **What does it do that is _not_ in this series?** Usually the honest
+4. **What does it do that is *not* in this series?** Usually the honest
    answers are integrations, tracing, and deployment plumbing. Those are
    real; weigh them against the transparency answer from question 2.
 
@@ -150,9 +152,9 @@ telling you where the complexity will hurt.
 - Evaluate any framework with four questions, starting with: can I see the
   bytes going to the model?
 
-Next: the parts of the ecosystem that are _not_ wrappers: the standards and
+Next: the parts of the ecosystem that are *not* wrappers: the standards and
 mechanisms for getting new capabilities into the array from outside your
 codebase. Tools someone else hosts, instructions loaded on demand, and what
 to do when the tool list itself outgrows the context budget.
 
-_[Next: Chapter 11 - Extending the Body: MCP, Skills, Deferred Loading, Hooks](/blog/2026/harness-11-extending-the-body/)_
+*[Next: Chapter 11 — Extending the Body: MCP, Skills, Deferred Loading, Hooks](/blog/2026/harness-11-extending-the-body/)*

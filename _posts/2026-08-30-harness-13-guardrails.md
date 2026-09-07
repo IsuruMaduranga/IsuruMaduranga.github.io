@@ -7,11 +7,14 @@ tags: [agentic-ai, LLM, harness-engineering-101]
 categories: [harness-engineering-101]
 giscus_comments: false
 related_posts: false
+mermaid:
+  enabled: true
+  zoomable: false
 ---
 
-_Harness Engineering 101, Part IV - Trust, Domains, and Data.
+*Harness Engineering 101, Part IV — Trust, Domains, and Data.
 [Series index](/blog/2026/harness-engineering-101/) · [Prev](/blog/2026/harness-12-debugging/) ·
-[Next: Coding Agents](/blog/2026/harness-14-coding-agents/)_
+[Next: Coding Agents](/blog/2026/harness-14-coding-agents/)*
 
 ---
 
@@ -45,7 +48,7 @@ The cheapest guardrail is a tool that does not exist. Every tool you expose
 is attack and accident surface; every tool you withhold is a whole class of
 incidents prevented with probability 1.
 
-This is why production harnesses define _narrow_ tools when they can:
+This is why production harnesses define *narrow* tools when they can:
 chapter 7's read-only Explore agent cannot write files, not because a rule
 forbids it, but because no write tool is in its list. A subagent that
 summarizes web pages needs fetch and nothing else. Scope tools to the job.
@@ -63,19 +66,19 @@ harnesses:
   the harness's own config are refused, string-match simple.
 - **Allowlists and denylists** from user config: "npm test is always fine,"
   "anything with `--force` asks first."
-- **State-machine guards.** The best ones encode _invariants of correct
-  behavior_. Claude Code's file tracker is my favorite teaching example:
-  the harness records which files the model has _read_ and when; an edit to
+- **State-machine guards.** The best ones encode *invariants of correct
+  behavior*. Claude Code's file tracker is my favorite teaching example:
+  the harness records which files the model has *read* and when; an edit to
   a file the model never read, or one that changed on disk since the model
   last saw it, is refused with an explanation ("file changed since read;
   re-read it first"). That single rule deterministically kills a whole
   genre of accidents (overwriting human edits, editing from a stale
   picture) that no amount of prompting reliably prevents.
-- **Anti-footgun checks.** Block foreground `sleep` (chapter 9), block
-  `git push --force` to main, cap output sizes.
+- **Checks against obvious mistakes.** Block foreground `sleep` (chapter 9),
+  block `git push --force` to main, cap output sizes.
 
-Two properties make this layer precious. It is _free_ (microseconds, no
-tokens), and it is _certain_: chapter 11's hooks distinction again. The
+Two properties make this layer precious. It is *free* (microseconds, no
+tokens), and it is *certain*: chapter 11's hooks distinction again. The
 brain follows instructions with probability 0.97; the reflex refuses with
 probability 1. Spend rules on everything rules can express. And when a
 reflex refuses, remember chapter 4: the refusal goes back to the model as a
@@ -88,7 +91,7 @@ that silently drops the action confuses.
 Some requests are not rule-decidable: `rm -rf build/` is routine in one
 project and a catastrophe in another. When code cannot decide, the body
 escalates to the person: show the exact action, wait for approval. This is
-human-in-the-loop as a _gate_ (versus chapter 3's ask-a-question _tool_:
+human-in-the-loop as a *gate* (versus chapter 3's ask-a-question *tool*:
 there the brain chooses to consult; here the body insists).
 
 The engineering content is in the granularity, because approval fatigue is
@@ -102,7 +105,7 @@ with the safety of none. Production harnesses manage fatigue with:
 - **Remembered grants**: "allow `npm test` always" persists to config and
   becomes a Layer-1 allowlist entry. Each answered prompt should teach the
   system.
-- **Scoped autonomy**: approve a _plan_, then let the loop run the steps
+- **Scoped autonomy**: approve a *plan*, then let the loop run the steps
   unattended (see Appendix C for plan mode). Approval moves up an
   abstraction level, where humans are good at judging.
 
@@ -112,19 +115,19 @@ The tension left over: full autonomy ("auto-approve everything") is what
 users actually want for flow, and rules cannot cover the long tail of
 `bash` one-liners. The industry's emerging answer is charming: **use a
 model to check the model.** Before executing a risky-looking action in
-auto mode, the harness makes a _side call_ to a small, fast model with a
+auto mode, the harness makes a *side call* to a small, fast model with a
 narrow question: "Given this user request and this proposed command, is
 executing it consistent with what the user asked? Answer with a category."
 Rules decide the clear cases; the classifier catches "the user asked for a
 README fix and the agent is somehow curling a shell script from the
 internet."
 
-This works better than it has any right to, but the fine print matters,
-and it generalizes beyond this feature:
+This works better than you would expect, but the details matter,
+and they apply well beyond this feature:
 
 - **The classifier is also chapter 2.** It hallucinates and it can be
   prompt-injected by the very text it is judging. So treat its verdict as
-  _evidence, not authority_: production implementations ground-check
+  *evidence, not authority*: production implementations ground-check
   verdicts (a "block" must cite a rule that exists; an "allow because the
   user asked" must quote words the user actually said) and fail toward
   asking the human when anything is off.
@@ -142,7 +145,7 @@ Everything above tries to prevent bad actions. The last layer assumes one
 gets through and shrinks what it can destroy:
 
 - **Recoverability.** In a git repository, most in-project damage is one
-  `git checkout` from undone, _if_ the harness ensures work is committed or
+  `git checkout` from undone, *if* the harness ensures work is committed or
   stashed at sensible points. An agent operating on an undoable world
   needs less gating than one operating on the only copy; some harnesses
   explicitly auto-approve in-project destruction only when git can recover
@@ -151,15 +154,26 @@ gets through and shrinks what it can destroy:
 - **Sandboxes.** OS-level enforcement: run tool processes in a container,
   VM, or restricted profile where the filesystem beyond the project is
   unwritable and the network is closed by default. This is the only layer
-  that holds even if _every_ text-based defense fails, because it does not
+  that holds even if *every* text-based defense fails, because it does not
   care what anyone, human or model, decided. The trade is friction (real
   tasks need real access), so sandboxes come with an escalation path:
   "this command needs network; approve?"
 - **Credentials.** The dumbest blast-radius win: the agent's environment
-  should hold the minimum secrets. An injected model cannot exfiltrate a
+  should hold the minimum secrets. An injected model cannot leak a
   token it was never given.
 
-{% include figure.liquid loading="eager" path="assets/img/diagrams/harness-13-guardrails.svg" class="img-fluid rounded z-depth-1 diagram-img" zoomable=true %}
+```mermaid
+flowchart TD
+    R[model requests an action] --> L0{tool even exists?}
+    L0 -- no --> X[impossible by construction]
+    L0 -- yes --> L1{reflexes: rules, trackers}
+    L1 -- refuse --> E[error back to model, with reason]
+    L1 -- pass --> L2{mode says ask?}
+    L2 -- ask --> U[human approves / denies / remembers]
+    L2 -- auto --> L3{cheap-model classifier, verified}
+    L3 -- doubt --> U
+    L3 -- clear --> S[execute — inside sandbox, on recoverable state]
+```
 
 ## The system prompt is not an access control system
 
@@ -167,11 +181,11 @@ A closing point that ties the chapter to chapter 2, because it is the most
 common safety mistake I see: writing "NEVER delete files outside the
 project" in the system prompt and considering the matter handled. Trained
 deference is strong, and you should absolutely state the rules (they steer
-the 97%). But a system-prompt rule is a _preference in a probability
-machine_, standing against context rot (chapter 6), against injected text
+the 97%). But a system-prompt rule is a *preference in a probability
+machine*, standing against context rot (chapter 6), against injected text
 pushing the other way, and against plain sampling variance. The hierarchy
 of this chapter is the honest version: prompts advise, reflexes enforce,
-humans arbitrate, classifiers triage, sandboxes contain. Anything that
+humans decide, classifiers screen, sandboxes contain. Anything that
 must be true with probability 1 cannot live in the prompt.
 
 ## What you now know
@@ -187,9 +201,9 @@ must be true with probability 1 cannot live in the prompt.
   should teach the config.
 - The prompt is advice. The body is enforcement.
 
-Next, the case study chapter: why coding became _the_ agent domain, what a
+Next, the case study chapter: why coding became *the* agent domain, what a
 coding body has that a generic one lacks, and the argument (which deserves
 respect) that most of it is unnecessary as long as the agent has a
 terminal.
 
-_[Next: Chapter 14 - Case Study: Coding Agents](/blog/2026/harness-14-coding-agents/)_
+*[Next: Chapter 14 — Case Study: Coding Agents](/blog/2026/harness-14-coding-agents/)*

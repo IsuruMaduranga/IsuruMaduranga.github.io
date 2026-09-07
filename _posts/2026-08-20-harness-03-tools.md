@@ -7,11 +7,14 @@ tags: [agentic-ai, LLM, harness-engineering-101]
 categories: [harness-engineering-101]
 giscus_comments: false
 related_posts: false
+mermaid:
+  enabled: true
+  zoomable: false
 ---
 
-_Harness Engineering 101, Part I - The Wire.
+*Harness Engineering 101, Part I — The Wire.
 [Series index](/blog/2026/harness-engineering-101/) · [Prev](/blog/2026/harness-02-the-brain/) ·
-[Next: The Agent Loop](/blog/2026/harness-04-agent-loop/)_
+[Next: The Agent Loop](/blog/2026/harness-04-agent-loop/)*
 
 ---
 
@@ -35,7 +38,18 @@ Tool use is a three-step contract between brain and body:
 3. Your program runs the real function, puts the output back into the array
    as a **tool result**, and calls the API again so the model can continue.
 
-{% include figure.liquid loading="eager" path="assets/img/diagrams/harness-03-tools.svg" class="img-fluid rounded z-depth-1 diagram-img" zoomable=true %}
+```mermaid
+sequenceDiagram
+    participant B as Brain (model)
+    participant H as Harness (your code)
+    participant W as World (filesystem, shell, ...)
+    H->>B: messages + tool definitions
+    B-->>H: tool_use: read_file {"path": "main.py"}
+    H->>W: open("main.py").read()
+    W-->>H: file contents
+    H->>B: messages + tool_result: "import sys\n..."
+    B-->>H: "The bug is on line 12: ..."
+```
 
 Hold on to the key point: **the model never executes anything. It asks.**
 The tool call is a polite, machine-readable request. Your harness decides
@@ -55,7 +69,7 @@ arguments:
   "input_schema": {
     "type": "object",
     "properties": {
-      "path": { "type": "string", "description": "Path to the file" }
+      "path": {"type": "string", "description": "Path to the file"}
     },
     "required": ["path"]
   }
@@ -73,8 +87,9 @@ of (or alongside) text:
 {
   "role": "assistant",
   "content": [
-    { "type": "text", "text": "Let me look at the file first." },
-    { "type": "tool_use", "id": "toolu_01A", "name": "read_file", "input": { "path": "main.py" } }
+    {"type": "text", "text": "Let me look at the file first."},
+    {"type": "tool_use", "id": "toolu_01A", "name": "read_file",
+     "input": {"path": "main.py"}}
   ]
 }
 ```
@@ -84,7 +99,10 @@ You run the function, then append the result as the next `user` message:
 ```json
 {
   "role": "user",
-  "content": [{ "type": "tool_result", "tool_use_id": "toolu_01A", "content": "import sys\n\ndef main():\n    ..." }]
+  "content": [
+    {"type": "tool_result", "tool_use_id": "toolu_01A",
+     "content": "import sys\n\ndef main():\n    ..."}
+  ]
 }
 ```
 
@@ -103,7 +121,7 @@ difference.)
 
 ## The toy harness, v2
 
-`harness/v2_tools.py` adds two tools to v1. The new
+[`harness/v2_tools.py`](harness/v2_tools.py) adds two tools to v1. The new
 parts are marked:
 
 ```python
@@ -139,7 +157,7 @@ patch: a menu, and a dispatch table from names to functions. "Tool" sounds
 like infrastructure. It is a dict lookup.
 
 One detail that matters more than it looks: `execute_tool` never raises. A
-failed tool call becomes an error _string_, sent back to the model as the
+failed tool call becomes an error *string*, sent back to the model as the
 tool result. Chapter 2 said models are trained to react to failure; chapter
 4 builds the loop that lets them. Swallowing a tool error, or crashing on
 it, throws away the model's best recovery signal.
@@ -153,9 +171,9 @@ you after one call. That failure is chapter 4.
 
 ## The user is a tool too
 
-Here is a reframe that pays off for the rest of the series. Once you see
-tools as "the model requests, the world responds," you notice the human
-sitting inside the world.
+Here is a new way to look at tools that helps for the rest of the series.
+Once you see tools as "the model requests, the world responds," you notice
+the human sitting inside the world.
 
 Production agents expose a tool that looks like this:
 
@@ -166,8 +184,8 @@ Production agents expose a tool that looks like this:
   "input_schema": {
     "type": "object",
     "properties": {
-      "question": { "type": "string" },
-      "options": { "type": "array", "items": { "type": "string" } }
+      "question": {"type": "string"},
+      "options": {"type": "array", "items": {"type": "string"}}
     },
     "required": ["question"]
   }
@@ -187,17 +205,17 @@ There is a second, more important place humans enter the loop: approval.
 decision, not a tool, and it gets its own chapter (13).
 
 > **Sidebar: structured output.** Sometimes you do not want actions; you
-> want the model's _answer_ as machine-readable data, like
+> want the model's *answer* as machine-readable data, like
 > `{"sentiment": "negative", "score": 0.87}`. Providers offer JSON modes
 > for this, but the oldest reliable trick is to define one tool named
 > `report_answer` whose input schema is your desired output format, and
 > force the model to call it. The tool executes nothing; its arguments
-> _are_ the output. Structured output and tool calling are the same trained
+> *are* the output. Structured output and tool calling are the same trained
 > skill pointed at different goals: one asks for action, the other for
 > shape.
 
 > **Sidebar: server-side tools.** Some tools run without any harness code.
-> Ask Anthropic's API for `web_search` and the _provider's_ infrastructure
+> Ask Anthropic's API for `web_search` and the *provider's* infrastructure
 > executes the search during the request, splices the results into the
 > conversation, and bills you for the tokens. The array you get back shows
 > the tool round already resolved. Same contract, but the provider's body
@@ -222,4 +240,4 @@ v2 can act, once. The obvious next failure: real tasks need the model to
 act, look at the result, and act again, without a human pressing enter
 between steps. That loop has a grand name. It is four lines of code.
 
-_[Next: Chapter 4 - The Agent Loop](/blog/2026/harness-04-agent-loop/)_
+*[Next: Chapter 4 — The Agent Loop](/blog/2026/harness-04-agent-loop/)*
