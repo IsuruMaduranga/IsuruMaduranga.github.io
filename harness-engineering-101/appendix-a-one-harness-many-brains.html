@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -218,11 +218,12 @@ site:</p>
 <p>Two principles generate the table, and they matter more than the table:</p>
 <p><strong>Route by consequence, not by difficulty alone.</strong> A compaction summary
 that is 10% worse loses a little context. A safety verdict that is 10%
-worse approves <code>rm -rf</code>. The classifier job <em>looks</em> small (one yes/no) but
-carries a lopsided risk (a wrong “yes” is far worse than a wrong “no”),
-which is why chapter 13 wrapped it in verification and fail-closed defaults;
-cheap brains are allowed in dangerous seats only with those seatbelts. Meanwhile the recap job can be
-wrong daily and nobody is harmed. Consequence, not token count, sets the
+worse approves <code>rm -rf</code>. The classifier job <em>looks</em> small (one yes/no),
+but the risk is lopsided: a wrong “yes” is far worse than a wrong “no.”
+That’s why chapter 13 wraps it in verification and fail-closed defaults.
+Cheap brains get dangerous seats only with those seatbelts. Meanwhile the
+recap job can be wrong daily and nobody is harmed. Consequence, not token
+count, sets the
 floor.</p>
 <p><strong>A delegated task worth doing is worth a capable model.</strong> The tempting
 mistake is routing subagent work to the cheapest tier because it is

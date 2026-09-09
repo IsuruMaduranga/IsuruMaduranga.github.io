@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -204,7 +204,7 @@ this:</p>
 
 def call_llm(messages, system=""):
     body = {
-        "model": "claude-sonnet-4-5",
+        "model": "claude-sonnet-5",
         "max_tokens": 4096,
         "system": system,
         "messages": messages,
@@ -314,7 +314,7 @@ cosmetic. The same exchange in both:</p>
 <p><strong>Anthropic Messages API:</strong></p>
 <pre><code class="language-json">POST /v1/messages
 {
-  "model": "claude-sonnet-4-5",
+  "model": "claude-sonnet-5",
   "max_tokens": 1024,
   "system": "You are a terse assistant.",
   "messages": [
@@ -365,7 +365,7 @@ is <a href="harness/v1_chat.py"><code>harness/v1_chat.py</code></a>, a working c
 import json, os, urllib.request
 
 API_KEY = os.environ["ANTHROPIC_API_KEY"]
-MODEL = "claude-sonnet-4-5"
+MODEL = "claude-sonnet-5"
 SYSTEM = "You are a concise assistant."
 
 def call_llm(messages):

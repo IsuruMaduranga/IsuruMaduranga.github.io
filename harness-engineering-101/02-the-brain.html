@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -208,11 +208,10 @@ you do need this much. This chapter has no code. It is the shortest mental
 model of an LLM that is still useful for harness work.</p>
 <h2 id="one-operation-repeated"><a class="header" href="#one-operation-repeated">One operation, repeated</a></h2>
 <p>An LLM does exactly one thing: given a sequence of tokens, it outputs a
-probability for every possible next token. The serving layer picks one
-(weighted by those probabilities), appends it to the sequence, and runs the
-model again. And again. That loop, run until a stop condition, is text
-generation. The model produces the probabilities; the code around it does
-the picking and the looping.</p>
+probability for every possible next token. The serving layer does the rest —
+pick one, append it, run the model again. And again. That loop, run until a
+stop condition, is text generation. The model produces the probabilities;
+the code around it does the picking and the looping.</p>
 <p>A few terms, quickly:</p>
 <ul>
 <li><strong>Token</strong>: a chunk of text, usually 3 to 4 characters of English. “harness
@@ -221,10 +220,9 @@ windows, prices, speed.</li>
 <li><strong>Temperature</strong>: how randomly the serving layer picks from the
 probabilities. Temperature 0 means always pick the most likely token.
 Higher values mean more variety. For agents you usually want low
-temperature; you want the probable action, not the creative one. (This is
-the proof that the picking happens outside the model: temperature is a
-setting you send with each request, so the same model can pick
-differently from the same probabilities.)</li>
+temperature; you want the probable action, not the creative one. (That’s
+the proof the picking happens outside the model: temperature is a setting
+you send with each request, so the same model can pick differently.)</li>
 <li><strong>Context window</strong>: the maximum number of tokens the model can take as
 input. This is the hard size limit on your array from chapter 1.</li>
 </ul>
@@ -268,9 +266,9 @@ some date. Everything after that date must come in through the array.</li>
 <p>A raw pre-trained model does not answer questions. If you type “What is the
 capital of France?” it might continue with “What is the capital of Germany?”
 because lists of questions were common in its training data. Post-training
-fixes this. The model gets more training on hand-picked conversations, and
-it is adjusted using human (and AI) judgments about which answers are
-better, until it reliably acts like an assistant: it answers the question,
+fixes this. The model gets more training on hand-picked conversations.
+Humans (and AI) judge which answers are better, and the model is tuned
+toward those. The result acts like an assistant: it answers the question,
 follows instructions, and refuses some things.</p>
 <p>What this stage explains for you:</p>
 <ul>
@@ -318,9 +316,9 @@ It cannot install new ones.</p>
 <p>Modern models accept images and documents. It is natural to assume there is
 a separate vision system involved. There is not, in any sense that matters
 to you.</p>
-<p>When you send an image block, the image is cut into small patches, and each
-patch is encoded into tokens by a vision encoder that was trained alongside
-the language model. Those image tokens go into the same sequence as your
+<p>When you send an image block, the provider cuts the image into small
+patches. A vision encoder, trained alongside the language model, turns each
+patch into tokens. Those image tokens go into the same sequence as your
 text tokens, and the same next-token machinery runs over all of it. The
 model “sees” the way it “reads”: everything becomes tokens in one sequence.
 This is why a large image costs context window space, and why a model can

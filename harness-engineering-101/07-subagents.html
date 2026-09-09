@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -189,9 +189,9 @@
 agent “where is the retry logic implemented in this codebase?” and answering
 honestly might take fifteen file reads and twenty searches: 50,000 tokens of
 exploration. The <em>answer</em> is one sentence. If the main loop does this work
-itself, the 50,000 tokens of dead ends sit in its array for the rest of the
-session, spending budget (chapter 6) and feeding context rot, all to carry
-one sentence of value.</p>
+itself, those 50,000 tokens of dead ends sit in its array for the rest of
+the session. They spend budget (chapter 6) and feed context rot, just to
+carry one sentence of value.</p>
 <p><strong>The patch:</strong> do the messy work in a different array, and keep only the
 conclusion. That is a <strong>subagent</strong>, and I want to define it precisely,
 because the industry makes it sound like distributed systems:</p>
@@ -235,8 +235,8 @@ practical questions about subagents:</p>
 instructions and the task string the parent wrote. It has not seen the
 conversation, the user, or the plan. So the parent’s task description must
 be self-contained: what to find, where to look, what shape of answer to
-return. Vague delegation produces vague results, not because the model is
-weak but because you sent a colleague into a room with no briefing.</p>
+return. Vague delegation produces vague results. The model isn’t weak. You
+sent a colleague into a room with no briefing.</p>
 <p><strong>The parent sees nothing but the report.</strong> The child’s thirty rounds of
 searching never enter the parent’s array. This is the entire point, but it
 has a consequence: if the child’s answer is wrong, the parent has no

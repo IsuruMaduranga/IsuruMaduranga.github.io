@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -188,10 +188,10 @@
 (chapter 1’s sidebar) that streaming is someone else’s problem. In
 production the first is false constantly, and the second is false the day
 your users watch a spinner for ninety seconds. This appendix is the
-boring checklist: what fails, what to do about it, how streaming
-actually works on the wire, and the failure modes specific to LLM APIs
-that generic retry wisdom gets wrong. It is an appendix because none of it
-changes the mental model; it is also the difference between a demo and a
+boring checklist: what fails, what to do about it, how streaming works on
+the wire, and where generic retry advice gets LLM APIs wrong. It is an
+appendix because none of it changes the mental model; it is also the
+difference between a demo and a
 service.</p>
 <h2 id="the-kinds-of-failure"><a class="header" href="#the-kinds-of-failure">The kinds of failure</a></h2>
 <div class="table-wrapper">
@@ -271,25 +271,25 @@ the answer and the liveness check.</p>
 <p><strong>Retries are only safe because the API is stateless.</strong> Chapter 1’s
 property earns its keep here: a retried request is <em>identical</em> in effect
 to the first attempt, because the server holds nothing. There is no
-“did my first attempt half-apply?” problem at the API layer. The place this
-<em>does</em> cause trouble is your own loop: never execute tools twice
-because a retry returned a duplicate-looking reply, so retry at the
-<code>call_llm</code> layer, below the loop, never by re-running a round.</p>
+“did my first attempt half-apply?” problem at the API layer. The trouble
+shows up in your own loop instead: don’t execute a tool twice just because a
+retry returned a duplicate-looking reply. Retry at the <code>call_llm</code> layer,
+below the loop, never by re-running a whole round.</p>
 <p><strong>Rate limits are measured in tokens, not requests.</strong> Providers meter
 tokens per minute (input and output separately), so an agent with a fat
 array exhausts limits at a <em>request rate that looks tiny</em>. This couples
 Appendix D to chapter 6: context bloat manifests as 429s. It also means
-parallel fan-out (chapter 7) multiplies pressure by array size, so
-production harnesses put a concurrency cap and a shared token-budget
-limiter above the subagent spawner, not just backoff below it.</p>
+parallel fan-out (chapter 7) multiplies the pressure by array size. So
+production harnesses cap concurrency and share a token budget above the
+subagent spawner, not just backoff below it.</p>
 <p><strong>A streaming failure is a <em>mid-reply</em> failure.</strong> The chapter 1 sidebar
 deferred exactly one real problem: with <code>"stream": true</code>, the connection
 can die after you have received half an answer, or half a tool call.
 The rule that keeps this simple: <strong>partial output is not output.</strong> Treat
-a broken stream as a failed request: discard the fragment (never append
-it to the array as if the model said it: a truncated tool call executed
-“best effort” is chapter 13’s nightmare made of plumbing), then retry
-the whole call. Providers make this affordable: on a retry, the prefix
+a broken stream as a failed request. Discard the fragment: never append it
+to the array as if the model said it. (A truncated tool call executed “best
+effort” is chapter 13’s nightmare made of plumbing.) Then retry the whole
+call. Providers make this affordable: on a retry, the prefix
 you already sent is cache-hit (chapter 5), so re-asking costs a fraction
 of the original. Statelessness plus caching is what makes “just retry
 the whole thing” the right architecture rather than a waste.</p>
@@ -302,21 +302,64 @@ from a slow think). And when a request dies from <em>your</em> side, log it as
 such (chapter 12’s capture should record failures and retries too), or
 your debugging sessions will chase model behavior that was actually your
 socket config.</p>
-<h2 id="the-wrapper-sketched"><a class="header" href="#the-wrapper-sketched">The wrapper, sketched</a></h2>
-<p>Everything above is thirty lines around chapter 1’s function:</p>
-<pre><code class="language-python">def call_llm_reliable(body, max_attempts=5):
+<h2 id="the-wrapper"><a class="header" href="#the-wrapper">The wrapper</a></h2>
+<p>You do not need a new harness for this. It is the complete harness from the
+epilogue, with one thing different: the line that used to open the connection
+now calls a version that retries. The full runnable file is
+<a href="harness/appendix-d/harness.py"><code>harness/appendix-d/harness.py</code></a>, and you run
+it exactly like before — <code>python3 harness.py</code> — it just no longer falls over
+on a blip. Two small functions do the work:</p>
+<pre><code class="language-python">RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
+
+class ApiError(Exception):
+    def __init__(self, kind, status=None, retry_after=None, body=""):
+        super().__init__(f"{kind} error (status={status}): {body[:200]}")
+        self.kind = kind             # "http" = a status came back; "network" = nothing did
+        self.status = status
+        self.retry_after = retry_after
+        self.retryable = kind == "network" or status in RETRYABLE_STATUS
+
+def call_once(body):
+    req = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=json.dumps(body).encode(),
+        headers={"content-type": "application/json", "x-api-key": API_KEY,
+                 "anthropic-version": "2023-06-01"})
+    try:
+        with urllib.request.urlopen(req, timeout=600) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:          # the server answered, with an error
+        after = e.headers.get("retry-after")
+        raise ApiError("http", status=e.code,
+                       retry_after=float(after) if after else None,
+                       body=e.read().decode(errors="replace")) from e
+    except (urllib.error.URLError, http.client.HTTPException, OSError) as e:
+        raise ApiError("network", body=str(e)) from e   # dropped, refused, timed out
+
+def call_with_retries(body, max_attempts=6):
     for attempt in range(max_attempts):
         try:
-            return call_llm_once(body)
+            return call_once(body)
         except ApiError as e:
-            if not e.retryable:                    # 400s, auth: your problem
-                raise
-            delay = min(60, 2 ** attempt) * (1 + random.random())
-            delay = e.retry_after or delay          # server knows best
-            log(f"attempt {attempt+1} failed ({e.kind}), sleeping {delay:.1f}s")
+            if not e.retryable or attempt == max_attempts - 1:
+                raise                            # your problem, or out of tries
+            delay = e.retry_after or min(30.0, 2 ** attempt) + random.random()
             time.sleep(delay)
-    raise LastError
 </code></pre>
+<p><code>call_once</code> makes one POST and sorts whatever comes back — a reply, an error
+status, or a dead socket — into either the JSON you wanted or one <code>ApiError</code>
+tagged “try again” or “give up”. <code>call_with_retries</code> runs it in a loop and
+only retries the ones worth retrying. Inside the harness, <code>call_llm</code> still
+builds the body, sets the cache breakpoint, and prints the usage line; its one
+network call is now <code>call_with_retries(body)</code> instead of a bare <code>urlopen</code>.</p>
+<p>Two lines are easy to get wrong. The first is <code>retryable</code>. A network drop, or
+one of the <code>RETRYABLE_STATUS</code> codes, is worth another go; a 400 or a 401 is
+your bug or your key, so it raises on the first try instead of wasting five
+attempts and hiding the real error. The second is the <code>except</code> line: it
+catches <code>http.client.HTTPException</code>, not just <code>urllib.error.URLError</code>. The most
+common real drop — a <code>RemoteDisconnected</code> in the middle of a reply — is the
+first kind and not the second. Catch only <code>URLError</code> and you sail right past
+the exact crash you wrote this to prevent.</p>
 <p>Plus the two policies that don’t fit in a function: a token-aware
 concurrency cap above your fan-out, and “discard partial streams, retry
 whole.” That is the entire subject. SDKs and gateways will happily do the

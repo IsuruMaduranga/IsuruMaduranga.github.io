@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -201,7 +201,7 @@ the brain is the thing being wrong. Safety lives in the body. This chapter
 is the body’s spinal cord: the layers between “the model asked” and “the
 machine did,” ordered from the most reliable to the least.</p>
 <p>One framing note before the layers. The single most important safety
-decision was made back in chapter 3 and is worth restating as a principle:
+decision was made back in chapter 3, and it bears repeating:
 <strong>the model never executes anything; it requests.</strong> Everything below is
 just the body deciding how to answer requests. If you remember nothing
 else: capability lives in the harness, so responsibility does too. There is
@@ -282,10 +282,10 @@ and they apply well beyond this feature:</p>
 <ul>
 <li><strong>The classifier is also chapter 2.</strong> It hallucinates and it can be
 prompt-injected by the very text it is judging. So treat its verdict as
-<em>evidence, not authority</em>: production implementations ground-check
-verdicts (a “block” must cite a rule that exists; an “allow because the
-user asked” must quote words the user actually said) and fail toward
-asking the human when anything is off.</li>
+<em>evidence, not authority</em>. Production systems ground-check it: a “block”
+must cite a rule that actually exists, and an “allow because the user
+asked” must quote words the user actually said. Fail toward asking the
+human when anything looks off.</li>
 <li><strong>Bias it one way.</strong> A false “ask the human” costs a click; a false
 “allow” costs whatever the command costs. Asymmetric errors want
 asymmetric thresholds.</li>
@@ -333,8 +333,8 @@ common safety mistake I see: writing “NEVER delete files outside the
 project” in the system prompt and considering the matter handled. Trained
 deference is strong, and you should absolutely state the rules (they steer
 the 97%). But a system-prompt rule is a <em>preference in a probability
-machine</em>, standing against context rot (chapter 6), against injected text
-pushing the other way, and against plain sampling variance. The hierarchy
+machine</em>. It loses to context rot (chapter 6), to injected text pushing the
+other way, and to plain sampling variance. The hierarchy
 of this chapter is the honest version: prompts advise, reflexes enforce,
 humans decide, classifiers screen, sandboxes contain. Anything that
 must be true with probability 1 cannot live in the prompt.</p>

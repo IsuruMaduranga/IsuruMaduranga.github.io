@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -193,8 +193,11 @@ every patch from the series, runnable against a real model right now.</p>
 <pre><code class="language-bash">export ANTHROPIC_API_KEY=...
 python3 harness.py mysession.json
 </code></pre>
-<p>It is a toy, deliberately. It has no streaming, no compaction, one
-hardcoded model, a permission gate that is more sketch than shield. But
+<p>It is a toy, deliberately. It has no streaming, no compaction, no retries,
+one hardcoded model, a permission gate that is more sketch than shield. Run
+it against the real API long enough and a transient connection drop or an
+overloaded <code>529</code> will crash <code>call_llm</code> with a traceback. That omission is
+deliberate too: production retry and backoff are Appendix D. But
 every organ is present, real, and small enough that you can hold the whole
 organism in your head, which no production harness will ever again allow
 you to do. That is what makes it worth studying.</p>
