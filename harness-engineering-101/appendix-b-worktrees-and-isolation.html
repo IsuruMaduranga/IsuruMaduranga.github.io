@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -188,11 +188,10 @@
 attention. It does not isolate their <em>world</em>: every agent still reads and
 writes the same directory. The moment you run two agents concurrently on
 the same project (a fan-out of fixers, or just the main loop plus a
-background child), you have reinvented the race condition. Agent A edits
-<code>utils.py</code> while agent B is mid-refactor of the same file; B’s
-read-before-write guard (chapter 13) starts firing constantly, or worse,
-doesn’t, and the merge of their work happens by accident, in place, with
-no record.</p>
+background child), you have reinvented the race condition. Say agent A edits
+<code>utils.py</code> while agent B is mid-refactor of the same file. B’s
+read-before-write guard (chapter 13) starts firing constantly. Or worse, it
+doesn’t, and their work merges by accident, in place, with no record.</p>
 <p>The fix is the same one operating systems and CI systems reached: <strong>give
 each worker its own copy of the world, and merge deliberately.</strong></p>
 <h2 id="git-worktrees-cheap-parallel-worlds"><a class="header" href="#git-worktrees-cheap-parallel-worlds">Git worktrees: cheap parallel worlds</a></h2>
@@ -231,17 +230,17 @@ worktree” sometimes disappoints people expecting magic.</li>
 the network. Two agents “isolated” in worktrees can still fight over
 port 3000 or the same test database. Worktrees isolate the <em>code</em>, not
 the <em>runtime</em>.</li>
-<li><strong>The machine itself.</strong> For that, you are back to chapter 13’s
-sandboxes: containers or VMs per agent, of which a worktree is the
-lightweight, code-only special case. The spectrum is: same directory
+<li><strong>The machine itself.</strong> For that, you’re back to chapter 13’s
+sandboxes: containers or VMs per agent. A worktree is just the
+lightweight, code-only version of one. The spectrum is: same directory
 (free, unsafe) → worktree (cheap, code-isolated) → container (heavier,
 runtime-isolated) → VM (heaviest, machine-isolated). Pick per task
 risk, and remember the spectrum composes: a worktree <em>inside</em> a
 container is a perfectly sensible rung.</li>
 </ul>
 <h2 id="the-non-coding-version"><a class="header" href="#the-non-coding-version">The non-coding version</a></h2>
-<p>The pattern goes beyond git, and it is worth stating because it is
-the actual principle: <strong>agents should work on transactions, not on the
+<p>The pattern goes beyond git. It’s the actual principle:
+<strong>agents should work on transactions, not on the
 live world.</strong> A draft email, not the send button. A staging table, not
 production. A proposed diff, not an applied one. The worktree is just the
 coding domain’s excellent built-in transaction. When you build a harness

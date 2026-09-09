@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -185,33 +185,29 @@
 <p><em>By <a href="https://isuruwijesiri.com">Isuru Wijesiri</a>. Version 1.0 — September 2026.</em></p>
 <p>Everyone talks about AI agents like they’re a new kind of software: tool calls,
 memory, planning, RAG, MCP, multi-agent orchestration. Stack enough of those
-words together and it starts to feel like there’s some hard machine humming
-underneath that you’re supposed to already understand.</p>
+words together and it sounds like there’s a hard machine humming underneath, one
+you were supposed to already understand.</p>
 <p>There isn’t. Here’s the whole thing:</p>
 <blockquote>
 <p>An LLM API is stateless. Every turn, you send the entire conversation as a
 JSON array and get text back. A <strong>harness</strong> is the program that builds,
-maintains, and protects that array. Everything the field calls “agents” is
-a set of patches to that one loop, and each patch exists because something
-concrete broke.</p>
+maintains, and protects that array using a simple loop. Everything the field
+calls “agents” is a set of patches to that one loop, and each patch exists
+because something concrete broke.</p>
 </blockquote>
-<p>That’s the claim this series defends. Every “agent” feature you’ve heard of is
-one patch to that one loop, and each patch shows up because something concrete
-broke. Learn the patches in the order they were invented — as fixes to real
-failures — and none of it is complicated. No frameworks, no buzzword tour, no
-architecture diagrams with twelve boxes.</p>
-<p>I’m not guessing at this. I started building generative AI systems when GPT-3.5
-was the frontier: no tool calls, no caching, no agents. You used the OpenAI SDK
-to send a message array and got formatted text back. Everything added since was
+<p>I’m not guessing at this. In 2023 I was building generative AI systems on
+GPT-3.5, when the frontier had no tool calls, no caching, no agents. You sent the
+OpenAI SDK a message array and got formatted text back. Every piece of it was
 added for a reason, and I watched most of it show up one patch at a time.</p>
-<p>So that’s the shape of every chapter: here’s the failure, here’s the minimal
+<p>So every chapter has the same shape: here’s the failure, here’s the minimal
 patch, here’s what the patch costs you. A toy harness in plain Python (raw HTTP,
 no SDK) grows alongside the text. By the epilogue you’ll have a working mini
-coding agent in about 300 lines — and the durable knowledge that there’s no
-magic anywhere in the stack.</p>
-<p>Production harnesses (Claude Code, and One Code, my reimplementation of it on
-another agent runtime) show up as evidence that the patterns are real, never as
-the vehicle for the explanation.</p>
+coding agent in about 300 lines, and the durable knowledge that there’s no magic
+anywhere in the stack. The full source is on
+<a href="https://github.com/IsuruMaduranga/harness-engineering-101">GitHub</a>.</p>
+<p>Learn the patches in the order they were invented, as fixes to real failures,
+and none of it is complicated. No frameworks, no buzzword tour, no architecture
+diagrams with twelve boxes.</p>
 <h2 id="reading-order"><a class="header" href="#reading-order">Reading order</a></h2>
 <h3 id="part-i--the-wire-nothing-is-magic"><a class="header" href="#part-i--the-wire-nothing-is-magic">Part I — The Wire (nothing is magic)</a></h3>
 <div class="table-wrapper">

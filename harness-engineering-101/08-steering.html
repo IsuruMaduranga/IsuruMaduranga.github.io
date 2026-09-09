@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -230,8 +230,9 @@ information? Three reasons, all from earlier chapters:</p>
 <li><strong>Caching.</strong> Editing the system prompt invalidates the entire cached
 array. Appending a block costs only itself (chapter 5).</li>
 <li><strong>Position.</strong> Models attend most reliably to recent tokens. A rule
-restated at the bottom beats a rule buried at the top; this is also why
-reminders are a genuine <em>fix</em> for context rot, not just a message bus.</li>
+restated at the bottom beats a rule buried at the top. That’s also why a
+reminder actually fixes context rot, instead of just passing a message
+along.</li>
 <li><strong>Timing.</strong> The system prompt is set per request, but what you usually
 want is to react to an <em>event</em> between two rounds: precisely where the
 next user-side message is about to be built anyway.</li>
@@ -275,8 +276,8 @@ writes <em>to itself</em>.</p>
 statuses as you work.” The tool’s implementation stores a small list in
 harness state, and here is the trick: <strong>after each update, the harness
 injects the current list back into the conversation as a reminder.</strong> The
-model plans; the plan becomes an artifact outside the model; the artifact
-returns as fresh tokens at the bottom of the array, round after round.</p>
+model plans. That plan becomes an artifact outside the model, and it comes
+back as fresh tokens at the bottom of the array, round after round.</p>
 <p>Why does a model need to be reminded of its own plan? Because (chapter 2,
 always chapter 2) the model has no memory: its “plan” was tokens it emitted
 50,000 tokens ago, subject to the same rot as everything else. The
@@ -291,19 +292,20 @@ smarter, it gives the model a <em>whiteboard</em>, and then makes sure the
 whiteboard stays in view. Much of harness engineering is exactly this shape.</p>
 <h2 id="steering-the-other-brain-openais-developer-role"><a class="header" href="#steering-the-other-brain-openais-developer-role">Steering the other brain: OpenAI’s developer role</a></h2>
 <p>One more thread to connect. OpenAI’s newer API added a <code>developer</code> role,
-distinct from both <code>user</code> and (deprecated as a name) <code>system</code>: messages
-from the application author, with authority above the user’s but below the
-platform’s. If you are targeting OpenAI models, mid-conversation harness
-guidance can ride as a developer message instead of a tagged block inside a
+distinct from <code>user</code> and the now-deprecated <code>system</code> name. It carries
+messages from the application author, with authority above the user’s and
+below the platform’s. If you are targeting OpenAI models, mid-conversation
+harness guidance can ride as a developer message instead of a tagged block
+inside a
 user message: the same idea this chapter built by convention, promoted to a
 first-class citizen of the wire format.</p>
-<p>Two honest caveats. First, the roles’ authority ordering is, as chapter 2
-keeps insisting, <em>trained</em> behavior, not enforcement; a developer message
-is not a security boundary either. Second, the promotion covers the
+<p>Two honest caveats. First: as chapter 2 keeps insisting, the roles’
+authority ordering is <em>trained</em> behavior, not enforcement. A developer
+message isn’t a security boundary either. Second, the promotion covers the
 labeling, not the machinery: you still need the queue, the events, the
 decisions about <em>when</em> to speak. The hard part of steering was never the
 role name.</p>
-<p>This is worth noticing as a recurring pattern in this field: today’s
+<p>This pattern keeps repeating: today’s
 harness convention keeps becoming tomorrow’s API feature (ReAct became tool
 calling; steering conventions became a role). Learning the conventions is
 not wasted effort when the feature ships; the feature is the convention,

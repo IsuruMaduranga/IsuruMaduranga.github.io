@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-8046c0e1.js";
+            window.path_to_searchindex_js = "searchindex-b0a6a1e7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-060f02a5.js"></script>
@@ -187,11 +187,12 @@
 <hr>
 <p><strong>The failure:</strong> everything we have built is synchronous. The model calls a
 tool; the loop <em>waits</em>; the result comes back; the loop continues. Now let
-the agent start a 20-minute build. The choices are all bad: block the whole
-loop for 20 minutes (the agent can do nothing else, the user watches a
-spinner), time the tool out (the model learns “builds fail here”), or worst
-and most common, the model decides to <em>poll</em>: <code>sleep 30</code> then check, <code>sleep 30</code> then check, forty API round trips of a very expensive brain doing the
-job of a kitchen timer.</p>
+the agent start a 20-minute build. The choices are all bad. Block the
+whole loop for 20 minutes, and the agent can do nothing else while the user
+watches a spinner. Time the tool out, and the model learns “builds fail
+here.” Or, worst and most common, the model polls: <code>sleep 30</code>, check,
+<code>sleep 30</code>, check — forty API round trips of an expensive brain doing a
+kitchen timer’s job.</p>
 <p>And beyond the single slow command sits the bigger version: work that should
 happen <em>when something happens</em> (“tell me when CI goes green”) or <em>at a
 time</em> (“check the deploy every hour”). Our loop has no concept of time at
