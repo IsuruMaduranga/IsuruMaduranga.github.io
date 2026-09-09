@@ -40,15 +40,17 @@ So that's the shape of every chapter: here is the failure, here is the minimal
 patch, here is what the patch costs you. A toy harness in plain Python (raw
 HTTP, no SDK) grows alongside the text. By the epilogue you will have a working
 mini coding agent in about 300 lines, and the durable knowledge that there is
-no magic anywhere in the stack.
+no magic anywhere in the stack. The full source is on
+[GitHub](https://github.com/IsuruMaduranga/harness-engineering-101).
 
-Production harnesses (Claude Code, and [One Code](/projects/one_code/), my
-reimplementation of it on another agent runtime) appear as evidence that the
-patterns are real, never as the vehicle for the explanation.
+Two real harnesses show up along the way as proof the patterns hold: Claude
+Code, and [One Code](https://github.com/IsuruMaduranga/one-code), my
+reimplementation of it on another agent runtime. They are here to confirm the patterns work in production, not to
+do the explaining. The toy harness does that.
 
 ## Read the series
 
-The full series is a short book — sidebar, search, and all sixteen chapters
+The full series is a short book: sidebar, search, and all sixteen chapters
 plus the appendices in reading order. It grows a toy harness in plain Python
 (raw HTTP, no SDK) alongside the text; by the epilogue it's a working mini
 coding agent in about 300 lines.
