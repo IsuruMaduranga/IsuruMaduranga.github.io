@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-37c39ed0.js";
+            window.path_to_searchindex_js = "searchindex-5b933096.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -282,8 +282,9 @@ diagrams with twelve boxes.</p>
 <li><a href="#appendix-d-retries-rate-limits-and-streaming">D. Retries, Rate Limits, and Streaming</a> — the unglamorous plumbing, plus how streaming works on the wire</li>
 </ul>
 <h2 id="the-toy-harness"><a class="header" href="#the-toy-harness">The toy harness</a></h2>
-<p>The running example lives in <a href="harness"><code>harness/</code></a>. Each version is the
-previous one plus the chapter’s patch:</p>
+<p>The running example lives in
+<a href="https://github.com/IsuruMaduranga/harness-engineering-101/tree/main/src/harness"><code>src/harness/</code></a>
+on GitHub. Each version is the previous one plus the chapter’s patch:</p>
 <ul>
 <li><code>harness/v1_chat.py</code> — chapter 1: the 30-line chat loop</li>
 <li><code>harness/v2_tools.py</code> — chapter 3: tools bolted on</li>
@@ -302,7 +303,7 @@ OAuth plumbing. This series is about the body, not about growing a brain.</p>
 the terms.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-1-its-just-a-json-array"><a class="header" href="#chapter-1-its-just-a-json-array">Chapter 1: It’s Just a JSON Array</a></h1>
-<p><em>Harness Engineering 101, Part I — The Wire. <a href="README.html">Series index</a> ·
+<p><em>Harness Engineering 101, Part I — The Wire. <a href="#harness-engineering-101">Series index</a> ·
 <a href="#chapter-2-the-brain-a-next-token-black-box">Next: The Brain</a></em></p>
 <hr>
 <p>In 2023 I was building generative AI systems on GPT-3.5. There were no
@@ -479,7 +480,7 @@ rebuild of Claude Code on a provider-neutral runtime, can treat the provider
 as a swappable part because everything above the wire format is identical.</p>
 <h2 id="the-toy-harness-v1"><a class="header" href="#the-toy-harness-v1">The toy harness, v1</a></h2>
 <p>Everything in this chapter fits in a program you can read in a minute. This
-is <a href="harness/v1_chat.py"><code>harness/v1_chat.py</code></a>, a working chat client with
+is <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v1_chat.py"><code>harness/v1_chat.py</code></a>, a working chat client with
 “memory”:</p>
 <pre><code class="language-python">#!/usr/bin/env python3
 """Harness v1: a chat loop. The array IS the conversation."""
@@ -580,7 +581,7 @@ its strange behavior?</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-2-the-brain-a-next-token-black-box"><a class="header" href="#chapter-2-the-brain-a-next-token-black-box">Chapter 2: The Brain: A Next-Token Black Box</a></h1>
 <p><em>Harness Engineering 101, Part I — The Wire.
-<a href="README.html">Series index</a> · <a href="#chapter-1-its-just-a-json-array">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-1-its-just-a-json-array">Prev</a> ·
 <a href="#chapter-3-tools-json-mapped-to-functions">Next: Tools</a></em></p>
 <hr>
 <p>Chapter 1 showed the wire: a JSON array in, a continuation out. This chapter
@@ -765,7 +766,7 @@ it feels like it should not work.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-3-tools-json-mapped-to-functions"><a class="header" href="#chapter-3-tools-json-mapped-to-functions">Chapter 3: Tools: JSON Mapped to Functions</a></h1>
 <p><em>Harness Engineering 101, Part I — The Wire.
-<a href="README.html">Series index</a> · <a href="#chapter-2-the-brain-a-next-token-black-box">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-2-the-brain-a-next-token-black-box">Prev</a> ·
 <a href="#chapter-4-the-agent-loop">Next: The Agent Loop</a></em></p>
 <hr>
 <p><strong>The failure:</strong> the brain can only emit text. Ask it to “check whether the
@@ -852,7 +853,7 @@ ONLY with JSON” and wrote regex fallbacks for when it apologized first.
 Function calling moved that trick into training, and that is the entire
 difference.)</p>
 <h2 id="the-toy-harness-v2"><a class="header" href="#the-toy-harness-v2">The toy harness, v2</a></h2>
-<p><a href="harness/v2_tools.py"><code>harness/v2_tools.py</code></a> adds two tools to v1. The new
+<p><a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v2_tools.py"><code>harness/v2_tools.py</code></a> adds two tools to v1. The new
 parts are marked:</p>
 <pre><code class="language-python">TOOLS = [                                            # NEW: the menu
     {"name": "read_file",
@@ -963,7 +964,7 @@ between steps. That loop has a grand name. It is four lines of code.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-4-the-agent-loop"><a class="header" href="#chapter-4-the-agent-loop">Chapter 4: The Agent Loop</a></h1>
 <p><em>Harness Engineering 101, Part I — The Wire.
-<a href="README.html">Series index</a> · <a href="#chapter-3-tools-json-mapped-to-functions">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-3-tools-json-mapped-to-functions">Prev</a> ·
 <a href="#chapter-5-caching-why-order-is-load-bearing">Next: Caching</a></em></p>
 <hr>
 <p><strong>The failure:</strong> v2 of our harness executes one tool call, lets the model
@@ -1085,7 +1086,7 @@ you are looking at a technique for models that lack tool training, or at a
 tutorial older than it looks. With a modern model you get the Thought (as
 thinking blocks), the Action (as tool_use blocks), and the loop, natively.</p>
 <h2 id="the-toy-harness-v3"><a class="header" href="#the-toy-harness-v3">The toy harness, v3</a></h2>
-<p><a href="harness/v3_agent.py"><code>harness/v3_agent.py</code></a> turns v2 into a real agent.
+<p><a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v3_agent.py"><code>harness/v3_agent.py</code></a> turns v2 into a real agent.
 The heart of the change:</p>
 <pre><code class="language-python">def run_turn(messages):
     """One user turn = as many model/tool rounds as the task needs."""
@@ -1146,7 +1147,7 @@ become a financial decision.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-5-caching-why-order-is-load-bearing"><a class="header" href="#chapter-5-caching-why-order-is-load-bearing">Chapter 5: Caching: Why Order Is Load-Bearing</a></h1>
 <p><em>Harness Engineering 101, Part I — The Wire.
-<a href="README.html">Series index</a> · <a href="#chapter-4-the-agent-loop">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-4-the-agent-loop">Prev</a> ·
 <a href="#chapter-6-context-is-a-budget-not-a-bag">Next: Context Is a Budget</a></em></p>
 <hr>
 <p><strong>The failure:</strong> the agent loop works, and it quietly burns money. Every
@@ -1187,7 +1188,7 @@ full price only for the new 2,000.</li>
 cut, plus a large latency cut, because the provider skips the reading work,
 not just the billing.</p>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="diagrams/cache_economics.png" alt="Cumulative input-token cost with and without prefix caching"><span class="img-wrapper"><img src="diagrams/cache_economics.png" alt="Cumulative input-token cost with and without prefix caching"></span></label></p>
-<p><em>Generated by <a href="diagrams/gen_cache_economics.py"><code>diagrams/gen_cache_economics.py</code></a>.</em></p>
+<p><em>Generated by <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/diagrams/gen_cache_economics.py"><code>diagrams/gen_cache_economics.py</code></a>.</em></p>
 <p>Notice what made this possible: <strong>the agent loop is append-only.</strong> Each
 round adds messages at the end and touches nothing earlier. An append-only
 array has a perfectly stable prefix, which is a perfectly cacheable prefix.
@@ -1312,7 +1313,7 @@ spending that space well.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-6-context-is-a-budget-not-a-bag"><a class="header" href="#chapter-6-context-is-a-budget-not-a-bag">Chapter 6: Context Is a Budget, Not a Bag</a></h1>
 <p><em>Harness Engineering 101, Part II — Running Long.
-<a href="README.html">Series index</a> · <a href="#chapter-5-caching-why-order-is-load-bearing">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-5-caching-why-order-is-load-bearing">Prev</a> ·
 <a href="#chapter-7-subagents-fork-the-context">Next: Subagents</a></em></p>
 <hr>
 <p><strong>The failure:</strong> the loop from chapter 4, left alone on a big task, fills
@@ -1339,7 +1340,7 @@ should track them per round and know what the array is made of. In a typical
 coding-agent session, the composition surprises people:</p>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="diagrams/context_composition.png" alt="What fills a coding agent’s context window"><span class="img-wrapper"><img src="diagrams/context_composition.png" alt="What fills a coding agent’s context window"></span></label></p>
 <p><em>Illustrative composition of a long session. Generated by
-<a href="diagrams/gen_context_composition.py"><code>diagrams/gen_context_composition.py</code></a>.</em></p>
+<a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/diagrams/gen_context_composition.py"><code>diagrams/gen_context_composition.py</code></a>.</em></p>
 <p>The dominant spender is almost always <strong>tool results</strong>: file contents,
 command output, search results. Not the conversation, not the system prompt.
 This tells you where the leverage is. The three cheapest wins in most
@@ -1465,7 +1466,7 @@ model itself with ordinary tools. RAM vs disk.</li>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-7-subagents-fork-the-context"><a class="header" href="#chapter-7-subagents-fork-the-context">Chapter 7: Subagents: Fork the Context</a></h1>
 <p><em>Harness Engineering 101, Part II — Running Long.
-<a href="README.html">Series index</a> · <a href="#chapter-6-context-is-a-budget-not-a-bag">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-6-context-is-a-budget-not-a-bag">Prev</a> ·
 <a href="#chapter-8-steering-the-running-loop">Next: Steering</a></em></p>
 <hr>
 <p><strong>The failure:</strong> some work is worth doing but not worth remembering. Ask an
@@ -1559,7 +1560,7 @@ one coordinator with shallow, disposable workers, not deep hierarchies.</li>
 </ul>
 <h2 id="the-toy-harness-v4"><a class="header" href="#the-toy-harness-v4">The toy harness, v4</a></h2>
 <p>The beautiful thing about implementing subagents is discovering there is
-almost nothing to implement. <a href="harness/v4_subagents.py"><code>harness/v4_subagents.py</code></a>
+almost nothing to implement. <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v4_subagents.py"><code>harness/v4_subagents.py</code></a>
 adds one tool whose executor calls the loop we already have:</p>
 <pre><code class="language-python">AGENT_TOOL = {
     "name": "agent",
@@ -1637,7 +1638,7 @@ loop without breaking chapter 5’s caching rules.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-8-steering-the-running-loop"><a class="header" href="#chapter-8-steering-the-running-loop">Chapter 8: Steering the Running Loop</a></h1>
 <p><em>Harness Engineering 101, Part II — Running Long.
-<a href="README.html">Series index</a> · <a href="#chapter-7-subagents-fork-the-context">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-7-subagents-fork-the-context">Prev</a> ·
 <a href="#chapter-9-background-work-and-time">Next: Background Work and Time</a></em></p>
 <hr>
 <p><strong>The failure:</strong> the loop is autonomous now, and autonomy has a cost: the
@@ -1798,7 +1799,7 @@ alarm clock.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-9-background-work-and-time"><a class="header" href="#chapter-9-background-work-and-time">Chapter 9: Background Work and Time</a></h1>
 <p><em>Harness Engineering 101, Part II — Running Long.
-<a href="README.html">Series index</a> · <a href="#chapter-8-steering-the-running-loop">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-8-steering-the-running-loop">Prev</a> ·
 <a href="#chapter-10-every-framework-is-a-wrapper-around-chapter-1">Next: Frameworks Are Wrappers</a></em></p>
 <hr>
 <p><strong>The failure:</strong> everything we have built is synchronous. The model calls a
@@ -1949,7 +1950,7 @@ inside them, which you are now fully equipped to see.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-10-every-framework-is-a-wrapper-around-chapter-1"><a class="header" href="#chapter-10-every-framework-is-a-wrapper-around-chapter-1">Chapter 10: Every Framework Is a Wrapper Around Chapter 1</a></h1>
 <p><em>Harness Engineering 101, Part III — The Ecosystem.
-<a href="README.html">Series index</a> · <a href="#chapter-9-background-work-and-time">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-9-background-work-and-time">Prev</a> ·
 <a href="#chapter-11-extending-the-body-mcp-skills-deferred-loading-hooks">Next: Extending the Body</a></em></p>
 <hr>
 <p><strong>The failure this chapter patches is in you, not the software:</strong> abstraction
@@ -2091,7 +2092,7 @@ to do when the tool list itself outgrows the context budget.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-11-extending-the-body-mcp-skills-deferred-loading-hooks"><a class="header" href="#chapter-11-extending-the-body-mcp-skills-deferred-loading-hooks">Chapter 11: Extending the Body: MCP, Skills, Deferred Loading, Hooks</a></h1>
 <p><em>Harness Engineering 101, Part III — The Ecosystem.
-<a href="README.html">Series index</a> · <a href="#chapter-10-every-framework-is-a-wrapper-around-chapter-1">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-10-every-framework-is-a-wrapper-around-chapter-1">Prev</a> ·
 <a href="#chapter-12-debugging-the-array">Next: Debugging the Array</a></em></p>
 <hr>
 <p><strong>The failure:</strong> our harness’s capabilities are hardcoded. Every tool is a
@@ -2258,7 +2259,7 @@ actually know what your model is seeing? Next chapter: how to look.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-12-debugging-the-array"><a class="header" href="#chapter-12-debugging-the-array">Chapter 12: Debugging the Array</a></h1>
 <p><em>Harness Engineering 101, Part III — The Ecosystem.
-<a href="README.html">Series index</a> · <a href="#chapter-11-extending-the-body-mcp-skills-deferred-loading-hooks">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-11-extending-the-body-mcp-skills-deferred-loading-hooks">Prev</a> ·
 <a href="#chapter-13-reflexes-and-guardrails">Next: Reflexes and Guardrails</a></em></p>
 <hr>
 <p><strong>The failure:</strong> your agent does something strange. It ignores an
@@ -2421,7 +2422,7 @@ do.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-13-reflexes-and-guardrails"><a class="header" href="#chapter-13-reflexes-and-guardrails">Chapter 13: Reflexes and Guardrails</a></h1>
 <p><em>Harness Engineering 101, Part IV — Trust, Domains, and Data.
-<a href="README.html">Series index</a> · <a href="#chapter-12-debugging-the-array">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-12-debugging-the-array">Prev</a> ·
 <a href="#chapter-14-case-study-coding-agents">Next: Coding Agents</a></em></p>
 <hr>
 <p><strong>The failure:</strong> the loop will, eventually, try to do something dumb. Not
@@ -2598,7 +2599,7 @@ terminal.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-14-case-study-coding-agents"><a class="header" href="#chapter-14-case-study-coding-agents">Chapter 14: Case Study: Coding Agents</a></h1>
 <p><em>Harness Engineering 101, Part IV — Trust, Domains, and Data.
-<a href="README.html">Series index</a> · <a href="#chapter-13-reflexes-and-guardrails">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-13-reflexes-and-guardrails">Prev</a> ·
 <a href="#chapter-15-rag-was-a-harness-pattern-all-along">Next: RAG</a></em></p>
 <hr>
 <p>Every pattern in this series was demonstrated on a coding body, and this
@@ -2752,7 +2753,7 @@ Time to demystify RAG.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-15-rag-was-a-harness-pattern-all-along"><a class="header" href="#chapter-15-rag-was-a-harness-pattern-all-along">Chapter 15: RAG Was a Harness Pattern All Along</a></h1>
 <p><em>Harness Engineering 101, Part IV — Trust, Domains, and Data.
-<a href="README.html">Series index</a> · <a href="#chapter-14-case-study-coding-agents">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-14-case-study-coding-agents">Prev</a> ·
 <a href="#epilogue-build-your-own">Next: Epilogue — Build Your Own</a></em></p>
 <hr>
 <p><strong>The failure, one last time:</strong> the model doesn’t know your stuff. Chapter
@@ -2916,13 +2917,13 @@ break, and rebuild.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="epilogue-build-your-own"><a class="header" href="#epilogue-build-your-own">Epilogue: Build Your Own</a></h1>
 <p><em>Harness Engineering 101.
-<a href="README.html">Series index</a> · <a href="#chapter-15-rag-was-a-harness-pattern-all-along">Prev</a> ·
+<a href="#harness-engineering-101">Series index</a> · <a href="#chapter-15-rag-was-a-harness-pattern-all-along">Prev</a> ·
 <a href="#appendix-a-one-harness-many-brains">Appendix A</a></em></p>
 <hr>
 <p>Fifteen chapters ago I claimed that an agent is a while loop around a chat
 completion, and that everything else is a patch with a reason. The honest
 way to close is to put the whole body on the table. This is a walk through
-<a href="harness/harness.py"><code>harness/harness.py</code></a>: 298 lines, zero dependencies,
+<a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/harness.py"><code>harness/harness.py</code></a>: 298 lines, zero dependencies,
 every patch from the series, runnable against a real model right now.</p>
 <pre><code class="language-bash">export ANTHROPIC_API_KEY=...
 python3 harness.py mysession.json
@@ -3045,7 +3046,7 @@ just younger than it looks, and dressed in more vocabulary than it needs.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="appendix-a-one-harness-many-brains"><a class="header" href="#appendix-a-one-harness-many-brains">Appendix A: One Harness, Many Brains</a></h1>
 <p><em>Harness Engineering 101, Appendix — Advanced Topics.
-<a href="README.html">Series index</a></em></p>
+<a href="#harness-engineering-101">Series index</a></em></p>
 <hr>
 <p>The main series treated “the model” as one thing. A production harness
 makes dozens of <em>kinds</em> of model calls per session, and they differ wildly
@@ -3150,11 +3151,11 @@ same lesson the whole series taught, applied to the brain itself: the body
 adapts to what it is driving. And both are optional until the day your
 bill or your latency says otherwise, which is why this lives in the
 appendix and not the spine.</p>
-<p><em><a href="README.html">Series index</a></em></p>
+<p><em><a href="#harness-engineering-101">Series index</a></em></p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="appendix-b-worktrees-and-isolation"><a class="header" href="#appendix-b-worktrees-and-isolation">Appendix B: Worktrees and Isolation</a></h1>
 <p><em>Harness Engineering 101, Appendix — Advanced Topics.
-<a href="README.html">Series index</a></em></p>
+<a href="#harness-engineering-101">Series index</a></em></p>
 <hr>
 <p>Chapter 7 gave each subagent its own <em>array</em>. That isolates their
 attention. It does not isolate their <em>world</em>: every agent still reads and
@@ -3227,11 +3228,11 @@ merge, trivial cleanup. They do not isolate runtime or untracked state,
 and they are one rung on a spectrum that ends at VMs. The principle
 underneath is transactions: let agents propose in private, and make the
 integration a visible step a human can approve.</p>
-<p><em><a href="README.html">Series index</a></em></p>
+<p><em><a href="#harness-engineering-101">Series index</a></em></p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="appendix-c-modes-and-plan-mode"><a class="header" href="#appendix-c-modes-and-plan-mode">Appendix C: Modes and Plan Mode</a></h1>
 <p><em>Harness Engineering 101, Appendix — Advanced Topics.
-<a href="README.html">Series index</a></em></p>
+<a href="#harness-engineering-101">Series index</a></em></p>
 <hr>
 <p>Chapter 13 mentioned <strong>permission modes</strong> as the answer to approval
 fatigue: a session-level dial the user sets, from “ask me about
@@ -3328,11 +3329,11 @@ full autonomy,
 review the intention once, then execute against the approved plan.
 It converts the human from a click-through checkpoint into a reviewer of
 intentions, which is the job they were always better at.</p>
-<p><em><a href="README.html">Series index</a></em></p>
+<p><em><a href="#harness-engineering-101">Series index</a></em></p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="appendix-d-retries-rate-limits-and-streaming"><a class="header" href="#appendix-d-retries-rate-limits-and-streaming">Appendix D: Retries, Rate Limits, and Streaming</a></h1>
 <p><em>Harness Engineering 101, Appendix — Advanced Topics.
-<a href="README.html">Series index</a></em></p>
+<a href="#harness-engineering-101">Series index</a></em></p>
 <hr>
 <p>The main series pretended two things: that <code>call_llm</code> always returns, and
 (chapter 1’s sidebar) that streaming is someone else’s problem. In
@@ -3456,7 +3457,7 @@ socket config.</p>
 <p>You do not need a new harness for this. It is the complete harness from the
 epilogue, with one thing different: the line that used to open the connection
 now calls a version that retries. The full runnable file is
-<a href="harness/appendix-d/harness.py"><code>harness/appendix-d/harness.py</code></a>, and you run
+<a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/appendix-d/harness.py"><code>harness/appendix-d/harness.py</code></a>, and you run
 it exactly like before — <code>python3 harness.py</code> — it just no longer falls over
 on a blip. Two small functions do the work:</p>
 <pre><code class="language-python">RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
@@ -3522,7 +3523,7 @@ the loop so tools never re-run. Rate limits are measured in tokens, so
 context size and fan-out, not request count, are what exhaust them. Partial streamed output
 is not output. And capture failures like you capture requests, because
 “the model is being weird” is sometimes a half-dead socket.</p>
-<p><em><a href="README.html">Series index</a></em></p>
+<p><em><a href="#harness-engineering-101">Series index</a></em></p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="license-1"><a class="header" href="#license-1">License</a></h1>
 <p>This work is dual-licensed: the prose under one license, the code under
