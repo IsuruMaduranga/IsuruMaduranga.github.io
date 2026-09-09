@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-37c39ed0.js";
+            window.path_to_searchindex_js = "searchindex-5b933096.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -182,7 +182,7 @@
                     <main>
                         <h1 id="chapter-4-the-agent-loop"><a class="header" href="#chapter-4-the-agent-loop">Chapter 4: The Agent Loop</a></h1>
 <p><em>Harness Engineering 101, Part I — The Wire.
-<a href="README.html">Series index</a> · <a href="03-tools.html">Prev</a> ·
+<a href="index.html">Series index</a> · <a href="03-tools.html">Prev</a> ·
 <a href="05-caching.html">Next: Caching</a></em></p>
 <hr>
 <p><strong>The failure:</strong> v2 of our harness executes one tool call, lets the model
@@ -304,7 +304,7 @@ you are looking at a technique for models that lack tool training, or at a
 tutorial older than it looks. With a modern model you get the Thought (as
 thinking blocks), the Action (as tool_use blocks), and the loop, natively.</p>
 <h2 id="the-toy-harness-v3"><a class="header" href="#the-toy-harness-v3">The toy harness, v3</a></h2>
-<p><a href="harness/v3_agent.py"><code>harness/v3_agent.py</code></a> turns v2 into a real agent.
+<p><a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v3_agent.py"><code>harness/v3_agent.py</code></a> turns v2 into a real agent.
 The heart of the change:</p>
 <pre><code class="language-python">def run_turn(messages):
     """One user turn = as many model/tool rounds as the task needs."""

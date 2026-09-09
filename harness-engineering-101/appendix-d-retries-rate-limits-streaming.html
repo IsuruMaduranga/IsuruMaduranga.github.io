@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-37c39ed0.js";
+            window.path_to_searchindex_js = "searchindex-5b933096.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -182,7 +182,7 @@
                     <main>
                         <h1 id="appendix-d-retries-rate-limits-and-streaming"><a class="header" href="#appendix-d-retries-rate-limits-and-streaming">Appendix D: Retries, Rate Limits, and Streaming</a></h1>
 <p><em>Harness Engineering 101, Appendix — Advanced Topics.
-<a href="README.html">Series index</a></em></p>
+<a href="index.html">Series index</a></em></p>
 <hr>
 <p>The main series pretended two things: that <code>call_llm</code> always returns, and
 (chapter 1’s sidebar) that streaming is someone else’s problem. In
@@ -306,7 +306,7 @@ socket config.</p>
 <p>You do not need a new harness for this. It is the complete harness from the
 epilogue, with one thing different: the line that used to open the connection
 now calls a version that retries. The full runnable file is
-<a href="harness/appendix-d/harness.py"><code>harness/appendix-d/harness.py</code></a>, and you run
+<a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/appendix-d/harness.py"><code>harness/appendix-d/harness.py</code></a>, and you run
 it exactly like before — <code>python3 harness.py</code> — it just no longer falls over
 on a blip. Two small functions do the work:</p>
 <pre><code class="language-python">RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
@@ -372,7 +372,7 @@ the loop so tools never re-run. Rate limits are measured in tokens, so
 context size and fan-out, not request count, are what exhaust them. Partial streamed output
 is not output. And capture failures like you capture requests, because
 “the model is being weird” is sometimes a half-dead socket.</p>
-<p><em><a href="README.html">Series index</a></em></p>
+<p><em><a href="index.html">Series index</a></em></p>
 
                     </main>
 
