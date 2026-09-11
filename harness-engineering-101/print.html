@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-5b933096.js";
+            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -295,6 +295,11 @@ on GitHub. Each version is the previous one plus the chapter’s patch:</p>
 <p>Python 3.10+, zero dependencies (raw <code>urllib</code>), Anthropic Messages API by
 default. Swapping the wire format for OpenAI’s is chapter 1 homework, and the
 point of the whole series is that it’s <em>only</em> the wire format you’d swap.</p>
+<p>The toy is deliberately small, so a few chapters reach for a bigger example.
+That is <a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, my
+from-scratch rebuild of Claude Code on a provider-neutral runtime, running
+the same patterns at production scale. The toy harness is what this series
+builds; One Code is where I point when you want to see a patch grown up.</p>
 <h2 id="out-of-scope"><a class="header" href="#out-of-scope">Out of scope</a></h2>
 <p>Training or fine-tuning models, TUI implementation, provider billing and
 OAuth plumbing. This series is about the body, not about growing a brain.</p>
@@ -475,9 +480,10 @@ offers to keep the array for you. Gemini has its own spelling. All of them
 are the same thing: an ordered list of role-tagged blocks, sent whole,
 continued once.</p>
 <p>This is why “which provider” is a shallow decision for a harness. The array
-is the architecture. The dialect is a serialization detail. One Code, my
-rebuild of Claude Code on a provider-neutral runtime, can treat the provider
-as a swappable part because everything above the wire format is identical.</p>
+is the architecture. The dialect is a serialization detail.
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, my provider-neutral
+rebuild of Claude Code, can treat the provider as a swappable part because
+everything above the wire format is identical.</p>
 <h2 id="the-toy-harness-v1"><a class="header" href="#the-toy-harness-v1">The toy harness, v1</a></h2>
 <p>Everything in this chapter fits in a program you can read in a minute. This
 is <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v1_chat.py"><code>harness/v1_chat.py</code></a>, a working chat client with
@@ -1230,7 +1236,7 @@ near the top. Chapter 8 builds a
 whole steering mechanism on this principle, and it exists <em>because</em> of this
 chapter.</p>
 <p>Production harnesses treat prefix stability as an invariant with tests. In
-One Code, the system prompt stays byte-stable across turns unless something
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, the system prompt stays byte-stable across turns unless something
 genuinely changed. Payload-capture tests (chapter 12) check this, because
 one careless byte up top is an invisible 10x price increase. Nothing breaks.
 No error appears. You just quietly pay full price on every request, and only
@@ -1389,7 +1395,9 @@ failed, so it sometimes re-proposes A. You cannot fix this entirely; you can
 write the summarization prompt to preserve what your domain needs most
 (current state, decisions made, files touched, next steps, constraints
 discovered). Claude Code’s compaction prompt is quite specific about this
-structure; “summarize the above” is not enough.</p>
+structure; “summarize the above” is not enough. One Code’s
+<a href="https://github.com/IsuruMaduranga/one-code/blob/master/extensions/compaction/prompt.ts">compaction prompt</a>
+is one you can read in full.</p>
 <p><strong>Compaction is a cache reset, and that is fine, because it is rare.</strong>
 Chapter 5 warned against trimming the array continuously. Compaction is the
 opposite pattern: one deliberate, infrequent jump. You pay one full-price
@@ -1617,6 +1625,10 @@ tool, write it like a ticket for a contractor with no Slack access. What to
 do, where to look, what done looks like, what to return. Every failure I
 have seen in multi-agent systems that was blamed on “coordination” was a
 bad ticket.</p>
+<p>One Code’s <a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/subagents">subagents extension</a>
+is this chapter at production size: the same recursive loop, with a live
+panel for the running children, a model you can pick per task, and a
+worktree per child.</p>
 <h2 id="what-you-now-know-6"><a class="header" href="#what-you-now-know-6">What you now know</a></h2>
 <ul>
 <li>A subagent is the agent loop run over a fresh, disposable array; only its
@@ -1699,7 +1711,7 @@ reminders”: anything (a file watcher, a permission system, a memory module)
 can enqueue a note, and the queue drains into the next outgoing message in a
 stable order. Centralizing this matters because scattered injections turn
 the array into a place where no one can say what the model saw and why. In
-One Code that queue is a first-class internal channel with ordering rules,
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> that queue is a first-class internal channel with ordering rules,
 and every feature that needs to whisper to the model goes through it. When
 you build a harness, build the queue early; you will be surprised how many
 features turn out to be “enqueue a reminder.”</p>
@@ -1863,7 +1875,7 @@ move is just <code>messages.append(...)</code> plus <code>call_llm(...)</code>, 
 turn ever was.</p>
 <p>One steering detail from production that looks trivial and is not: the
 harness should <em>block</em> the model from foreground <code>sleep</code>. Claude Code and
-One Code both do this: a guard rejects <code>sleep</code>-style waiting with a message
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> both do this: a guard rejects <code>sleep</code>-style waiting with a message
 telling the model to use background tasks and notifications instead. Models
 poll because polling is what their training data does; the harness has to
 make the good pattern the easy one. Tool design is behavior design.</p>
@@ -2010,7 +2022,7 @@ models grew; they pivoted to orchestration, observability, and enterprise
 integration, and the vocabulary stayed.</p>
 <p>Meanwhile, notice what the strongest production agents do. Claude Code is a
 bespoke harness over the raw API. So are most serious coding agents, and so
-is One Code (over a minimal general-purpose runtime, pi). When Anthropic
+is <a href="https://github.com/IsuruMaduranga/one-code">One Code</a> (over a minimal general-purpose runtime, pi). When Anthropic
 ships the Claude Agent SDK, it is a <em>thin</em> layer: the loop, tool dispatch,
 context management: chapter 4 and 6, productized. And the field is
 moving toward models plus a thin harness, not toward deep abstraction
@@ -2188,6 +2200,10 @@ needs, say, spreadsheet capabilities, it searches; the harness returns the
 matching schemas and, on providers that support it, activates them for
 subsequent requests. A hundred connected tools ride as a hundred short
 lines plus one searcher, instead of a hundred full JSON schemas.</p>
+<p>One Code carries this as its
+<a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/tool-search"><code>tool-search</code> extension</a>:
+a searcher tool plus the append-only activation below, if you want to read
+one wired up.</p>
 <p>There’s a wrinkle worth knowing, even if you never implement it. Once a
 tool’s schema is <em>activated</em> into the conversation, it has to stay available
 and stable for the rest of the session (the model might call it twenty
@@ -2328,7 +2344,7 @@ round 13: input 86,120 | cache_read 0      ← something rewrote the prefix
 timestamp crept into the system prompt; a tool list serialized in a
 different order; some feature “helpfully” edited an old message. Cache-read
 tokens are the harness’s pulse. Production harnesses watch it continuously;
-One Code surfaces the cache-hit rate in its status line, on the theory that
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> surfaces the cache-hit rate in its status line, on the theory that
 a vital sign belongs on the dashboard, not in a postmortem.</p>
 <h2 id="replay-the-experiment-the-architecture-gives-you-for-free"><a class="header" href="#replay-the-experiment-the-architecture-gives-you-for-free">Replay: the experiment the architecture gives you for free</a></h2>
 <p>Here is where statelessness (chapter 1) pays off for debugging. The
@@ -2506,6 +2522,10 @@ system.</li>
 unattended (see Appendix C for plan mode). Approval moves up an
 abstraction level, where humans are good at judging.</li>
 </ul>
+<p>All three live in One Code’s
+<a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/permissions">permissions extension</a>:
+the modes, the remembered grants, the protected paths, and a separate gate
+for what subagents are allowed to do.</p>
 <h2 id="layer-3-a-cheap-brain-judging-the-big-brain"><a class="header" href="#layer-3-a-cheap-brain-judging-the-big-brain">Layer 3: a cheap brain judging the big brain</a></h2>
 <p>The tension left over: full autonomy (“auto-approve everything”) is what
 users actually want for flow, and rules cannot cover the long tail of
@@ -2718,7 +2738,7 @@ injected deltas: these caught real mistakes deterministically, and
 dropping them costs actual quality today.</li>
 <li><strong>Weaker brains need more body.</strong> On frontier models, terminal-only is
 serviceable. Run the same experiment on a mid-tier model (I have, while
-testing One Code against cheap models) and structured tools with tight
+testing <a href="https://github.com/IsuruMaduranga/one-code">One Code</a> against cheap models) and structured tools with tight
 schemas and loud errors visibly outperform free-form shell: the
 structure is doing steering work the weak brain cannot do alone.
 Appendix A returns to this trade.</li>
@@ -3019,8 +3039,10 @@ remembered grants (ch. 13, Appendix C), streaming for the human’s sake
 the array (ch. 12). None of these will change the skeleton. I have built
 this same shape twice at production scale, once against the frontier and
 once as a from-scratch rebuild of Claude Code’s behavior on another
-runtime, and the skeleton you are holding is genuinely the one under both:
-an array, a loop, a dispatch table, a queue, and a gate.</p>
+runtime (<a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, the
+full-size version of the skeleton here), and the skeleton you are holding is
+genuinely the one under both: an array, a loop, a dispatch table, a queue,
+and a gate.</p>
 <h2 id="the-close"><a class="header" href="#the-close">The close</a></h2>
 <p>The claim from the introduction, now with evidence: there is no magic
 anywhere in the stack. The brain is a next-token predictor that was
@@ -3102,7 +3124,7 @@ work).</p>
 <p>Routing is half the pattern. The other half, less discussed: <strong>the same
 harness should not send the same array to different brains.</strong></p>
 <p>Chapter 14 touched the reason: weaker models need more body. Concretely,
-in a harness that runs on multiple tiers (One Code runs the same loop on
+in a harness that runs on multiple tiers (<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> runs the same loop on
 frontier models and on cheap local ones), the request itself is tiered:</p>
 <ul>
 <li><strong>System prompt tiers.</strong> The frontier model gets the lean prompt; it
@@ -3186,7 +3208,7 @@ child failed or went wrong, removal is the whole cleanup: the main tree
 never saw a byte of the mess. An unchanged worktree can be deleted
 automatically; a changed one is evidence.</p>
 <p>Claude Code exposes exactly this as an option on its Agent tool and as
-<code>EnterWorktree</code> for the main session; One Code implements the same. The
+<code>EnterWorktree</code> for the main session; <a href="https://github.com/IsuruMaduranga/one-code">One Code</a> implements the same. The
 noteworthy design choice in both: isolation is <em>opt-in per task</em>, because
 worktrees have a cost (below), and read-only errands don’t need them.</p>
 <h2 id="what-worktrees-dont-isolate"><a class="header" href="#what-worktrees-dont-isolate">What worktrees don’t isolate</a></h2>
@@ -3321,6 +3343,10 @@ needs chapter 13’s reflexes live: the plan authorizes intent, not stale
 assumptions. Production plan modes re-verify as they go, and treat “the
 plan no longer matches reality” as a stop-and-replan event, not something
 to push past.</p>
+<p>One Code’s
+<a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/plan-mode">plan-mode extension</a>
+works this way: writes are blocked while planning, the plan is reviewed
+once, and execution runs against it.</p>
 <h2 id="what-to-remember-2"><a class="header" href="#what-to-remember-2">What to remember</a></h2>
 <p>Modes are the gate. A trust setting controls them, switching is cheap, and
 the brain hears about it as steering — but the body is what enforces it.

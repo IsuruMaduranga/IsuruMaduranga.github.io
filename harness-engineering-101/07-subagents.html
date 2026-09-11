@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-5b933096.js";
+            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -333,6 +333,10 @@ tool, write it like a ticket for a contractor with no Slack access. What to
 do, where to look, what done looks like, what to return. Every failure I
 have seen in multi-agent systems that was blamed on “coordination” was a
 bad ticket.</p>
+<p>One Code’s <a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/subagents">subagents extension</a>
+is this chapter at production size: the same recursive loop, with a live
+panel for the running children, a model you can pick per task, and a
+worktree per child.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
 <li>A subagent is the agent loop run over a fresh, disposable array; only its

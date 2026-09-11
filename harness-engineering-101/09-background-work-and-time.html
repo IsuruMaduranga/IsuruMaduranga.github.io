@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-5b933096.js";
+            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -246,7 +246,7 @@ move is just <code>messages.append(...)</code> plus <code>call_llm(...)</code>, 
 turn ever was.</p>
 <p>One steering detail from production that looks trivial and is not: the
 harness should <em>block</em> the model from foreground <code>sleep</code>. Claude Code and
-One Code both do this: a guard rejects <code>sleep</code>-style waiting with a message
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> both do this: a guard rejects <code>sleep</code>-style waiting with a message
 telling the model to use background tasks and notifications instead. Models
 poll because polling is what their training data does; the harness has to
 make the good pattern the easy one. Tool design is behavior design.</p>
