@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-5b933096.js";
+            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -353,9 +353,10 @@ offers to keep the array for you. Gemini has its own spelling. All of them
 are the same thing: an ordered list of role-tagged blocks, sent whole,
 continued once.</p>
 <p>This is why “which provider” is a shallow decision for a harness. The array
-is the architecture. The dialect is a serialization detail. One Code, my
-rebuild of Claude Code on a provider-neutral runtime, can treat the provider
-as a swappable part because everything above the wire format is identical.</p>
+is the architecture. The dialect is a serialization detail.
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, my provider-neutral
+rebuild of Claude Code, can treat the provider as a swappable part because
+everything above the wire format is identical.</p>
 <h2 id="the-toy-harness-v1"><a class="header" href="#the-toy-harness-v1">The toy harness, v1</a></h2>
 <p>Everything in this chapter fits in a program you can read in a minute. This
 is <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v1_chat.py"><code>harness/v1_chat.py</code></a>, a working chat client with

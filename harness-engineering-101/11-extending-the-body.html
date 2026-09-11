@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-5b933096.js";
+            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-2dba1b62.js"></script>
@@ -278,6 +278,10 @@ needs, say, spreadsheet capabilities, it searches; the harness returns the
 matching schemas and, on providers that support it, activates them for
 subsequent requests. A hundred connected tools ride as a hundred short
 lines plus one searcher, instead of a hundred full JSON schemas.</p>
+<p>One Code carries this as its
+<a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/tool-search"><code>tool-search</code> extension</a>:
+a searcher tool plus the append-only activation below, if you want to read
+one wired up.</p>
 <p>There’s a wrinkle worth knowing, even if you never implement it. Once a
 tool’s schema is <em>activated</em> into the conversation, it has to stay available
 and stable for the rest of the session (the model might call it twenty
