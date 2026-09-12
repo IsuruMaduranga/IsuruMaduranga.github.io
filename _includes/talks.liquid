@@ -1,0 +1,29 @@
+{% if site.talks %}
+  <div class="talks">
+    {% assign talks_by_year = site.talks | sort: 'year' | reverse %}
+    {% for talk in talks_by_year %}
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            {% if talk.youtube %}
+              <a class="entry-title" href="{{ talk.youtube }}" target="_blank" rel="noopener">{{ talk.title }}</a>
+            {% else %}
+              <span class="entry-title">{{ talk.title }}</span>
+            {% endif %}
+            {% if talk.event %}
+              <p class="entry-sub">{{ talk.event }}</p>
+            {% endif %}
+          </div>
+          {% if talk.type %}
+            <span class="chip chip-accent">{{ talk.type }}</span>
+          {% endif %}
+        </div>
+        {% if talk.youtube %}
+          <a class="entry-link" href="{{ talk.youtube }}" target="_blank" rel="noopener">watch on YouTube</a>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No talks yet.</p>
+{% endif %}

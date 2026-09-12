@@ -59,7 +59,7 @@ bundle exec jekyll build
 | `_posts/`                  | Blog posts                                     |
 | `_projects/`               | Project pages (categories: `work`, `research`) |
 | `_news/`                   | News announcements on homepage                 |
-| `_teachings/`              | Course pages                                   |
+| `_talks/`                  | Conference talks and presentations             |
 | `CNAME`                    | Custom domain: isuruwijesiri.com               |
 | `_headers`                 | Cloudflare Pages cache rules                   |
 

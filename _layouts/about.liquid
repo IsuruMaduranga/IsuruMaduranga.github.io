@@ -40,10 +40,25 @@ layout: default
 
     <div class="clearfix">{{ content }}</div>
 
-    <!-- News -->
+    <!-- GitHub activity -->
+    {% if page.activity %}
+      {% assign gh_user = site.data.repositories.github_users | first %}
+      {% if gh_user %}
+        <h2>activity</h2>
+        <div class="activity">
+          <img
+            src="https://ghchart.rshah.org/{{ site.activity_color | default: 'dc2626' }}/{{ gh_user }}"
+            alt="GitHub contribution graph for {{ gh_user }}"
+            loading="lazy"
+          >
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <!-- Latest -->
     {% if page.announcements and page.announcements.enabled %}
       <h2>
-        <a href="{{ '/news/' | relative_url }}" style="color: inherit">news</a>
+        <a href="{{ '/news/' | relative_url }}" style="color: inherit">latest</a>
       </h2>
       {% include news.liquid limit=true %}
     {% endif %}
@@ -69,7 +84,9 @@ layout: default
       <div class="social">
         <div class="contact-icons">
           {% social_links %}
-          <a href="https://huggingface.co/isuruwijesiri" title="Hugging Face" target="_blank" rel="noopener noreferrer"><img src="{{ '/assets/img/huggingface.svg' | relative_url }}" alt="Hugging Face"></a>
+          <a href="https://huggingface.co/isuruwijesiri" title="Hugging Face" target="_blank" rel="noopener noreferrer"
+            ><img src="{{ '/assets/img/huggingface.svg' | relative_url }}" alt="Hugging Face"
+          ></a>
         </div>
 
         <div class="contact-note">{{ site.contact_note }}</div>

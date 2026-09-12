@@ -197,10 +197,10 @@ that places the sidebar or offsets the content goes through such a `calc()`, so
 each of them disappears:
 
 - `#mdbook-sidebar-toggle-anchor:not(:checked) ~ .sidebar { transform:
-  translate(calc(0px - var(--sidebar-width) - ...)) }` - the sidebar never
+translate(calc(0px - var(--sidebar-width) - ...)) }` - the sidebar never
   slides off-screen, so it cannot collapse.
 - `#mdbook-sidebar-toggle-anchor:checked ~ .page-wrapper { margin-inline-start:
-  calc(var(--sidebar-width) + ...) }` - the content column and its sticky menu
+calc(var(--sidebar-width) + ...) }` - the content column and its sticky menu
   bar are not pushed past the sidebar, so they overlap it.
 
 Why this looks like an edge problem and is not: `output_css` in jekyll-minifier
@@ -218,16 +218,17 @@ copy those files verbatim:
 
 Verified two ways. Byte-level: run `JEKYLL_ENV=production bundle exec jekyll
 build`, then compare every `harness-engineering-101/**/*.css` against its source
+
 - all eight identical, no `var( -  - ` left anywhere in the output. Runtime:
-serve `_site`, drive headless Chrome, click the sidebar toggle exactly once, and
-sample the state over the next 1.5s. The fixed build animates the sidebar out
-(its right edge goes 300 -> 15 -> 0) and settles at `display:none` with the
-wrapper margin at `0px`. The deployed copy leaves it at right 300,
-`display:block`, `transform:none` indefinitely while the margin still drops to
-0, so the content slides underneath a sidebar that is still on screen. Click
-once and sample over time - a harness that clicks repeatedly and measures
-between clicks can toggle twice and report a false failure. Keep that exclude
-when merging al-folio upstream.
+  serve `_site`, drive headless Chrome, click the sidebar toggle exactly once, and
+  sample the state over the next 1.5s. The fixed build animates the sidebar out
+  (its right edge goes 300 -> 15 -> 0) and settles at `display:none` with the
+  wrapper margin at `0px`. The deployed copy leaves it at right 300,
+  `display:block`, `transform:none` indefinitely while the margin still drops to
+  0, so the content slides underneath a sidebar that is still on screen. Click
+  once and sample over time - a harness that clicks repeatedly and measures
+  between clicks can toggle twice and report a false failure. Keep that exclude
+  when merging al-folio upstream.
 
 Notes:
 
@@ -261,3 +262,20 @@ To check this class of bug in future, compare the deployed bytes with the repo
 directly - `diff <(curl -s https://isuruwijesiri.com/<path>) <repo path>` - and
 then reproduce locally with `JEKYLL_ENV=production bundle exec jekyll build`
 rather than `jekyll serve`.
+
+## Jekyll rejects a bare-integer `date` in collection front matter
+
+A file in a collection whose front matter sets `date: 2025` (a year, with no
+month or day) fails the entire build:
+
+```
+Error: could not read file _talks/wso2-techconf-2025.md: Invalid date '2025':
+Document '_talks/wso2-techconf-2025.md' does not have a valid date in the YAML
+front matter.
+```
+
+Jekyll parses a collection document's `date` field as a real date and aborts
+the build rather than ignoring a value it cannot parse. For a talk or entry
+where only the year is known, sort on a differently named field (`year: 2025`)
+instead. Confirmed by the build failing on `date: 2025` and succeeding after the
+rename to `year`.

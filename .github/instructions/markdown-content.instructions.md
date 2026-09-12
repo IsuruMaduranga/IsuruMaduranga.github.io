@@ -1,5 +1,5 @@
 ---
-applyTo: "_books/**/*.md,_news/**/*.md,_pages/**/*.md,_posts/**/*.md,_projects/**/*.md,_teachings/**/*.md"
+applyTo: "_books/**/*.md,_news/**/*.md,_pages/**/*.md,_posts/**/*.md,_projects/**/*.md,_talks/**/*.md"
 ---
 
 # Content Files (Markdown) Instructions
@@ -13,7 +13,7 @@ Content in al-folio is organized by type:
 - **\_pages/** – Static pages (about, CV, publications, projects, etc.)
 - **\_posts/** – Blog posts (format: `YYYY-MM-DD-title.md`)
 - **\_projects/** – Project showcase entries
-- **\_teachings/** – Course and teaching information
+- **\_talks/** – Conference talks and presentations
 
 ## Frontmatter Structure
 
@@ -80,13 +80,20 @@ importance: 1
 ---
 ```
 
-### Teaching/Course Frontmatter (\_teachings/)
+### Talk Frontmatter (\_talks/)
+
+The `talks` collection is data only (`output: false`); entries feed the talks
+list on `_pages/talks.md` through `_includes/talks.liquid`. There is no detail
+page. Set `youtube` to link out to the recording.
 
 ```yaml
 ---
-layout: page
-title: Course Title
-description: Course description
+title: Talk Title
+event: Conference or meetup name
+type: Conference Talk
+year: 2025
+youtube: https://www.youtube.com/watch?v=xxxxxxxxxxx
+description: One-line summary of the talk
 ---
 ```
 

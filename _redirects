@@ -1,3 +1,7 @@
+# Retired page name: /teaching/ is now /talks/.
+/teaching/    /talks/    301
+/teaching     /talks/    301
+
 # Retired al-folio series chapters -> mdBook chapters (see _retired-posts/).
 # Cloudflare Pages consumes this file from the built site root.
 
