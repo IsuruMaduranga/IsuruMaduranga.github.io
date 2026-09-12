@@ -1,0 +1,13 @@
+/*****************************
+ * Writings list extras
+ *
+ * Row, heading, chip, and search styles are shared in _entries.scss. This file
+ * holds only the tag filter row, which is specific to the writings page.
+ *****************************/
+
+.writings-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}

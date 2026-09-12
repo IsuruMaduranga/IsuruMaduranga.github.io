@@ -1,0 +1,103 @@
+/*****************************
+ * Experience page
+ *****************************/
+
+.exp-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 2.5rem 0 1.25rem;
+
+  &::after {
+    content: "";
+    flex: 1;
+    border-top: 1px dashed var(--global-divider-color);
+  }
+}
+
+.exp-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.exp-company {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.timeline {
+  position: relative;
+  margin-left: 0.3rem;
+  padding-left: 1.4rem;
+  border-left: 1px solid var(--global-divider-color);
+}
+
+.exp-item {
+  position: relative;
+  padding-bottom: 1.75rem;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0.3rem;
+    left: -1.4rem;
+    width: 9px;
+    height: 9px;
+    margin-left: -5px;
+    border: 2px solid var(--global-theme-color);
+    border-radius: 50%;
+    background-color: var(--global-bg-color);
+  }
+}
+
+.exp-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.exp-role {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--global-text-color);
+}
+
+.exp-date {
+  flex-shrink: 0;
+  font-family: var(--global-font-mono);
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
+}
+
+.exp-sub {
+  color: var(--global-text-color-light);
+  font-size: 0.9rem;
+  margin-top: 0.15rem;
+}
+
+.exp-summary {
+  color: var(--global-text-color-light);
+  font-size: 0.9rem;
+  margin: 0.4rem 0 0;
+}
+
+.exp-points {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--global-text-color-light);
+  font-size: 0.9rem;
+
+  li {
+    margin-bottom: 0.3rem;
+  }
+}

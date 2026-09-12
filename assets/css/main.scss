@@ -26,12 +26,15 @@
 @use "publications";
 @use "components";
 @use "utilities";
+@use "minimal";
 
 // Other specialized styles
 @use "distill";
 @use "cv";
 @use "tabs";
-@use "teachings";
+@use "entries";
+@use "experience";
+@use "writings";
 @use "typograms";
 @use "font-awesome/fontawesome";
 @use "font-awesome/brands";

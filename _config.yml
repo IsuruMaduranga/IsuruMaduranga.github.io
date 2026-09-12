@@ -9,7 +9,7 @@ last_name: Wijesiri
 contact_note: >
   The best way to reach me is by email at imwijesiri@gmail.com.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  Isuru Wijesiri - ML Researcher at WSO2 and University of Moratuwa. Working on NLP, agentic code generation, and graph ML for low-resource and enterprise settings.
+  Isuru Wijesiri is an AI researcher and engineer at WSO2, and an external volunteer researcher with the University of Moratuwa, working on NLP, agentic code generation, and graph machine learning.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
   Hosted by <a href="https://pages.cloudflare.com/" target="_blank">Cloudflare Pages</a>.
@@ -61,7 +61,10 @@ posts_in_search: true
 bib_search: true
 
 # Dimensions
-max_width: 930px
+max_width: 720px
+
+# Accent color (hex, no leading #) for the GitHub activity chart on the homepage.
+activity_color: dc2626
 
 # -----------------------------------------------------------------------------
 # Open Graph & Schema.org
@@ -91,8 +94,8 @@ bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: Isuru's Blog # blog_name will be displayed in your blog page
-blog_description: Thoughts on NLP, AI, and software engineering
+blog_name: Writings # blog_name will be displayed in your blog page
+blog_description: Long-form thoughts on agentic AI, NLP, and building systems that hold up in production.
 permalink: /blog/:year/:title/
 lsi: false # produce an index for related posts
 
@@ -152,8 +155,8 @@ collections:
     output: true
   projects:
     output: true
-  teachings:
-    output: true
+  talks:
+    output: false
 
 # -----------------------------------------------------------------------------
 # Jekyll settings
@@ -466,7 +469,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Material+Icons&display=swap"
+      fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Material+Icons&display=swap"
   highlightjs:
     integrity:
       css:

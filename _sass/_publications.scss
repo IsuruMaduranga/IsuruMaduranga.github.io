@@ -1,183 +1,103 @@
 /*******************************************************************************
- * Publication and bibliography styles
+ * Publication-specific styles
+ *
+ * Row separators, titles, subtext, and chips are shared in _entries.scss. This
+ * file keeps the bibliography list shell and the author, abstract, and badge
+ * details that only publications have.
  ******************************************************************************/
 
-@use "variables" as v;
-
 .publications {
-  margin-top: 2rem;
-
-  h1 {
-    color: var(--global-theme-color);
-    font-size: 2rem;
-    text-align: center;
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
-
-  h2 {
-    margin-bottom: 1rem;
-
-    span {
-      font-size: 1.5rem;
-    }
-  }
-
-  h2.bibliography {
-    color: var(--global-divider-color);
-    border-top: 1px solid var(--global-divider-color);
-    padding-top: 1rem;
-    margin-top: 2rem;
-    text-align: right;
-  }
+  margin-top: 1.5rem;
 
   ol.bibliography {
     list-style: none;
     padding: 0;
     margin-top: 0;
 
-    li {
-      margin-bottom: 1rem;
+    > li {
+      border-bottom: 1px dotted var(--global-divider-color);
+      padding: 1rem 0;
 
-      .preview {
-        display: inline-block;
-      }
-
-      .abbr {
-        margin-bottom: 0.5rem;
-
-        abbr {
-          display: inline-block;
-          background-color: var(--global-theme-color);
-          margin-bottom: 0.5rem;
-          color: var(--global-card-bg-color) !important;
-
-          a {
-            color: white;
-
-            &:hover {
-              text-decoration: none;
-            }
-          }
-        }
-
-        .award {
-          color: var(--global-theme-color) !important;
-          border: 1px solid var(--global-theme-color);
-        }
-      }
-
-      .title {
-        font-weight: bolder;
-      }
-
-      .author {
-        a {
-          border-bottom: 1px dashed var(--global-theme-color);
-
-          &:hover {
-            border-bottom-style: solid;
-            text-decoration: none;
-          }
-        }
-
-        > em {
-          border-bottom: 1px solid;
-          font-style: normal;
-        }
-
-        > span.more-authors {
-          color: var(--global-text-color-light);
-          border-bottom: 1px dashed var(--global-text-color-light);
-          cursor: pointer;
-
-          &:hover {
-            color: var(--global-text-color);
-            border-bottom: 1px dashed var(--global-text-color);
-          }
-        }
-      }
-
-      .links {
-        a.btn {
-          color: var(--global-text-color);
-          border: 1px solid var(--global-text-color);
-          padding-left: 1rem;
-          padding-right: 1rem;
-          padding-top: 0.25rem;
-          padding-bottom: 0.25rem;
-          margin-left: 0;
-
-          &:hover {
-            color: var(--global-theme-color);
-            border-color: var(--global-theme-color);
-          }
-        }
-        a.award.btn {
-          border-color: var(--global-highlight-color);
-        }
-      }
-
-      .badges {
-        padding-bottom: 0.5rem;
-        span {
-          display: inline-block;
-          color: v.$black-color;
-          height: 100%;
-          padding-right: 0.5rem;
-          vertical-align: middle;
-
-          &:hover {
-            text-decoration: underline;
-          }
-        }
-      }
-
-      .hidden {
-        font-size: 0.875rem;
-        max-height: 0px;
-        overflow: hidden;
-        text-align: justify;
-        transition-property: 0.15s ease;
-        -moz-transition: 0.15s ease;
-        -ms-transition: 0.15s ease;
-        -o-transition: 0.15s ease;
-        transition: all 0.15s ease;
-
-        p {
-          line-height: 1.4em;
-          margin: 10px;
-        }
-
-        pre {
-          font-size: 1em;
-          line-height: 1.4em;
-          padding: 10px;
-        }
-      }
-
-      .hidden.open {
-        max-height: 100em;
-        transition-property: 0.15s ease;
-        -moz-transition: 0.15s ease;
-        -ms-transition: 0.15s ease;
-        -o-transition: 0.15s ease;
-        transition: all 0.15s ease;
-      }
-
-      div.abstract.hidden {
-        border: dashed 1px var(--global-bg-color);
-      }
-
-      div.abstract.hidden.open {
-        border-color: var(--global-text-color);
+      &:last-child {
+        border-bottom: 0;
       }
     }
-    div.award.hidden {
-      border: dashed 1px var(--global-bg-color);
+  }
+}
+
+.pub-item {
+  .author {
+    a {
+      color: var(--global-text-color-light);
+      border-bottom: 0;
+
+      &:hover {
+        color: var(--global-theme-color);
+        border-bottom: 0;
+      }
     }
-    div.award.hidden.open {
-      border-color: var(--global-highlight-color);
+
+    > em {
+      color: var(--global-text-color);
+      font-style: normal;
+      font-weight: 600;
+      border-bottom: 0;
+    }
+
+    > span.more-authors {
+      color: var(--global-text-color-light);
+      border-bottom: 1px dashed var(--global-text-color-light);
+      cursor: pointer;
+
+      &:hover {
+        color: var(--global-text-color);
+      }
+    }
+  }
+
+  .periodical {
+    font-style: italic;
+  }
+
+  .links {
+    margin-top: 0.6rem;
+  }
+
+  .hidden {
+    font-size: 0.9rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.15s ease;
+
+    p {
+      line-height: 1.5em;
+      margin: 10px 0;
+    }
+
+    pre {
+      font-size: 0.9em;
+      line-height: 1.5em;
+      padding: 10px;
+      border-radius: 10px;
+    }
+  }
+
+  .hidden.open {
+    max-height: 100em;
+  }
+
+  div.abstract.hidden,
+  div.abstract.hidden.open {
+    border: 0;
+  }
+
+  .badges {
+    padding: 0.5rem 0;
+
+    span {
+      display: inline-block;
+      vertical-align: middle;
+      padding-right: 0.5rem;
     }
   }
 }

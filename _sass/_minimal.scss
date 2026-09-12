@@ -1,0 +1,133 @@
+/*******************************************************************************
+ * Minimal visual layer
+ *
+ * Loaded last so it wins over the theme defaults. Retunes al-folio toward a
+ * flat, typographic look: neutral surfaces, one accent color, Inter for prose
+ * and JetBrains Mono for code and metadata.
+ ******************************************************************************/
+
+::selection {
+  background: color-mix(in srgb, var(--global-theme-color) 20%, transparent);
+}
+
+body {
+  line-height: 1.6;
+}
+
+p,
+li {
+  line-height: 1.75;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--global-font-family);
+  letter-spacing: -0.02em;
+}
+
+// Code: neutral text and mono everywhere, instead of the theme's accent color
+pre,
+code,
+kbd,
+samp {
+  font-family: var(--global-font-mono);
+  color: var(--global-text-color);
+}
+
+pre {
+  border: 1px solid var(--global-divider-color);
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+}
+
+code {
+  font-size: 0.875em;
+}
+
+// Blockquotes: a flat rule instead of a filled box
+blockquote {
+  background: transparent;
+  border-left: 3px solid var(--global-theme-color);
+  padding: 0.1rem 0 0.1rem 1rem;
+  font-size: 1.05rem;
+  color: var(--global-text-color-light);
+}
+
+// Navbar: quieter blur so the page reads flat
+.navbar {
+  background-color: color-mix(in srgb, var(--global-bg-color) 92%, transparent);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
+}
+
+// Navbar: compact enough that the item list and the search shortcut stay on one
+// line inside the 720px column, and never let the shortcut text wrap.
+.navbar {
+  .navbar-brand {
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+
+  .navbar-nav .nav-item .nav-link {
+    font-size: 0.875rem;
+    white-space: nowrap;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+  }
+}
+
+// Cards: no resting shadow
+.card {
+  box-shadow: none;
+}
+
+// Metadata and tags in mono, like a terminal
+.badge {
+  font-family: var(--global-font-mono);
+  font-weight: 500;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+// GitHub contribution graph
+.activity {
+  margin-bottom: 1.5rem;
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// The chart ships a light background, so flip it for dark mode.
+html[data-theme="dark"] .activity img {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+// Smaller social icons at the bottom of the homepage
+.social .contact-icons {
+  font-size: 1.6rem;
+
+  a {
+    img {
+      width: 1.4rem;
+      height: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.6rem;
+      margin-bottom: 0.4rem;
+
+      image {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+  }
+}

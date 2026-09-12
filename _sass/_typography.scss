@@ -25,12 +25,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family:
-    "Plus Jakarta Sans",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  font-weight: 700;
+  font-family: var(--global-font-family);
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 

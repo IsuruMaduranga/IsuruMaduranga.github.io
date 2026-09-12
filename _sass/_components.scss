@@ -39,15 +39,13 @@ ul.task-list input[type="checkbox"] {
 .card {
   background-color: var(--global-card-bg-color);
   border: 1px solid var(--global-divider-color);
-  border-radius: 16px;
+  border-radius: 12px;
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 60px -15px var(--global-card-shadow);
+    box-shadow: 0 4px 16px -6px var(--global-card-shadow);
     border-color: var(--global-card-border-hover);
   }
 
@@ -78,7 +76,7 @@ ul.task-list input[type="checkbox"] {
   .more-info {
     margin-bottom: 5px;
     margin-top: 10px;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: var(--global-font-family);
     font-size: 0.9rem;
     color: var(--global-text-color-light);
 

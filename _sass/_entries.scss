@@ -1,0 +1,193 @@
+/*******************************************************************************
+ * Shared entry-list primitives
+ *
+ * One visual language for the talks, projects, publications, and writings
+ * lists: a Title Case page header, uppercase mono group headings, dotted row
+ * separators, one row-title size, neutral chips, and an arrow link for
+ * anything that navigates away.
+ ******************************************************************************/
+
+.page-header {
+  margin-bottom: 1.75rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--global-text-color-light);
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+// Search inputs on the list pages (writings and publications). The
+// bibsearch input otherwise inherits the newsletter form colors and cap.
+.writings-search,
+.bibsearch-form-input {
+  width: 100%;
+  max-width: none;
+  font-family: var(--global-font-family);
+  font-size: 0.95rem;
+  color: var(--global-text-color);
+  background-color: var(--global-card-bg-color);
+  border: 1px solid var(--global-divider-color);
+  border-radius: 10px;
+  box-shadow: none;
+  padding: 0.6rem 0.9rem;
+  margin: 0 0 1.25rem;
+
+  &::placeholder {
+    color: var(--global-text-color-light);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--global-card-border-hover);
+  }
+}
+
+// Group heading: year on writings and publications, category on projects.
+// jekyll-scholar generates its year headings as h2.bibliography, so that
+// selector is folded in here rather than renamed in the template.
+.entry-group,
+h2.bibliography {
+  font-family: var(--global-font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--global-text-color-light);
+  margin: 2rem 0 0.5rem;
+}
+
+// The default page layout puts a rule above h2 inside an article; the group
+// headings are a different device, so cancel it where it would apply.
+.post article > h2.entry-group {
+  margin: 2rem 0 0.5rem;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.entry {
+  border-bottom: 1px dotted var(--global-divider-color);
+  padding: 1rem 0;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.entry-title {
+  display: inline-block;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--global-text-color);
+  background-image: none;
+
+  &:hover {
+    color: var(--global-theme-color);
+    background-image: none;
+  }
+}
+
+.entry-sub,
+.entry-desc {
+  color: var(--global-text-color-light);
+  font-size: 0.9rem;
+  margin: 0.25rem 0 0;
+}
+
+.entry-date {
+  flex-shrink: 0;
+  font-family: var(--global-font-mono);
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
+}
+
+.entry-tags {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.chip {
+  font-family: var(--global-font-mono);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--global-text-color-light);
+  background-color: var(--global-card-bg-color);
+  border: 1px solid var(--global-divider-color);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  background-image: none;
+
+  span {
+    margin-left: 0.15rem;
+    opacity: 0.7;
+  }
+}
+
+a.chip:hover {
+  color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+  background-image: none;
+}
+
+.chip-accent {
+  color: var(--global-theme-color);
+  background-color: color-mix(in srgb, var(--global-theme-color) 10%, transparent);
+  border-color: transparent;
+}
+
+.entry-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--global-text-color-light);
+  background-image: none;
+
+  &::before {
+    content: "\2192\00a0";
+  }
+
+  &:hover {
+    color: var(--global-theme-color);
+    background-image: none;
+  }
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--global-text-color-light);
+  background-image: none;
+
+  &::before {
+    content: "\2190\00a0";
+  }
+
+  &:hover {
+    color: var(--global-theme-color);
+    background-image: none;
+  }
+}
