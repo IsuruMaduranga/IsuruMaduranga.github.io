@@ -10,9 +10,11 @@ Personal academic website for **Isuru Wijesiri** built with the [al-folio](https
 
 ## Read these first
 
-| File               | What it holds                                                                                 |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| `docs/findings.md` | Confirmed Jekyll, `jekyll-cache-bust` and Cloudflare Pages caching gotchas that bit this site |
+| File                | What it holds                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `docs/handoff.md`   | Current state of the site: what changed, what is verified, traps, and next steps              |
+| `docs/decisions.md` | Why the site is structured the way it is (design and content choices)                         |
+| `docs/findings.md`  | Confirmed Jekyll, `jekyll-cache-bust` and Cloudflare Pages caching gotchas that bit this site |
 
 ## Build & Development
 

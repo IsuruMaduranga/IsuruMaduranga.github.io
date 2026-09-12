@@ -279,3 +279,12 @@ the build rather than ignoring a value it cannot parse. For a talk or entry
 where only the year is known, sort on a differently named field (`year: 2025`)
 instead. Confirmed by the build failing on `date: 2025` and succeeding after the
 rename to `year`.
+
+## Prettier escapes underscores inside HTML attributes in Markdown
+
+Prettier's Markdown formatter rewrites `target="_blank"` in raw HTML inside a
+`.md` file as `target="\_blank"`. The escape is easy to miss in review and
+leaves the attribute value depending on how the Markdown processor handles
+backslash escapes. Keeping the markup in a `.liquid` include avoids it, because
+those files are formatted as Liquid rather than Markdown. Confirmed in
+`_pages/blog.md`; the row was moved to `_includes/post_item.liquid`.
