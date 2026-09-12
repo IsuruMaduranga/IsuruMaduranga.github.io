@@ -17,7 +17,7 @@ memory, planning, RAG, MCP, multi-agent orchestration. Stack enough of those
 words together and it starts to feel like there's some hard machine humming
 underneath that you're supposed to already understand.
 
-There isn't. Here's the whole thing:
+There isn't one, and it comes down to a single loop:
 
 > An LLM API is stateless. Every turn, you send the entire conversation as a
 > JSON array and get text back. A **harness** is the program that builds,
@@ -51,9 +51,7 @@ do the explaining. The toy harness does that.
 ## Read the series
 
 The full series is a short book: sidebar, search, and all sixteen chapters
-plus the appendices in reading order. It grows a toy harness in plain Python
-(raw HTTP, no SDK) alongside the text; by the epilogue it's a working mini
-coding agent in about 300 lines.
+plus the appendices in reading order.
 
 **[Read Harness Engineering 101 →](/harness-engineering-101/)**
 

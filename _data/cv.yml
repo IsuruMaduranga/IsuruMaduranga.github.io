@@ -32,7 +32,7 @@ cv:
         position: Associate Technical Lead (AI R&D)
         location: Sri Lanka
         start_date: 2026-02
-        summary: "Technical lead for AI capabilities in the WSO2 Integrator platform. Research focus: LLM failures in low-resource code generation and benchmarking LLM agents on enterprise integration."
+        summary: "Lead the AI-for-code sub-team in the WSO2 Integration team, building agent harnesses and small language models. Research focus: LLM failures in low-resource code generation and benchmarking LLM agents on enterprise integration."
         highlights:
           - "Designing multi-agent systems and developing/training custom models for agentic workflows."
           - "IntegrationBench: Leading a 100-task, behavior-graded benchmark that evaluates LLM agents by the runtime behavior of the integrations they build (targeting ICLR 2027)."
@@ -65,7 +65,7 @@ cv:
           - "GenAI / Multi-agent framework: Led a low-code framework supporting multiple LLM backends + vector stores, reducing delivery time and standardizing deployments."
 
       - company: University of Moratuwa
-        position: Lead Research Collaborator
+        position: Lead External Volunteer Researcher
         location: Sri Lanka
         start_date: 2025-08
         summary: "Supervisors: Dr. Surangika Ranathunga (Massey University, NZ) and Dr. Nisansa de Silva (UOM)"

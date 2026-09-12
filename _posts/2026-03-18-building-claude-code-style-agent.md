@@ -892,9 +892,9 @@ We also plan a subagent dedicated to searching WSO2 MI's external documentation 
 
 ---
 
-## Conclusion: What Surprised Us
+## What Surprised Us
 
-If you have read this far, you have the architecture. Here is what we did not expect going in.
+If you have read this far, you have the architecture. A few of these we did not expect.
 
 **Context engineering mattered more than the model.** We assumed the main quality lever would be upgrading from Haiku to Sonnet to Opus. It was not. The single biggest jump in accuracy came from adding the edge-case documentation - a static text file. The second came from language server validation. Model upgrades were third. For a domain agent, _what you put in the window_ matters more than _which model reads it_.
 
@@ -906,7 +906,7 @@ If you have read this far, you have the architecture. Here is what we did not ex
 
 **If we started over**, we would build the language server integration and the knowledge graph _first_, before any agent logic. Ground-truth validation and precise domain context are the foundation everything else stands on. The ReAct loop, subagents, caching, and sandboxing all matter, but they amplify the value of correct context and verified output. Without those, you have just built a fast, cheap agent that is confidently wrong.
 
-None of this is specific to MI. Any domain coding assistant - for Terraform, Kubernetes, database schemas, game engines - would benefit from the same shape. The real insight is that _domain specificity is a feature, not a limit_. When you know your domain, you can engineer context a general-purpose assistant never could. The model does not need to be an expert in your field. It needs the right information, the right tools, and a way to check its own work.
+None of this is specific to MI. Any domain coding assistant - for Terraform, Kubernetes, database schemas, game engines - would benefit from the same shape. Knowing your domain lets you engineer context a general-purpose assistant never could. The model does not need to be an expert in your field. It needs the right information, the right tools, and a way to check its own work.
 
 > Want the theory behind all of this, built from scratch? The [**Harness Engineering 101**](/blog/2026/harness-engineering-101/) series develops every pattern above - the agent loop, caching, subagents, context budgets, guardrails, and RAG - from a single JSON array, one failure and one fix at a time.
 
