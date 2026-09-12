@@ -5,6 +5,7 @@ description: Self-supervised multimodal anomaly detection using deep reconstruct
 img: assets/img/ieee_spc_2020.jpeg
 importance: 8
 category: research
+tags: [anomaly-detection, multimodal]
 ---
 
 Self-supervised deep reconstruction and forecasting for anomaly detection in autonomous drone systems using multimodal sensor data (video + IMU).

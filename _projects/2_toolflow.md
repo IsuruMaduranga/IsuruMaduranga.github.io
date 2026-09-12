@@ -5,9 +5,10 @@ description: Lightweight research framework for LLM-based agents with structured
 img:
 importance: 2
 category: research
+tags: [LLM, agentic-ai]
 ---
 
-Minimal Python framework for LLM agents with structured outputs and automatic tool calling. Designed for production pipeline integration.
+A minimal Python framework for LLM agents with structured outputs and automatic tool calling, built to drop into an existing pipeline. It does a few things and stays out of the way.
 
 - Structured output guarantees via schema validation
 - Automatic tool invocation and multi-step reasoning

@@ -5,6 +5,7 @@ description: MiniLM-based sentence-transformer models (22M/33M parameters) fine-
 img:
 importance: 3
 category: research
+tags: [retrieval, embeddings, code]
 ---
 
 Lightweight sentence-transformer embedding models (512-dim) for code search, small enough to run fast over a whole codebase.

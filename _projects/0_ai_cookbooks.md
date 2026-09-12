@@ -1,13 +1,14 @@
 ---
 layout: page
 title: AI Cookbooks
-description: Curated collection of Colab/Jupyter notebooks for real-world AI tasks. Includes training pipelines, model fine-tuning, and custom implementations that go beyond the defaults.
+description: Colab and Jupyter notebooks for training, fine-tuning, and other AI tasks I keep running into.
 img:
 importance: 1
 category: research
+tags: [LLM, fine-tuning, NLP]
 ---
 
-Curated collection of Colab/Jupyter notebooks for real-world AI tasks - training pipelines, model fine-tuning, and custom implementations built from personal workflows.
+Colab and Jupyter notebooks I put together while doing real work: training pipelines, fine-tuning, and a few custom implementations. Written mostly so I stop rebuilding the same pipeline from memory.
 
 - **NLLB-600M Fine-Tune** - LoRA + Flash Attention for any translation task
 - **Gemma 3 1B/4B Fine-Tune** - LoRA & QLoRA with Unsloth for instruction-following

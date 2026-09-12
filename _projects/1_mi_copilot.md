@@ -5,9 +5,10 @@ description: Cursor/Claude Code style coding agent for WSO2 Micro Integrator wit
 img:
 importance: 1
 category: work
+tags: [agentic-ai, LLM, developer-tools]
 ---
 
-WSO2 Integrator Copilot is a production-deployed AI coding assistant for WSO2 Micro Integrator (MI), similar in design to Cursor or Claude Code. It enables developers to generate, debug, and refine WSO2 Synapse integration artifacts through natural language.
+WSO2 Integrator Copilot is a production-deployed AI coding assistant for WSO2 Micro Integrator (MI), similar in design to Cursor or Claude Code. Developers use it to generate, debug, and refine WSO2 Synapse integration artifacts in natural language.
 
 **Key Capabilities:**
 
@@ -20,6 +21,6 @@ WSO2 Integrator Copilot is a production-deployed AI coding assistant for WSO2 Mi
 - **Developer experience:** Multi-session chat persistence, @file mentions, undo/checkpoint system, conversation compaction, multimodal attachments
 - **Operational efficiency:** Advanced prompt caching (~90% cost reduction) and production hardening/observability hooks
 
-**Impact:** **700+ active daily users.** Hardened for enterprise use with security controls, throttling, caching, and production stability.
+**Impact:** 700+ active daily users. It is enterprise software, so the security controls, throttling, and caching were not optional.
 
 **Links:** [Technical deep dive](/blog/2026/building-claude-code-style-agent/) | [Documentation](https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/mi-copilot/) | [Source](https://github.com/wso2/vscode-extensions) | [Agent Mode Branch](https://github.com/wso2/vscode-extensions/tree/mi-agent-mode)

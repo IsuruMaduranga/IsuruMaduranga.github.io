@@ -5,6 +5,7 @@ description: Low-code agent framework for rapid deployment of NLP applications i
 img:
 importance: 5
 category: work
+tags: [agentic-ai, low-code]
 ---
 
 Led a low-code framework for building NLP applications in enterprise environments. It supports multiple LLM backends and vector stores, so teams can ship an application without wiring each one up by hand.

@@ -5,12 +5,13 @@ description: Memory-efficient federated graph convolutional network training on 
 img:
 importance: 7
 category: research
+tags: [graph-ml, federated-learning]
 ---
 
 Federated learning for collaborative, privacy-preserving graph learning across organizations that run distributed graph databases. Built on the JasmineGraph distributed graph database.
 
-- Built memory-efficient distributed/federated GCN training enabling training on very large graphs on commodity hardware using JasmineGraph and parallel workers.
-- Developed novel aggregation mechanisms for heterogeneous multi-organization graph learning while maintaining privacy.
+- Built memory-efficient distributed and federated GCN training that handles very large graphs on commodity hardware, using JasmineGraph and parallel workers.
+- Designed aggregation mechanisms for heterogeneous multi-organization graph learning that keep each organization's data private.
 - Peer-reviewed publication at IEEE Big Data 2020.
 
 **Technologies:** C++, Python, StellarGraph, TensorFlow

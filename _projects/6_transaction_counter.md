@@ -5,6 +5,7 @@ description: Scalable transaction counting for high-throughput API gateways hand
 img:
 importance: 6
 category: work
+tags: [distributed-systems, performance]
 ---
 
 Designed and built a scalable transaction counting mechanism for WSO2 Synapse, the runtime engine behind WSO2 API Manager. The system handles high-throughput API gateways processing 10,000+ TPS with sub-millisecond latency using stream processing.
