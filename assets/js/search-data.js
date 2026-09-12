@@ -9,8 +9,8 @@ ninja.data = [{
     handler: () => {
       window.location.href = "/";
     },
-  },{id: "nav-blog",
-          title: "blog",
+  },{id: "nav-writings",
+          title: "writings",
           description: "Blog posts by Isuru Wijesiri on NLP, agentic AI, code generation, and machine learning research.",
           section: "Navigation",
           handler: () => {
@@ -30,26 +30,26 @@ ninja.data = [{
           handler: () => {
             window.location.href = "/projects/";
           },
-        },{id: "nav-cv",
-          title: "CV",
-          description: "CV of Isuru Wijesiri - AI researcher and engineer with experience in NLP, code generation, and graph ML at WSO2 and University of Moratuwa.",
+        },{id: "nav-experience",
+          title: "experience",
+          description: "Experience of Isuru Wijesiri - AI research and engineering at WSO2, an external volunteer research collaboration with the University of Moratuwa, and earlier work in graph learning and machine learning.",
           section: "Navigation",
           handler: () => {
-            window.location.href = "/cv/";
+            window.location.href = "/experience/";
           },
-        },{id: "nav-repositories",
-          title: "repositories",
+        },{id: "nav-github",
+          title: "github",
           description: "Open-source projects and GitHub contributions by Isuru Wijesiri - AI tools, NLP frameworks, and research code.",
           section: "Navigation",
           handler: () => {
             window.location.href = "/repositories/";
           },
-        },{id: "nav-teaching",
-          title: "teaching",
-          description: "Teaching and mentoring by Isuru Wijesiri - university courses, private tutoring, and conference presentations on AI and integration.",
+        },{id: "nav-talks",
+          title: "talks",
+          description: "Conference talks and presentations by Isuru Wijesiri on blockchain, distributed systems, agentic AI, and enterprise integration.",
           section: "Navigation",
           handler: () => {
-            window.location.href = "/teaching/";
+            window.location.href = "/talks/";
           },
         },{id: "post-harness-engineering-101",
         
@@ -74,23 +74,23 @@ ninja.data = [{
           
         },
       },{id: "news-released-lightweight-code-retrieval-models-22m-33m-parameters-on-hugging-face-l6-and-l12-achieving-97-recall-10-for-domain-specific-code-search",
-          title: 'Released lightweight code retrieval models (22M/33M parameters) on Hugging Face: L6 and L12...',
+          title: 'Released lightweight code retrieval models (22M/33M parameters) on Hugging Face: L6 and L12,...',
           description: "",
-          section: "News",},{id: "news-presented-a-technical-deep-dive-on-blockchain-architecture-consensus-algorithms-and-distributed-ledger-mechanisms-at-wso2-technology-conference-2025-watch-the-talk",
+          section: "News",},{id: "news-presented-a-technical-deep-dive-on-blockchain-architecture-consensus-algorithms-and-distributed-ledger-mechanisms-at-wso2-technology-conference-2025-the-recording-is-up-slides-and-all-on-youtube",
           title: 'Presented a technical deep-dive on blockchain architecture, consensus algorithms, and distributed ledger mechanisms...',
           description: "",
-          section: "News",},{id: "news-started-as-lead-research-collaborator-at-university-of-moratuwa-on-google-funded-research-on-automatic-post-editing-for-low-resource-languages-sinhala-tamil",
-          title: 'Started as Lead Research Collaborator at University of Moratuwa on Google-funded research on...',
+          section: "News",},{id: "news-started-as-an-external-volunteer-researcher-with-the-university-of-moratuwa-working-on-google-funded-research-on-automatic-post-editing-for-low-resource-languages-sinhala-tamil",
+          title: 'Started as an external volunteer researcher with the University of Moratuwa, working on...',
           description: "",
           section: "News",},{id: "news-paper-accepted-to-findings-of-emnlp-2026-first-author-confident-but-wrong-a-constrained-decoding-diagnostic-for-low-resource-automatic-post-editing",
           title: 'Paper accepted to Findings of EMNLP 2026 (first author): “Confident but Wrong: A...',
           description: "",
-          section: "News",},{id: "news-published-harness-engineering-101-a-blog-series-on-building-llm-agents-and-harnesses-from-first-principles",
+          section: "News",},{id: "news-published-harness-engineering-101-a-blog-series-on-building-llm-agents-and-harnesses-from-first-principles-sixteen-chapters-one-json-array",
           title: 'Published Harness Engineering 101, a blog series on building LLM agents and harnesses...',
           description: "",
           section: "News",},{id: "projects-ai-cookbooks",
           title: 'AI Cookbooks',
-          description: "Curated collection of Colab/Jupyter notebooks for real-world AI tasks. Includes training pipelines, model fine-tuning, and custom implementations that go beyond the defaults.",
+          description: "Colab and Jupyter notebooks for training, fine-tuning, and other AI tasks I keep running into.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/0_ai_cookbooks/";
             },},{id: "projects-wso2-integrator-copilot",
@@ -135,14 +135,14 @@ ninja.data = [{
               window.location.href = "/projects/8_anomaly_detection/";
             },},{id: "projects-one-code",
           title: 'One Code',
-          description: "The full Claude Code workflow on any model or provider",
+          description: "Claude Code with the model slot left open. The full workflow, open source, on any model or provider.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/one_code/";
-            },},{id: "teachings-programming-fundamentals-cs1033",
-          title: 'Programming Fundamentals (CS1033)',
-          description: "Lab assistant for the introductory programming course at the Department of Computer Science and Engineering, University of Moratuwa. Guided students through practical exercises in C programming, data types, control structures, and basic algorithms.",
-          section: "Teachings",handler: () => {
-              window.location.href = "/teachings/programming-fundamentals/";
+            },},{id: "talks-blockchain-architecture-consensus-and-distributed-ledgers",
+          title: 'Blockchain Architecture, Consensus, and Distributed Ledgers',
+          description: "A technical deep dive into blockchain architecture, consensus algorithms, and distributed ledger mechanisms, presented at WSO2 Technology Conference 2025.",
+          section: "Talks",handler: () => {
+              window.location.href = "/talks/wso2-techconf-2025/";
             },},{
         id: 'social-email',
         title: 'email',
