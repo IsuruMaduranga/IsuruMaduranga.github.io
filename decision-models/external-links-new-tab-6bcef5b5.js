@@ -1,0 +1,1 @@
+!function(){function e(){var e=document.getElementById("content");e&&e.querySelectorAll('a[href^="http://"], a[href^="https://"]').forEach(function(e){e.hostname&&e.hostname!==window.location.hostname&&(e.target="_blank",e.rel="noopener noreferrer")})}"loading"!==document.readyState?e():document.addEventListener("DOMContentLoaded",e)}();

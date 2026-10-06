@@ -51,7 +51,18 @@ ninja.data = [{
           handler: () => {
             window.location.href = "/talks/";
           },
-        },{id: "post-harness-engineering-101",
+        },{id: "post-decision-models-an-llm-with-the-talking-taken-out",
+        
+          title: "Decision Models: An LLM With the Talking Taken Out",
+        
+        description: "A decision model picks from your list of answers instead of writing a reply. Built up from how an LLM works to reading answer probabilities from GPT-2 and Qwen2.5, a trained head, and the internals of Laya, an open decision model.",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/decision-models/";
+          
+        },
+      },{id: "post-harness-engineering-101",
         
           title: "Harness Engineering 101",
         
