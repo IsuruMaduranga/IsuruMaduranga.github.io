@@ -21,7 +21,7 @@ trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$WORK/src/diagrams"
 cp "$BOOK_REPO"/{mermaid.min.js,mermaid-init.js,site-back-link.js,external-links-new-tab.js} "$WORK/"
 cp "$ARTICLE_DIR"/diagrams/*.png "$WORK/src/diagrams/"
-sed 's#](experiments/)#](https://github.com/IsuruMaduranga/writings/tree/main/decision-models/experiments)#' \
+sed 's#](experiments/#](https://github.com/IsuruMaduranga/writings/tree/main/decision-models/experiments/#g' \
   "$ARTICLE_DIR/article.md" > "$WORK/src/decision-models.md"
 printf '# Summary\n\n[Decision Models](decision-models.md)\n' > "$WORK/src/SUMMARY.md"
 
