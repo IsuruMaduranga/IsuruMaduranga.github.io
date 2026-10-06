@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-d3223636.js";
+            window.path_to_searchindex_js = "searchindex-ad01d435.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-50051a93.js"></script>
@@ -851,13 +851,16 @@ one of these on your own decisions, and how many labelled examples does it
 need before it beats the big chat model it learned from?</p>
 <hr>
 <p><em>The scripts behind every number in this post are in
-<a href="https://github.com/IsuruMaduranga/writings/tree/main/decision-models/experiments"><code>experiments/</code></a>: <code>gpt2_basics.py</code>, <code>gpt2_logits.py</code> and
+<a href="https://github.com/IsuruMaduranga/writings/tree/main/decision-models/experiments/"><code>experiments/</code></a>: <code>gpt2_basics.py</code>, <code>gpt2_logits.py</code> and
 <code>gpt2_head.py</code> run on a plain NumPy GPT-2 with OpenAI’s released
 weights; <code>instruct_logits.py</code> runs the Qwen2.5-Instruct models with Hugging
 Face transformers;
 <code>laya_run.py</code>, <code>laya_more.py</code>, <code>laya_inside.py</code>, <code>laya_confidence.py</code> and
 <code>laya_other.py</code> run on <code>pip install laya</code> (version 0.3.27). The figures
-are drawn by <code>diagrams/gen_diagrams.py</code>.</em></p>
+are drawn by <code>diagrams/gen_diagrams.py</code>. To try the methods on your own
+text, <a href="https://github.com/IsuruMaduranga/writings/tree/main/decision-models/experiments/examples/"><code>experiments/examples/</code></a> has three short
+scripts you can copy and run on their own: reading answer probabilities
+from GPT-2 and from Qwen2.5, and asking Laya.</em></p>
 
                     </main>
 
