@@ -61,6 +61,16 @@ commits it back to the repo.
 - `render-cv.yml` triggers on changes to `cv.yml` and commits the regenerated
   PDF back to the repo.
 
+## Decision models post (2026-10-06)
+
+The post "Decision Models: An LLM With the Talking Taken Out" is served as a
+one-chapter mdBook at `/decision-models/`, built from
+`~/ml/writings/decision-models/article.md` by `bin/build-decision-models.sh`
+so its Mermaid diagrams render. `_posts/2026-10-06-decision-models.md` lists it
+on the writings page through `redirect:`. Like the harness book, the directory
+is excluded from `jekyll-minifier` and Prettier. After editing the article,
+rerun the script, commit `decision-models/`, and push.
+
 ## Open items and next steps
 
 - Push the five commits.
