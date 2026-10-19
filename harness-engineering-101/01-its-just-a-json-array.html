@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
+            window.path_to_searchindex_js = "searchindex-76518845.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-2dba1b62.js"></script>
+        <script src="toc-9a291a95.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -185,16 +185,16 @@
 <a href="02-the-brain.html">Next: The Brain</a></em></p>
 <hr>
 <p>In 2023 I was building generative AI systems on GPT-3.5. There were no
-agents, no tool calls, no caching. There was one thing: you sent an array of
-messages to an HTTP endpoint and got formatted text back.</p>
-<p>Here is the key fact this series is built on: <strong>that is still all that
-happens.</strong> Every agent you have seen, including the one that edits your code
-and files your pull requests, is a program that builds a JSON array, POSTs
-it, reads the reply, updates the array, and POSTs it again.</p>
-<p>The LLM is the brain. The brain can receive text and emit text, and nothing
-else. Everything it appears to <em>do</em> in the world, some other program did for
-it. That program is the <strong>harness</strong>: the body around the brain. The only
-channel between brain and body is the JSON array.</p>
+agents, tool calls or caching. You sent an array of messages to an HTTP
+endpoint and got formatted text back, and that was all.</p>
+<p><strong>That is still all that happens</strong>, and this whole series is built on that
+fact. Every agent you have seen, including the one that edits your code and
+files your pull requests, is a program that builds a JSON array, POSTs it,
+reads the reply, updates the array, and POSTs it again.</p>
+<p>The LLM is the brain, and it can receive text and emit text, nothing else.
+Whenever it appears to <em>do</em> something in the world, some other program
+actually did it. That program is the <strong>harness</strong>: the body around the brain.
+The only channel between brain and body is the JSON array.</p>
 <p>Harness engineering is the work of building and maintaining that array. This
 chapter is about the array itself.</p>
 <h2 id="the-call"><a class="header" href="#the-call">The call</a></h2>
@@ -221,8 +221,8 @@ def call_llm(messages, system=""):
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())
 </code></pre>
-<p>That is the whole interface. A list of dicts in, a dict out. No sockets, no
-sessions, no handshake. One HTTP POST.</p>
+<p>The whole interface is one HTTP POST. A list of dicts goes in and a dict
+comes out, with no sockets, sessions or handshake.</p>
 <p>The <code>messages</code> array is a transcript. Each entry has a <code>role</code> and <code>content</code>:</p>
 <pre><code class="language-json">[
   {"role": "user", "content": "What does HTTP 418 mean?"},
@@ -230,8 +230,8 @@ sessions, no handshake. One HTTP POST.</p>
   {"role": "user", "content": "Is it ever used seriously?"}
 ]
 </code></pre>
-<p>You send the array. The model continues it. The response is the next
-<code>assistant</code> message. That’s it.</p>
+<p>You send the array, the model continues it, and the response is the next
+<code>assistant</code> message.</p>
 <h2 id="the-most-important-sentence-in-this-series"><a class="header" href="#the-most-important-sentence-in-this-series">The most important sentence in this series</a></h2>
 <p><strong>The API is stateless. The server remembers nothing between calls.</strong></p>
 <p>When you have a “conversation” with a model, there is no conversation stored
@@ -264,9 +264,9 @@ that.”</p>
 <li>Cost scales with the array, and you resend it every turn. That becomes
 chapter 5.</li>
 </ul>
-<p>One useful consequence: <strong>sessions are just files.</strong> When a coding agent
-offers <code>--resume</code>, it loads a JSON array from disk and keeps appending. When
-you type <code>/clear</code>, the implementation is essentially:</p>
+<p>One useful consequence is that <strong>sessions are just files.</strong> When a coding
+agent offers <code>--resume</code>, it loads a JSON array from disk and keeps
+appending. When you type <code>/clear</code>, the implementation is essentially:</p>
 <pre><code class="language-python">messages = []
 </code></pre>
 <p>There is no server-side session to reset. Claude Code stores sessions as
@@ -277,19 +277,19 @@ know how to build session management for an AI agent.</p>
 models are <em>trained</em> to treat each role differently (chapter 2 explains what
 “trained” means here):</p>
 <ul>
-<li><strong><code>system</code></strong> — instructions from the developer to the model: who it is,
-what rules it follows. The model is trained to weight this above user
-text. Anthropic puts it in a top-level <code>system</code> field. OpenAI uses a
-message with role <code>system</code>, renamed <code>developer</code> in its newer Responses
-API. Same concept, three spellings: a privileged channel for the harness
-author.</li>
-<li><strong><code>user</code></strong> — the human’s turn. Later in the series you will see the
+<li><strong><code>system</code></strong>: instructions from the developer to the model, such as who
+it is and what rules it follows. The model is trained to weight this
+above user text. Anthropic puts it in a top-level <code>system</code> field. OpenAI
+uses a message with role <code>system</code>, renamed <code>developer</code> in its newer
+Responses API. All three spellings mean the same thing, a privileged
+channel for the harness author.</li>
+<li><strong><code>user</code></strong>: the human’s turn. Later in the series you will see the
 harness itself use this channel to inject information mid-conversation.</li>
-<li><strong><code>assistant</code></strong> — the model’s own earlier turns. You wrote none of these,
+<li><strong><code>assistant</code></strong>: the model’s own earlier turns. You wrote none of these,
 but you store and resend all of them. You can even edit them before
 resending, and the model can’t tell. That fact becomes a debugging tool in
 chapter 12 and a safety question in chapter 13.</li>
-<li><strong>Tool results</strong> — the outcome of actions. Chapter 3.</li>
+<li><strong>Tool results</strong>: the outcome of actions, which we will add in chapter 3.</li>
 </ul>
 <h2 id="content-is-blocks-not-strings"><a class="header" href="#content-is-blocks-not-strings">Content is blocks, not strings</a></h2>
 <p>Originally, <code>content</code> was a string. It still can be, but in modern APIs it
@@ -302,15 +302,15 @@ is a <strong>list of typed blocks</strong>:</p>
   ]
 }
 </code></pre>
-<p>Text is a block. An image is a block (base64 bytes, right in the JSON). A
-PDF is a block. A tool call is a block. The model’s thinking is a block. The
-array did not change shape when models learned to see. The blocks got new
-types. Chapter 2 covers what the brain does with an image block; chapter 3
-covers tool blocks. The intuition to keep: <strong>whatever modality or feature
-ships next year, it arrives as a new block type in the same array.</strong></p>
+<p>Text, images (base64 bytes, right in the JSON), PDFs, tool calls and the
+model’s thinking are all blocks. When models learned to see, the array kept
+its shape and the blocks got new types. Chapter 2 covers what the brain does
+with an image block; chapter 3 covers tool blocks. The main thing to
+remember is that <strong>whatever modality or feature ships next year will arrive
+as a new block type in the same array.</strong></p>
 <h2 id="two-dialects-one-language"><a class="header" href="#two-dialects-one-language">Two dialects, one language</a></h2>
 <p>You will meet two wire formats in practice, and the differences are
-cosmetic. The same exchange in both:</p>
+cosmetic. Here is the same exchange in both:</p>
 <p><strong>Anthropic Messages API:</strong></p>
 <pre><code class="language-json">POST /v1/messages
 {
@@ -350,10 +350,10 @@ cosmetic. The same exchange in both:</p>
 <code>messages</code>, a <code>developer</code> role, and an optional server-side conversation
 store. That store is the one real departure from statelessness: the provider
 offers to keep the array for you. Gemini has its own spelling. All of them
-are the same thing: an ordered list of role-tagged blocks, sent whole,
-continued once.</p>
+are an ordered list of role-tagged blocks that is sent whole and continued
+once.</p>
 <p>This is why “which provider” is a shallow decision for a harness. The array
-is the architecture. The dialect is a serialization detail.
+is the architecture, and the dialect is a serialization detail.
 <a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, my provider-neutral
 rebuild of Claude Code, can treat the provider as a swappable part because
 everything above the wire format is identical.</p>
@@ -400,46 +400,47 @@ def main():
 if __name__ == "__main__":
     main()
 </code></pre>
-<p>About thirty lines, and it already has the shape of every harness you will
-ever build: a loop that appends to an array, sends it whole, and appends the
-reply. Run it, talk to it, then add <code>print(len(json.dumps(messages)))</code> after
-each turn and watch the array grow. You are watching your future API bill.</p>
+<p>It is about thirty lines of code, and it already has the shape of every
+harness you will ever build: a loop that appends to an array, sends it
+whole, and appends the reply. Run it, talk to it, then add
+<code>print(len(json.dumps(messages)))</code> after each turn and watch the array grow.
+You are watching your future API bill.</p>
 <p><strong>Homework:</strong> port <code>call_llm</code> to OpenAI’s Chat Completions format. It is a
-ten-minute change. Noticing how little changes is the point.</p>
+ten-minute change, and the point is to notice how little changes.</p>
 <blockquote>
 <p><strong>Sidebar: what about streaming?</strong> When a chat UI shows the reply
 appearing word by word, that is the same POST with <code>"stream": true</code>. The
-server sends the reply in chunks as it generates them. Streaming is
-<em>presentation</em>, not architecture. The array and the statelessness are
-unchanged; the reply just arrives in pieces. This series ignores streaming
+server sends the reply in chunks as it generates them. Streaming only
+changes the presentation. The array and the statelessness are unchanged;
+the reply just arrives in pieces. This series ignores streaming
 from here on and loses nothing. When you need it for real (the wire
 format, assembling the pieces, connections dying mid-reply, and why long
 requests end up requiring it), Appendix D covers the mechanics.</p>
 </blockquote>
 <h2 id="what-the-body-does"><a class="header" href="#what-the-body-does">What the body does</a></h2>
 <p>So a harness is “a program that maintains a JSON array.” That sounds like a
-clerk’s job. Here is the actual job description, as it unfolds over this
-series. The harness decides:</p>
+clerk’s job, but in practice the harness has to decide:</p>
 <ul>
-<li><strong>What enters the array</strong> — user text, file contents, tool results,
+<li><strong>What enters the array</strong>: user text, file contents, tool results,
 injected instructions (chapters 3, 6, 8).</li>
-<li><strong>What leaves the array</strong> — compaction, summarization, forgetting
+<li><strong>What leaves the array</strong>: compaction, summarization, forgetting
 (chapter 6).</li>
-<li><strong>What the array’s structure must preserve</strong> — ordering and byte
+<li><strong>What the array’s structure must preserve</strong>: ordering and byte
 stability, because cost depends on it (chapter 5).</li>
-<li><strong>Which of the brain’s requests to actually execute</strong> — permissions,
+<li><strong>Which of the brain’s requests to actually execute</strong>: permissions,
 guardrails, sandboxes (chapter 13).</li>
 <li><strong>When to interrupt the brain, and when to wake it</strong> (chapters 8 and 9).</li>
 </ul>
-<p>This is not passive plumbing. The body decides what the brain gets to see,
-when to interrupt it, and which of its commands to refuse. A harness is not
-a set of obedient limbs. It is a body with reflexes.</p>
+<p>None of this is passive plumbing, because the body decides what the brain
+gets to see, when to interrupt it, and which of its commands to refuse. It
+behaves less like a set of obedient limbs and more like a body with
+reflexes.</p>
 <p>That framing also explains why this series is not only about coding agents.
-A coding harness gives the brain hands that edit files and run shells. A
-robotics harness gives it motors. A support-desk harness gives it a ticket
-queue. The bodies differ. The nervous system, the JSON array and the loop
-around it, is the same everywhere. This series builds a coding body because
-it is the easiest to demo in text, but every pattern transfers.</p>
+A coding harness gives the brain hands that edit files and run shells, a
+robotics harness gives it motors, and a support-desk harness gives it a
+ticket queue. The bodies differ, but the nervous system (the JSON array and
+the loop around it) is the same everywhere. This series builds a coding body
+because it is the easiest to demo in text, but every pattern transfers.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
 <li>Talking to an LLM is one stateless HTTP POST: role-tagged messages in, one
@@ -450,12 +451,12 @@ is <code>messages = []</code>. Resume is a file read.</li>
 thinking), not strings.</li>
 <li>Provider APIs are dialects of the same structure. A harness above the wire
 format is portable.</li>
-<li>The harness is the body. It builds the array. Everything else in this
-series is one of its organs.</li>
+<li>The harness is the body that builds and maintains the array, and every
+feature in the rest of this series is a piece of that body.</li>
 </ul>
-<p>Next question, before we add a single feature: what exactly is on the other
-end of that POST, and why does knowing how it was trained predict most of
-its strange behavior?</p>
+<p>Before we add any features to the harness, we should look at what sits on
+the other end of that POST, and why how it is trained explains most of its
+strange behavior.</p>
 <p><em><a href="02-the-brain.html">Next: Chapter 2 — The Brain: A Next-Token Black Box</a></em></p>
 
                     </main>

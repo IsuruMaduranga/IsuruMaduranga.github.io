@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
+            window.path_to_searchindex_js = "searchindex-76518845.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-2dba1b62.js"></script>
+        <script src="toc-9a291a95.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -187,16 +187,16 @@
 <p>The main series treated “the model” as one thing. A production harness
 makes dozens of <em>kinds</em> of model calls per session, and they differ wildly
 in difficulty. The main loop of a coding task needs the best brain money
-buys. But also in the same session: summarizing a conversation for
-compaction (chapter 6), judging whether a command is safe (chapter 13),
-answering a subagent’s search errand (chapter 7), writing the one-line
-“Cooking…” status verb, generating a recap of what happened while the
-user was away. Sending every one of those to the frontier model is like
-hiring a surgeon to take blood pressure. It works. It is also several
-times the cost and latency you needed to pay.</p>
+buys. But the same session also summarizes a conversation for compaction
+(chapter 6), judges whether a command is safe (chapter 13), answers a
+subagent’s search errand (chapter 7), writes the one-line “Cooking…”
+status verb, and generates a recap of what happened while the user was
+away. Sending every one of those to the frontier model is like hiring a
+surgeon to take blood pressure. It works, but it costs several times the
+money and latency you needed to pay.</p>
 <p><strong>Model routing</strong> is the fix: the harness assigns each <em>job</em> the cheapest
-brain that does it reliably. This appendix is the patterns, and the traps
-that make it an advanced topic rather than chapter 5½.</p>
+brain that does it reliably. This appendix covers the patterns, and the
+traps that make it an advanced topic rather than chapter 5½.</p>
 <h2 id="the-routing-table"><a class="header" href="#the-routing-table">The routing table</a></h2>
 <p>Think of it as a column in your harness’s design, next to every LLM call
 site:</p>
@@ -215,51 +215,51 @@ site:</p>
 </tbody>
 </table>
 </div>
-<p>Two principles generate the table, and they matter more than the table:</p>
+<p>Two rules matter more than the table itself:</p>
 <p><strong>Route by consequence, not by difficulty alone.</strong> A compaction summary
 that is 10% worse loses a little context. A safety verdict that is 10%
 worse approves <code>rm -rf</code>. The classifier job <em>looks</em> small (one yes/no),
 but the risk is lopsided: a wrong “yes” is far worse than a wrong “no.”
 That’s why chapter 13 wraps it in verification and fail-closed defaults.
-Cheap brains get dangerous seats only with those seatbelts. Meanwhile the
-recap job can be wrong daily and nobody is harmed. Consequence, not token
-count, sets the
-floor.</p>
+You only put a cheap model in a high-risk role when you have those extra
+checks around it. Meanwhile the recap job can be wrong daily and nobody is
+harmed. The consequence of a mistake sets the floor, not the token count.</p>
 <p><strong>A delegated task worth doing is worth a capable model.</strong> The tempting
 mistake is routing subagent work to the cheapest tier because it is
 “background.” Then the search agent returns a confidently wrong answer,
 the main loop builds on it, and you spend frontier tokens debugging a
-haiku-sized mistake. My working rule after being burned: route <em>down</em> for
-jobs whose output you can verify cheaply or whose failure is cosmetic;
-stay <em>up</em> for anything whose report the main loop will trust blindly
-(chapter 7’s whole design is that the parent cannot check the child’s
-work).</p>
+haiku-sized mistake. After being burned, my working rule is to route
+<em>down</em> for jobs whose output you can verify cheaply or whose failure is
+cosmetic, and to stay <em>up</em> for anything whose report the main loop will
+trust blindly (chapter 7’s whole design is that the parent cannot check
+the child’s work).</p>
 <h2 id="prompt-tiers-the-body-adapts-to-the-brain"><a class="header" href="#prompt-tiers-the-body-adapts-to-the-brain">Prompt tiers: the body adapts to the brain</a></h2>
-<p>Routing is half the pattern. The other half, less discussed: <strong>the same
-harness should not send the same array to different brains.</strong></p>
-<p>Chapter 14 touched the reason: weaker models need more body. Concretely,
-in a harness that runs on multiple tiers (<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> runs the same loop on
-frontier models and on cheap local ones), the request itself is tiered:</p>
+<p>Routing is only half of the work. The other half is that <strong>the same harness
+should not send the exact same array to different models.</strong></p>
+<p>Chapter 14 touched on the reason: weaker models need more body. Concretely,
+in a harness that runs on multiple tiers
+(<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> runs the same loop
+on frontier models and on cheap local ones), the request itself is tiered:</p>
 <ul>
 <li><strong>System prompt tiers.</strong> The frontier model gets the lean prompt; it
 does not need three paragraphs on how to use tools. The mid-tier prompt
 adds worked examples and firmer procedural scaffolding; the low-tier
-prompt is close to a checklist. Same policies, different level of
-instruction.</li>
+prompt is close to a checklist. The policies are the same; only the
+level of instruction changes.</li>
 <li><strong>Tool set tiers.</strong> Frontier models are happy driving everything through
 a shell (chapter 14’s terminal argument is <em>almost</em> true up there).
 Weaker models do measurably better with dedicated <code>grep</code>/<code>find</code>/<code>ls</code>
 tools whose schemas constrain them, so those tools activate only on
-lower tiers. More structure as capability drops.</li>
+lower tiers. Structure goes up as capability drops.</li>
 <li><strong>Steering density.</strong> Reminders that a frontier model treats as noise
-are load-bearing for a small model. The reminder queue (chapter 8) can
+are what a small model depends on. The reminder queue (chapter 8) can
 carry tier-dependent traffic.</li>
 </ul>
-<p>The general law: <strong>capability and scaffolding trade off.</strong> As brains
-improve, bodies simplify; at any fixed moment, a harness serving several
-brains carries several densities of scaffolding. If you only ever target
-one frontier model, you get to skip this machinery, which is exactly why
-it is an appendix.</p>
+<p>The general rule is that <strong>capability and scaffolding trade off.</strong> As
+models improve, the harness needs less scaffolding, and a harness that
+supports several model tiers needs a different amount of scaffolding for
+each. If you only ever target one frontier model, you get to skip this
+machinery, which is why it is an appendix.</p>
 <h2 id="operational-traps"><a class="header" href="#operational-traps">Operational traps</a></h2>
 <ul>
 <li><strong>Dialect drift.</strong> Cheap-model calls often go to <em>different providers</em>
@@ -268,8 +268,9 @@ exercised. Beware silent parameter incompatibilities: one provider’s
 optional field is another’s hard error (temperature and reasoning
 settings are the classic offenders). Fail loudly per provider; never let
 a routing layer silently swap providers on a safety-relevant call.</li>
-<li><strong>Account for the invisible calls.</strong> Classifier, summarizer, recap: none
-of them appear in the conversation, but all of them appear on the bill.
+<li><strong>Account for the invisible calls.</strong> The classifier, summarizer and recap
+calls never appear in the conversation, but all of them appear on the
+bill.
 Count every out-of-band call into the same usage accounting as the main
 loop (chapter 12’s capture should see them too), or your cost dashboard
 is fiction.</li>

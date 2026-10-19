@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
+            window.path_to_searchindex_js = "searchindex-76518845.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-2dba1b62.js"></script>
+        <script src="toc-9a291a95.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -191,8 +191,7 @@ your users watch a spinner for ninety seconds. This appendix is the
 boring checklist: what fails, what to do about it, how streaming works on
 the wire, and where generic retry advice gets LLM APIs wrong. It is an
 appendix because none of it changes the mental model; it is also the
-difference between a demo and a
-service.</p>
+difference between a demo and a service.</p>
 <h2 id="the-kinds-of-failure"><a class="header" href="#the-kinds-of-failure">The kinds of failure</a></h2>
 <div class="table-wrapper">
 <table>
@@ -209,17 +208,18 @@ service.</p>
 </tbody>
 </table>
 </div>
-<p>The first discipline is just the split: <strong>temporary vs permanent.</strong>
-Retrying a 529 is correct; retrying a 400 is a loop that burns budget and
-buries the real error. Your wrapper should distinguish them on day one.</p>
-<p>Standard mechanics, briefly, since they are the same as any API client:
+<p>The first discipline is the split between <strong>temporary and permanent</strong>
+failures. Retrying a 529 is correct; retrying a 400 is a loop that burns
+budget and buries the real error. Your wrapper should distinguish them on
+day one.</p>
+<p>The standard mechanics are the same as for any API client, so briefly:
 exponential backoff with jitter (1s, 2s, 4s…, randomized so parallel
 subagents don’t stampede in sync), honor <code>retry-after</code> when present, cap
-total attempts, and surface the <em>last real error</em> when giving up, not
+total attempts, and report the <em>last real error</em> when giving up, not
 “retries exhausted.”</p>
 <h2 id="how-streaming-actually-works"><a class="header" href="#how-streaming-actually-works">How streaming actually works</a></h2>
-<p>Chapter 1’s sidebar made the architectural claim: streaming is
-presentation. Here is the mechanical half it deferred.</p>
+<p>Chapter 1’s sidebar noted that streaming only changes presentation. Here is
+how it works on the wire.</p>
 <p>Set <code>"stream": true</code> and the provider keeps the HTTP connection open and
 sends <strong>server-sent events</strong> (SSE): a long series of small
 <code>data: {...}</code> lines instead of one JSON body. Each event is a fragment.
@@ -234,8 +234,8 @@ event: message_delta          → stop_reason, output token usage
 event: message_stop           → the reply is complete
 </code></pre>
 <p>OpenAI’s version is a series of chunks carrying <code>choices[0].delta</code>
-fragments; different spelling, same idea. The harness’s job is
-<strong>accumulation</strong>: append each delta to the block it belongs to, and when
+fragments; the spelling differs, but the idea is the same. The harness’s
+job is <strong>accumulation</strong>: append each delta to the block it belongs to, and when
 the stream ends, you hold <em>exactly</em> the assistant message a non-streaming
 call would have returned. You append it to the array and continue the loop
 as if streaming never happened. That is the precise sense in which
@@ -252,8 +252,8 @@ you nothing for tool <em>execution</em>: you must wait for
 which tool is being called while the arguments are still arriving. Never
 execute from a partially assembled call; that is the appendix’s earlier
 rule (partial output is not output) in its sharpest form.</li>
-<li><strong>Streaming stops being optional as requests grow.</strong> This is the
-operational surprise: providers enforce timeouts on non-streaming
+<li><strong>Streaming stops being optional as requests grow.</strong> The operational
+surprise is that providers enforce timeouts on non-streaming
 requests, and a big-context, long-output call (exactly what agents make)
 can exceed them. Anthropic requires streaming for large <code>max_tokens</code>
 values, and SDKs quietly stream under the hood for long calls. So a
@@ -261,13 +261,13 @@ production harness ends up streaming <em>everything</em> and accumulating,
 even when no UI wants the deltas. The toy harness gets away without it
 only because its outputs are modest.</li>
 </ul>
-<p>The engineering reason to stream even a headless call: <strong>first-token
+<p>The engineering reason to stream even a headless call is that <strong>first-token
 latency becomes your health signal.</strong> A stream that has produced nothing
 for 60 seconds is distinguishable from a model thinking hard (thinking
 deltas and fine-grained events keep arriving); one connection carries both
 the answer and the liveness check.</p>
 <h2 id="whats-llm-specific"><a class="header" href="#whats-llm-specific">What’s LLM-specific</a></h2>
-<p>Four things the generic checklist misses:</p>
+<p>Four things make LLM APIs different from ordinary HTTP services:</p>
 <p><strong>Retries are only safe because the API is stateless.</strong> Chapter 1’s
 property earns its keep here: a retried request is <em>identical</em> in effect
 to the first attempt, because the server holds nothing. There is no
@@ -278,21 +278,21 @@ below the loop, never by re-running a whole round.</p>
 <p><strong>Rate limits are measured in tokens, not requests.</strong> Providers meter
 tokens per minute (input and output separately), so an agent with a fat
 array exhausts limits at a <em>request rate that looks tiny</em>. This couples
-Appendix D to chapter 6: context bloat manifests as 429s. It also means
+Appendix D to chapter 6: context bloat shows up as 429s. It also means
 parallel fan-out (chapter 7) multiplies the pressure by array size. So
 production harnesses cap concurrency and share a token budget above the
-subagent spawner, not just backoff below it.</p>
+subagent spawner, as well as backing off below it.</p>
 <p><strong>A streaming failure is a <em>mid-reply</em> failure.</strong> The chapter 1 sidebar
 deferred exactly one real problem: with <code>"stream": true</code>, the connection
 can die after you have received half an answer, or half a tool call.
-The rule that keeps this simple: <strong>partial output is not output.</strong> Treat
-a broken stream as a failed request. Discard the fragment: never append it
-to the array as if the model said it. (A truncated tool call executed “best
-effort” is chapter 13’s nightmare made of plumbing.) Then retry the whole
-call. Providers make this affordable: on a retry, the prefix
-you already sent is cache-hit (chapter 5), so re-asking costs a fraction
-of the original. Statelessness plus caching is what makes “just retry
-the whole thing” the right architecture rather than a waste.</p>
+The rule that keeps this simple is that <strong>partial output is not output.</strong>
+Treat a broken stream as a failed request. Discard the fragment, and never
+append it to the array as if the model said it. (Executing a truncated
+tool call “best effort” is chapter 13’s worst case, caused by plumbing.)
+Then retry the whole call. Providers make this affordable: on a retry, the
+prefix you already sent is cache-hit (chapter 5), so re-asking costs a
+fraction of the original. Statelessness plus caching is what makes “just
+retry the whole thing” the right architecture and not a waste.</p>
 <p><strong>Long requests need long timeouts, and one more distinction.</strong> A
 frontier model thinking hard over a big array can legitimately take
 minutes; a timeout tuned for REST APIs will kill healthy requests. Set
@@ -307,8 +307,9 @@ socket config.</p>
 epilogue, with one thing different: the line that used to open the connection
 now calls a version that retries. The full runnable file is
 <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/appendix-d/harness.py"><code>harness/appendix-d/harness.py</code></a>, and you run
-it exactly like before — <code>python3 harness.py</code> — it just no longer falls over
-on a blip. Two small functions do the work:</p>
+it exactly like before (<code>python3 harness.py</code>). The difference is that it no
+longer crashes on a transient network error. Two small functions do the
+work:</p>
 <pre><code class="language-python">RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
 
 class ApiError(Exception):
@@ -346,21 +347,21 @@ def call_with_retries(body, max_attempts=6):
             delay = e.retry_after or min(30.0, 2 ** attempt) + random.random()
             time.sleep(delay)
 </code></pre>
-<p><code>call_once</code> makes one POST and sorts whatever comes back — a reply, an error
-status, or a dead socket — into either the JSON you wanted or one <code>ApiError</code>
+<p><code>call_once</code> makes one POST and sorts whatever comes back (a reply, an error
+status, or a dead socket) into either the JSON you wanted or one <code>ApiError</code>
 tagged “try again” or “give up”. <code>call_with_retries</code> runs it in a loop and
 only retries the ones worth retrying. Inside the harness, <code>call_llm</code> still
 builds the body, sets the cache breakpoint, and prints the usage line; its one
 network call is now <code>call_with_retries(body)</code> instead of a bare <code>urlopen</code>.</p>
-<p>Two lines are easy to get wrong. The first is <code>retryable</code>. A network drop, or
-one of the <code>RETRYABLE_STATUS</code> codes, is worth another go; a 400 or a 401 is
-your bug or your key, so it raises on the first try instead of wasting five
-attempts and hiding the real error. The second is the <code>except</code> line: it
-catches <code>http.client.HTTPException</code>, not just <code>urllib.error.URLError</code>. The most
-common real drop — a <code>RemoteDisconnected</code> in the middle of a reply — is the
-first kind and not the second. Catch only <code>URLError</code> and you sail right past
-the exact crash you wrote this to prevent.</p>
-<p>Plus the two policies that don’t fit in a function: a token-aware
+<p>Two lines are easy to get wrong, and the first is <code>retryable</code>. A network
+drop, or one of the <code>RETRYABLE_STATUS</code> codes, is worth another go; a 400 or
+a 401 is your bug or your key, so it raises on the first try instead of
+wasting five attempts and hiding the real error. The second is the <code>except</code>
+line: it catches <code>http.client.HTTPException</code>, not only
+<code>urllib.error.URLError</code>. The most common real drop (<code>RemoteDisconnected</code> in
+the middle of a reply) is an <code>HTTPException</code>, not a <code>URLError</code>, so catching
+only <code>URLError</code> misses the crash you wrote the retry loop to handle.</p>
+<p>Then there are the two policies that don’t fit in a function: a token-aware
 concurrency cap above your fan-out, and “discard partial streams, retry
 whole.” That is the entire subject. SDKs and gateways will happily do the
 function part for you (a fine use of chapter 10’s plumbing category);
@@ -369,9 +370,10 @@ the policies stay yours either way.</p>
 <p>Split temporary failures from permanent ones and only retry the temporary.
 Statelessness makes API-level retries free of side effects; keep them below
 the loop so tools never re-run. Rate limits are measured in tokens, so
-context size and fan-out, not request count, are what exhaust them. Partial streamed output
-is not output. And capture failures like you capture requests, because
-“the model is being weird” is sometimes a half-dead socket.</p>
+context size and fan-out, not request count, are what exhaust them.
+Partial streamed output is not output. And capture failures like you
+capture requests, because “the model is being weird” is sometimes a
+half-dead socket.</p>
 <p><em><a href="index.html">Series index</a></em></p>
 
                     </main>

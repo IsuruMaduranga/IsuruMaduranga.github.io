@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
+            window.path_to_searchindex_js = "searchindex-76518845.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-2dba1b62.js"></script>
+        <script src="toc-9a291a95.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -190,10 +190,11 @@ react, and hands control back to the human. Ask it to “find the bug in this
 project and fix it” and it stalls after the first step, because step two
 needs the result of step one, and nobody is there to keep the conversation
 going.</p>
-<p><strong>The patch:</strong> keep the conversation going. Automatically. In a loop.</p>
-<p>That is the entire chapter. I want to be honest about that up front, because
-this is the point where the industry’s vocabulary gets grand: “agentic AI,”
-“autonomous systems,” “orchestration.” Here is what the words mean in code:</p>
+<p><strong>The patch:</strong> keep the conversation going automatically, in a loop.</p>
+<p>That is the entire chapter, and I want to be honest about that up front,
+because this is the point where the industry’s vocabulary gets grand:
+“agentic AI,” “autonomous systems,” “orchestration.” Here is what the words
+mean in code:</p>
 <pre><code class="language-python">while True:
     reply = call_llm(messages)
     messages.append(assistant_message(reply))
@@ -209,16 +210,16 @@ to this loop.</p>
 <h2 id="why-such-a-small-loop-does-so-much"><a class="header" href="#why-such-a-small-loop-does-so-much">Why such a small loop does so much</a></h2>
 <p>The loop looks too simple to produce the behavior you have seen from coding
 agents: exploring a codebase, forming a plan, hitting an error, changing
-approach, finishing the job. But recall chapter 2: the model was RL-trained
-on exactly this pattern. Multi-step work, observe result, decide next step.
-The intelligence is in the brain. The loop’s job is to <em>not get in the way</em>:
-keep feeding results back and let the trained behavior express itself.</p>
+approach, finishing the job. But recall from chapter 2 that the model was
+RL-trained on exactly this pattern of multi-step work: observe the result,
+decide the next step. The intelligence is in the brain, and the loop’s job
+is to keep feeding results back so that trained behavior can run.</p>
 <p>This is worth remembering, because it tells you where effort pays off. When
 an agent performs badly, beginners add orchestration: hardcoded step
 sequences, planner modules, state machines around the model. Usually the
 better fix is in the array: clearer tool descriptions, better error
-messages, the right context. The loop rarely needs to be smarter. The
-messages need to be better. (Chapter 10 returns to this when we look at
+messages, the right context. The loop rarely needs to be smarter, but the
+messages do need to be better. (Chapter 10 returns to this when we look at
 frameworks.)</p>
 <h2 id="stop-reasons-how-the-loop-knows-when-to-stop"><a class="header" href="#stop-reasons-how-the-loop-knows-when-to-stop">Stop reasons: how the loop knows when to stop</a></h2>
 <p>Each API response carries a <code>stop_reason</code> telling you why the model stopped
@@ -232,17 +233,17 @@ generating. The loop is really a dispatch on this field:</p>
 <tr><td><code>tool_use</code></td><td>“I want tools run”</td><td>execute, append results, continue</td></tr>
 <tr><td><code>end_turn</code></td><td>“I’m done”</td><td>exit loop, show the user the text</td></tr>
 <tr><td><code>max_tokens</code></td><td>reply hit the length cap</td><td>continuation is truncated; handle it (retry higher, or continue)</td></tr>
-<tr><td><code>refusal</code> / safety</td><td>model declined</td><td>exit, surface the message</td></tr>
+<tr><td><code>refusal</code> / safety</td><td>model declined</td><td>exit, show the message</td></tr>
 </tbody>
 </table>
 </div>
-<p>The two-state core is: <strong><code>tool_use</code> means the turn is still in progress;
-<code>end_turn</code> means the brain considers the task done.</strong> A “turn” in an agent
-is not one API call. It is one user request plus however many model+tool
-rounds the loop runs before <code>end_turn</code>. A single “fix the tests” turn might
-be 40 API calls. The user sees one answer; the array saw 40 round trips.
-(Remember chapter 1: each of those 40 calls resent the whole array. Hold
-that thought for chapter 5.)</p>
+<p>At the core there are two states: <strong><code>tool_use</code> means the turn is still in
+progress; <code>end_turn</code> means the brain considers the task done.</strong> A “turn” in
+an agent is one user request plus however many model+tool rounds the loop
+runs before <code>end_turn</code>, not one API call. A single “fix the tests” turn
+might be 40 API calls. The user sees one answer; the array saw 40 round
+trips. (Remember chapter 1: each of those 40 calls resent the whole array.
+Hold that thought for chapter 5.)</p>
 <pre class="mermaid">flowchart TD
     U[user message] --&gt; A[append to array]
     A --&gt; C[call LLM]
@@ -255,15 +256,16 @@ that thought for chapter 5.)</p>
 </pre>
 
 <h2 id="errors-are-fuel"><a class="header" href="#errors-are-fuel">Errors are fuel</a></h2>
-<p>The most surprising habit in agent building: <strong>when a tool fails, you
-are not handling an error. You are delivering information.</strong></p>
+<p>The most surprising habit in agent building is to treat a tool failure as
+<strong>information you deliver to the model, not an error you handle.</strong></p>
 <p>In normal software, an exception is a problem for the <em>programmer</em>. In an
 agent, a failed command is a problem for the <em>model</em>, and the model is good
 at it. Send back the compiler error, the stack trace, the “file not found,”
 exactly as the tool produced it, and the model reads it and adjusts: fixes
 the typo in the path, installs the missing package, takes another approach.
 Agents debug themselves, but only if the loop delivers the failure.</p>
-<p>The failure modes to avoid, in increasing order of how often I see them:</p>
+<p>Here are the three failure modes to avoid, from least to most common in the
+code I review:</p>
 <ul>
 <li><strong>Crashing the loop on a tool error.</strong> The model never learns what
 happened; the turn dies.</li>
@@ -273,13 +275,13 @@ failed.” You just replaced the model’s best signal with noise.</li>
 argument you guessed). Now the model’s picture of the world is wrong,
 and its next step builds on a state it does not know about.</li>
 </ul>
-<p>The rule I follow: a tool result is either the real output or the real
-error, marked as an error, with enough detail that a person could act on it.
-The model gets the same courtesy.</p>
-<p>One necessary limit: the loop needs a maximum round count (say, 50). A model
+<p>The rule I follow is that a tool result is either the real output or the
+real error, marked as an error, with enough detail that a person could act
+on it. The model gets the same courtesy.</p>
+<p>The loop does need one limit, a maximum round count (say, 50). A model
 stuck alternating between two failing approaches will happily burn your API
-budget forever. When you hit the cap, stop and tell the user. That is not
-the model’s failure signal; it is yours.</p>
+budget forever. When you hit the cap, stop and tell the user. The cap is a
+failure signal for you, not for the model.</p>
 <h2 id="react-the-loops-ancestor"><a class="header" href="#react-the-loops-ancestor">ReAct: the loop’s ancestor</a></h2>
 <p>You will run into the name <strong>ReAct</strong> (from a 2022 paper, “Reasoning +
 Acting”), so let me place it for you.</p>
@@ -292,20 +294,21 @@ Thought: Now I should read main.py.
 Action: ...
 </code></pre>
 <p>The harness parsed the <code>Action:</code> line with string matching, executed it,
-appended a fake <code>Observation:</code> line, and called the model again. Same loop
-as ours, but with the tool protocol built from prose and hope. It broke
-whenever the model varied the wording, which was often.</p>
-<p>ReAct matters for two reasons. First, historically: its “reason, act,
+appended a fake <code>Observation:</code> line, and called the model again. It was the
+same loop as ours, but with the tool protocol built from prose and hope. It
+broke whenever the model varied the wording, which was often.</p>
+<p>ReAct matters for two reasons. First, historically, its “reason, act,
 observe” cycle is what got baked into models during the RL training chapter
-2 described. Native tool calling <em>is</em> ReAct, moved from the prompt into the
-weights. The pattern won; the string parsing died. Second, practically:
-when you see a framework or tutorial teaching ReAct-style prompting today,
-you are looking at a technique for models that lack tool training, or at a
-tutorial older than it looks. With a modern model you get the Thought (as
-thinking blocks), the Action (as tool_use blocks), and the loop, natively.</p>
+2 described. Native tool calling is ReAct moved from the prompt into the
+weights, keeping the cycle while dropping the string parsing. Second, in
+practice, when you see a framework or tutorial teaching ReAct-style
+prompting today, you are looking at a technique for models that lack tool
+training, or at a tutorial older than it looks. With a modern model you get
+the Thought (as thinking blocks), the Action (as tool_use blocks), and the
+loop, natively.</p>
 <h2 id="the-toy-harness-v3"><a class="header" href="#the-toy-harness-v3">The toy harness, v3</a></h2>
 <p><a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/harness/v3_agent.py"><code>harness/v3_agent.py</code></a> turns v2 into a real agent.
-The heart of the change:</p>
+Here is the main change:</p>
 <pre><code class="language-python">def run_turn(messages):
     """One user turn = as many model/tool rounds as the task needs."""
     for _ in range(MAX_ROUNDS):                      # NEW: the agent loop
@@ -330,10 +333,10 @@ The heart of the change:</p>
         messages.append({"role": "user", "content": results})
     print("\n[harness] hit MAX_ROUNDS, stopping this turn")
 </code></pre>
-<p>Plus one new tool, <code>write_file</code>, so the agent can change the world, not just
-observe it. Three tools, one loop, about 90 lines total, and this program
-can genuinely do things: try <code>"clone this repo, find out why the tests fail, and fix it"</code> on something small. Watching your own 90 lines do that is the
-moment this field stops being mysterious.</p>
+<p>v3 also adds one new tool, <code>write_file</code>, so the agent can change the world
+as well as observe it. With three tools and one loop in about 90 lines
+total, this program can genuinely do things: try <code>"clone this repo, find out why the tests fail, and fix it"</code> on something small. Watching your own 90
+lines do that is the moment this field stops being mysterious.</p>
 <p>Run it and watch the shape of the transcript scroll by: tool call, result,
 tool call, result, text. That shape <em>is</em> the agent. Everything after this
 chapter is about keeping that loop healthy when it runs long, gets
@@ -356,12 +359,12 @@ them raw; cap the rounds.</li>
 <li>ReAct is this loop implemented in prompt text, from before tool use was
 trained into the models. The pattern survived; the prompting did not.</li>
 </ul>
-<p>The loop works. Now look at what it costs. Forty rounds, each resending the
-entire growing array. If the array is 50,000 tokens by mid-task, that is
-two million input tokens for one user request, unless we do something. The
-something is caching, and it is why the <em>order</em> of your array is about to
-become a financial decision.</p>
-<p><em><a href="05-caching.html">Next: Chapter 5 — Caching: Why Order Is Load-Bearing</a></em></p>
+<p>The loop works, so now look at what it costs. Forty rounds each resend the
+entire growing array. If the array is 50,000 tokens by mid-task, forty
+rounds will send roughly two million input tokens for a single user request.
+Prompt caching fixes that cost, and it is why the <em>order</em> of your array
+affects your API bill.</p>
+<p><em><a href="05-caching.html">Next: Chapter 5 — Caching: Why Order Matters</a></em></p>
 
                     </main>
 
