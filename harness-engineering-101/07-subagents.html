@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -196,7 +196,7 @@ carry one sentence of value.</p>
 conclusion. That is a <strong>subagent</strong>, and I want to define it precisely,
 because the industry makes it sound like distributed systems:</p>
 <blockquote>
-<p>A subagent is a second agent loop, run with a <strong>fresh, empty array</strong>,
+<p>A subagent is a second agent loop, run with a fresh, empty array,
 given one task, whose final answer is returned to the main loop as a tool
 result. Then its array is thrown away.</p>
 </blockquote>
@@ -250,7 +250,7 @@ including error handling. A subagent that fails should fail loudly in its
 tool result.</p>
 <h2 id="what-to-delegate"><a class="header" href="#what-to-delegate">What to delegate</a></h2>
 <p>From a context-budget view, the rule is simple: delegate work whose
-<strong>intermediate volume is high and final summary is small.</strong></p>
+intermediate volume is high and final summary is small.</p>
 <p>Good delegation targets:</p>
 <ul>
 <li><strong>Search and exploration.</strong> “Find where X happens” means huge
@@ -339,23 +339,15 @@ like a ticket for a contractor with no Slack access. Say what to do, where
 to look, what done looks like, and what to return. Every failure I
 have seen in multi-agent systems that was blamed on “coordination” was a
 bad ticket.</p>
+<p>Here is one that happened to me. I asked a subagent to explore a codebase
+and report back, and it started editing files. My task never said “read
+only,” and the subagent had an edit tool, so it used it. Now an exploration
+subagent gets a task that says what it must not touch, and a toolset with
+no write tools in it.</p>
 <p>One Code’s <a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/subagents">subagents extension</a>
 is this chapter at production size: the same recursive loop, with a live
 panel for the running children, a model you can pick per task, and a
 worktree per child.</p>
-<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
-<ul>
-<li>A subagent is the agent loop run over a fresh, disposable array; only its
-final report enters the parent, as a tool result.</li>
-<li>The point is context protection: high-volume exploration for a
-fixed-size summary. You pay in tokens and save attention.</li>
-<li>The child knows nothing, and the parent sees only the report. Write
-self-contained tasks, and demand evidence in the answers.</li>
-<li>Delegate high-volume/low-residue work; keep judgment-heavy work in the
-main loop. Fan out in parallel; avoid deep hierarchies.</li>
-<li>Implementation is one tool plus a recursive call to the loop you already
-have.</li>
-</ul>
 <p>Subagents keep bulk output out of the main array, but another problem shows
 up in long sessions: the model drifts off course, forgets standing rules, or
 misses changes in the world. The harness needs a way to nudge a running loop

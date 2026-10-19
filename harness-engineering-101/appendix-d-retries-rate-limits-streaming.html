@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -202,13 +202,13 @@ difference between a demo and a service.</p>
 <tr><td>Overloaded / server error</td><td>500/529, or Anthropic’s <code>overloaded_error</code></td><td>retry with backoff</td></tr>
 <tr><td>Rate limited</td><td>429, often with <code>retry-after</code></td><td>wait <em>what the header says</em>, then retry</td></tr>
 <tr><td>Timeout / connection drop</td><td>no response</td><td>retry, but safely (see below)</td></tr>
-<tr><td>Context too long</td><td>400 with explicit message</td><td><strong>do not retry</strong>: compact (ch. 6) or fail up</td></tr>
-<tr><td>Invalid request</td><td>other 400s</td><td><strong>do not retry</strong>: it’s your bug; capture it (ch. 12)</td></tr>
+<tr><td>Context too long</td><td>400 with explicit message</td><td>do not retry: compact (ch. 6) or fail up</td></tr>
+<tr><td>Invalid request</td><td>other 400s</td><td>do not retry: it’s your bug; capture it (ch. 12)</td></tr>
 <tr><td>Auth / billing</td><td>401/403</td><td>stop, tell the human</td></tr>
 </tbody>
 </table>
 </div>
-<p>The first discipline is the split between <strong>temporary and permanent</strong>
+<p>The first discipline is the split between temporary and permanent
 failures. Retrying a 529 is correct; retrying a 400 is a loop that burns
 budget and buries the real error. Your wrapper should distinguish them on
 day one.</p>
@@ -261,8 +261,8 @@ production harness ends up streaming <em>everything</em> and accumulating,
 even when no UI wants the deltas. The toy harness gets away without it
 only because its outputs are modest.</li>
 </ul>
-<p>The engineering reason to stream even a headless call is that <strong>first-token
-latency becomes your health signal.</strong> A stream that has produced nothing
+<p>The engineering reason to stream even a headless call is that first-token
+latency becomes your health signal. A stream that has produced nothing
 for 60 seconds is distinguishable from a model thinking hard (thinking
 deltas and fine-grained events keep arriving); one connection carries both
 the answer and the liveness check.</p>
@@ -285,7 +285,7 @@ subagent spawner, as well as backing off below it.</p>
 <p><strong>A streaming failure is a <em>mid-reply</em> failure.</strong> The chapter 1 sidebar
 deferred exactly one real problem: with <code>"stream": true</code>, the connection
 can die after you have received half an answer, or half a tool call.
-The rule that keeps this simple is that <strong>partial output is not output.</strong>
+The rule that keeps this simple is that partial output is not output.
 Treat a broken stream as a failed request. Discard the fragment, and never
 append it to the array as if the model said it. (Executing a truncated
 tool call “best effort” is chapter 13’s worst case, caused by plumbing.)

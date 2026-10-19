@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -237,9 +237,9 @@ instruction fell out during compaction, or your reminder never drained from
 the queue, or it is there but buried at token 3,000 of an 8,000-token
 system prompt. If the model misread a file, find the <code>tool_result</code>, and
 you’ll see your truncation cut the file at exactly the wrong line. In my
-experience the split is roughly a third “it was never in the array,” a
-third “it was in the array but mangled or misplaced,” and only the last
-third anything like model failure.</p>
+experience, when I blame the model, the cause is often in the array
+instead: the thing was never there, or it was there but mangled or
+misplaced.</p>
 <h2 id="the-vital-sign-cache-read-tokens"><a class="header" href="#the-vital-sign-cache-read-tokens">The vital sign: cache-read tokens</a></h2>
 <p>The response’s <code>usage</code> block reports how the input was billed, including
 <code>cache_read_input_tokens</code>. This is where you verify that chapter 5’s
@@ -325,21 +325,6 @@ token costs on a timeline. These are useful, and by all means adopt one.
 But a tracing UI is a <em>viewer</em> over exactly what this chapter built:
 captured requests, responses, and events. The capture is what lets you
 debug, and the UI makes it more convenient to look at.</p>
-<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
-<ul>
-<li>Harness bugs live in the assembled request, and mostly divide into “not
-in the array” / “in the array but wrong” / actual model failure, in
-roughly that order. Look at the bytes first.</li>
-<li>Capture requests and responses at the last point before the wire; many
-bugs come from the drift between what you meant and what was sent.</li>
-<li><code>cache_read_input_tokens</code> is the number to watch. Zero after round one is
-a silent 10x cost bug, and only this number tells you.</li>
-<li>Statelessness makes captures perfectly replayable and <em>editable</em>: prompt
-debugging becomes controlled experiments.</li>
-<li>Pin the array in CI: presence, placement, bytes. Persist subagent
-transcripts and the steering queue, or you have no way to check those
-subsystems.</li>
-</ul>
 <p>Part III covered the ecosystem: what wraps the array, what extends it, and
 how to see it. Part IV starts with the question all this visibility was
 preparing for: the loop can now act on the real world with real

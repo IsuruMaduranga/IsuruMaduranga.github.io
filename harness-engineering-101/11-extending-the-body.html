@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -223,8 +223,8 @@ back as an ordinary <code>tool_result</code>.</p>
     H --&gt;|tool_result| B
 </pre>
 
-<p>So the entire trick is that <strong>the dispatch table from chapter 3 got a
-network hop.</strong> The model cannot tell a built-in tool from an MCP tool; both
+<p>So the entire trick is that the dispatch table from chapter 3 got a
+network hop. The model cannot tell a built-in tool from an MCP tool; both
 are schemas in, results out. What MCP actually bought the ecosystem is the
 economics: the Jira integration is written once, by anyone, and works in
 every MCP-speaking harness. Tools became an ecosystem instead of a feature
@@ -248,8 +248,8 @@ most are irrelevant to most sessions. Pasting your 3,000-token release
 runbook into every array, on the chance the user says “cut a release,” is a
 serious waste of budget.</p>
 <p>A <strong>skill</strong> is the budget-respecting version: a folder with a markdown file
-of instructions (plus optional scripts and templates), with a <strong>name and a
-one-line description</strong>. At session start, the harness injects <em>only the
+of instructions (plus optional scripts and templates), with a name and a
+one-line description. At session start, the harness injects <em>only the
 names and descriptions</em>: a menu, a few hundred tokens for dozens of skills.
 When the task matches one, the model asks for it (via a <code>skill</code> tool call,
 or the user types <code>/release</code>), and only <em>then</em> does the full body of
@@ -329,20 +329,6 @@ mechanism is this:</p>
 </tbody>
 </table>
 </div>
-<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
-<ul>
-<li>MCP is chapter 3’s dispatch table with a network hop and a discovery
-handshake: tools as an ecosystem. Treat servers as trusted limbs, because
-that is what they are.</li>
-<li>Skills are instructions behind a menu: index in context, prose on demand,
-executable extras via existing tools.</li>
-<li>Deferred loading does the same for tool schemas, with an append-only
-reveal to respect caching.</li>
-<li>All three are one shape: progressive disclosure against the context
-budget.</li>
-<li>Hooks are deterministic scripts attached to loop events, used for
-behavior that must run every time rather than almost every time.</li>
-</ul>
 <p>Strangers can now extend the body with their tools, instructions and
 reflexes. That sharpens a question that has been building since chapter 5.
 With all these moving parts assembling every request, do you actually know

@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -237,8 +237,8 @@ generating. The loop is really a dispatch on this field:</p>
 </tbody>
 </table>
 </div>
-<p>At the core there are two states: <strong><code>tool_use</code> means the turn is still in
-progress; <code>end_turn</code> means the brain considers the task done.</strong> A “turn” in
+<p>At the core there are two states: <code>tool_use</code> means the turn is still in
+progress; <code>end_turn</code> means the brain considers the task done. A “turn” in
 an agent is one user request plus however many model+tool rounds the loop
 runs before <code>end_turn</code>, not one API call. A single “fix the tests” turn
 might be 40 API calls. The user sees one answer; the array saw 40 round
@@ -257,7 +257,7 @@ Hold that thought for chapter 5.)</p>
 
 <h2 id="errors-are-fuel"><a class="header" href="#errors-are-fuel">Errors are fuel</a></h2>
 <p>The most surprising habit in agent building is to treat a tool failure as
-<strong>information you deliver to the model, not an error you handle.</strong></p>
+information you deliver to the model, not an error you handle.</p>
 <p>In normal software, an exception is a problem for the <em>programmer</em>. In an
 agent, a failed command is a problem for the <em>model</em>, and the model is good
 at it. Send back the compiler error, the stack trace, the “file not found,”
@@ -278,6 +278,10 @@ and its next step builds on a state it does not know about.</li>
 <p>The rule I follow is that a tool result is either the real output or the
 real error, marked as an error, with enough detail that a person could act
 on it. The model gets the same courtesy.</p>
+<p>I learned this while building the agent mode of MI Copilot. A file write
+failed, and the model never found out. It assumed the write had worked and
+kept editing on top of a file that did not hold what it thought. With no
+safeguard to catch it, the model corrupted the files.</p>
 <p>The loop does need one limit, a maximum round count (say, 50). A model
 stuck alternating between two failing approaches will happily burn your API
 budget forever. When you hit the cap, stop and tell the user. The cap is a
@@ -348,17 +352,6 @@ one reply (read three files at once). That is why the code collects every
 assistant message must come back in one user message, matched by ID. Run
 them concurrently if you like; deliver them together.</p>
 </blockquote>
-<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
-<ul>
-<li>An agent is a while loop: call the model, execute requested tools, append
-results, repeat until <code>end_turn</code>.</li>
-<li><code>stop_reason</code> is the loop’s control signal. One user turn may be dozens of
-API calls.</li>
-<li>Tool failures are input for the model, not exceptions for you. Deliver
-them raw; cap the rounds.</li>
-<li>ReAct is this loop implemented in prompt text, from before tool use was
-trained into the models. The pattern survived; the prompting did not.</li>
-</ul>
 <p>The loop works, so now look at what it costs. Forty rounds each resend the
 entire growing array. If the array is 50,000 tokens by mid-task, forty
 rounds will send roughly two million input tokens for a single user request.
