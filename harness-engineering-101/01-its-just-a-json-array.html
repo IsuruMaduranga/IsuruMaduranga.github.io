@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -445,6 +445,15 @@ robotics harness gives it motors, and a support-desk harness gives it a
 ticket queue. The bodies differ, but the nervous system (the JSON array and
 the loop around it) is the same everywhere. This series builds a coding body
 because it is the easiest to demo in text, but every pattern transfers.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>Talking to an LLM is one stateless HTTP POST. You send the whole array
+every time.</li>
+<li>Memory, sessions and context all live in your program’s array. <code>/clear</code> is
+<code>messages = []</code>, and resume is a file read.</li>
+<li>Content is a list of typed blocks, and every provider’s API is a dialect
+of the same structure.</li>
+</ul>
 <p>Before we add any features to the harness, we should look at what sits on
 the other end of that POST, and why how it is trained explains most of its
 strange behavior.</p>

@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -325,6 +325,15 @@ token costs on a timeline. These are useful, and by all means adopt one.
 But a tracing UI is a <em>viewer</em> over exactly what this chapter built:
 captured requests, responses, and events. The capture is what lets you
 debug, and the UI makes it more convenient to look at.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>When the model misbehaves, look at the request it actually received before
+blaming the model.</li>
+<li>Capture requests and responses at the last point before the wire. Captures
+replay exactly, so you can edit one and rerun it.</li>
+<li>Pin the array in tests, and watch <code>cache_read_input_tokens</code> for silent
+cost bugs.</li>
+</ul>
 <p>Part III covered the ecosystem: what wraps the array, what extends it, and
 how to see it. Part IV starts with the question all this visibility was
 preparing for: the loop can now act on the real world with real

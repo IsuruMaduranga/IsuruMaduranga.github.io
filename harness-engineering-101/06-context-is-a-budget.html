@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -329,6 +329,15 @@ maybe 100k of high-attention space, spent on:</p>
 <p>And when one task legitimately needs more reading than the budget allows,
 no amount of trimming saves you. You need to spend <em>someone else’s</em> budget.
 That is what subagents do in the next chapter.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>The practical budget is smaller than the window, because models get worse
+before the window is full.</li>
+<li>Tool results take most of the budget. Truncate them, read ranges, and let
+the model fetch what it needs.</li>
+<li>Compaction replaces old rounds with a summary, and memory files keep
+knowledge on disk, outside the array.</li>
+</ul>
 <p><em><a href="07-subagents.html">Next: Chapter 7 — Subagents: Fork the Context</a></em></p>
 
                     </main>

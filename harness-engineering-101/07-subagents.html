@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -348,6 +348,15 @@ no write tools in it.</p>
 is this chapter at production size: the same recursive loop, with a live
 panel for the running children, a model you can pick per task, and a
 worktree per child.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>A subagent runs the agent loop on a fresh array, and only its final report
+comes back to the parent.</li>
+<li>It spends tokens to keep the main context clean: lots of reading goes in,
+a short summary comes out.</li>
+<li>The child knows nothing and the parent sees only the report, so write the
+task like a ticket for a contractor.</li>
+</ul>
 <p>Subagents keep bulk output out of the main array, but another problem shows
 up in long sessions: the model drifts off course, forgets standing rules, or
 misses changes in the world. The harness needs a way to nudge a running loop

@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -328,6 +328,15 @@ moment earlier. So the model would create a file, try to edit it, get
 refused, read back what it had written, and only then edit. Now creating a
 file needs no read, and a file the model just wrote counts as read, so it
 can edit it straight away.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>The harness steers a running loop by appending reminders near the bottom
+of the array, which keeps the cache.</li>
+<li>The todo tool keeps the model’s own plan in view by injecting it back
+after each update.</li>
+<li>Steer on events, and rarely. A reminder you need every round belongs in
+the system prompt.</li>
+</ul>
 <p>The loop can now be informed and re-aimed while it runs. The next failure
 is time itself. Everything so far happens <em>inside</em> one synchronous turn,
 but real work has slow builds, long test suites, and things worth checking

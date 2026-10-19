@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -355,6 +355,12 @@ calls are all blocks, and every one is counted and paid for.</li>
 <li><strong>Errors are useful input.</strong> The model was trained to react to failure,
 so pass error messages back into the array.</li>
 </ol>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<p>The brain is a next-token predictor with three layers of training: raw
+knowledge from pre-training, assistant behavior from post-training, and
+agentic skills (tools, thinking, self-correction) from RL. It hallucinates
+by design, follows roles by training, and sees images as tokens. It cannot
+act, remember, or perceive anything you do not put in the array.</p>
 <p>If the brain can only emit text, how does an agent ever <em>do</em> anything? The
 answer is a simple formatting convention between the model and the harness.</p>
 <p><em><a href="03-tools.html">Next: Chapter 3 — Tools: JSON Mapped to Functions</a></em></p>

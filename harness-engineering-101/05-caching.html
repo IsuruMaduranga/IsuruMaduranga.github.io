@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -343,6 +343,14 @@ every trim is a cache reset.</li>
 rather than the system prompt partly so the system prompt can stay
 identical across sessions and features.</li>
 <li>Debugging (chapter 12) watches <code>cache_read_input_tokens</code> as a vital sign.</li>
+</ul>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>Prefix caching matches your array byte for byte from the front and
+discounts the matched part by about 90%.</li>
+<li>Appending keeps the cache. Changing anything above the append point loses
+it for everything below, and nothing tells you.</li>
+<li>Watch <code>cache_read_input_tokens</code>. A low cache-hit rate is an expensive bug.</li>
 </ul>
 <p>Part I is complete: the wire, the brain, tools, the loop, and the economics.
 Part II is about what happens when the loop runs <em>long</em>: the array

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -592,6 +592,15 @@ robotics harness gives it motors, and a support-desk harness gives it a
 ticket queue. The bodies differ, but the nervous system (the JSON array and
 the loop around it) is the same everywhere. This series builds a coding body
 because it is the easiest to demo in text, but every pattern transfers.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>Talking to an LLM is one stateless HTTP POST. You send the whole array
+every time.</li>
+<li>Memory, sessions and context all live in your program’s array. <code>/clear</code> is
+<code>messages = []</code>, and resume is a file read.</li>
+<li>Content is a list of typed blocks, and every provider’s API is a dialect
+of the same structure.</li>
+</ul>
 <p>Before we add any features to the harness, we should look at what sits on
 the other end of that POST, and why how it is trained explains most of its
 strange behavior.</p>
@@ -772,6 +781,12 @@ calls are all blocks, and every one is counted and paid for.</li>
 <li><strong>Errors are useful input.</strong> The model was trained to react to failure,
 so pass error messages back into the array.</li>
 </ol>
+<h2 id="what-you-now-know-1"><a class="header" href="#what-you-now-know-1">What you now know</a></h2>
+<p>The brain is a next-token predictor with three layers of training: raw
+knowledge from pre-training, assistant behavior from post-training, and
+agentic skills (tools, thinking, self-correction) from RL. It hallucinates
+by design, follows roles by training, and sees images as tokens. It cannot
+act, remember, or perceive anything you do not put in the array.</p>
 <p>If the brain can only emit text, how does an agent ever <em>do</em> anything? The
 answer is a simple formatting convention between the model and the harness.</p>
 <p><em><a href="#chapter-3-tools-json-mapped-to-functions">Next: Chapter 3 — Tools: JSON Mapped to Functions</a></em></p>
@@ -959,6 +974,14 @@ your permission system (chapter 13) never sees it. It’s convenient for
 search; think twice before accepting it for anything that touches your
 systems.</p>
 </blockquote>
+<h2 id="what-you-now-know-2"><a class="header" href="#what-you-now-know-2">What you now know</a></h2>
+<ul>
+<li>A tool is three pieces of JSON: a schema in the request, a <code>tool_use</code>
+block in the reply, and a <code>tool_result</code> block in the next message.</li>
+<li>The model asks and the harness acts, so capability and safety both live in
+the harness.</li>
+<li>Return tool errors as text in the tool result, not as exceptions.</li>
+</ul>
 <p>v2 can act only once, but real tasks need the model to act, look at the
 result, and act again, without a human pressing enter between steps. That
 is the next failure. The loop that fixes it has a grand name, but it is four
@@ -1137,6 +1160,13 @@ one reply (read three files at once). That is why the code collects every
 assistant message must come back in one user message, matched by ID. Run
 them concurrently if you like; deliver them together.</p>
 </blockquote>
+<h2 id="what-you-now-know-3"><a class="header" href="#what-you-now-know-3">What you now know</a></h2>
+<ul>
+<li>An agent is a while loop: call the model, run the requested tools, append
+the results, and repeat until <code>end_turn</code>.</li>
+<li>One user turn can be dozens of API calls, so cap the rounds.</li>
+<li>Tool failures are input for the model. Pass them back as they are.</li>
+</ul>
 <p>The loop works, so now look at what it costs. Forty rounds each resend the
 entire growing array. If the array is 50,000 tokens by mid-task, forty
 rounds will send roughly two million input tokens for a single user request.
@@ -1308,6 +1338,14 @@ rather than the system prompt partly so the system prompt can stay
 identical across sessions and features.</li>
 <li>Debugging (chapter 12) watches <code>cache_read_input_tokens</code> as a vital sign.</li>
 </ul>
+<h2 id="what-you-now-know-4"><a class="header" href="#what-you-now-know-4">What you now know</a></h2>
+<ul>
+<li>Prefix caching matches your array byte for byte from the front and
+discounts the matched part by about 90%.</li>
+<li>Appending keeps the cache. Changing anything above the append point loses
+it for everything below, and nothing tells you.</li>
+<li>Watch <code>cache_read_input_tokens</code>. A low cache-hit rate is an expensive bug.</li>
+</ul>
 <p>Part I is complete: the wire, the brain, tools, the loop, and the economics.
 Part II is about what happens when the loop runs <em>long</em>: the array
 approaches the context window, and everything from here on is about
@@ -1463,6 +1501,15 @@ maybe 100k of high-attention space, spent on:</p>
 <p>And when one task legitimately needs more reading than the budget allows,
 no amount of trimming saves you. You need to spend <em>someone else’s</em> budget.
 That is what subagents do in the next chapter.</p>
+<h2 id="what-you-now-know-5"><a class="header" href="#what-you-now-know-5">What you now know</a></h2>
+<ul>
+<li>The practical budget is smaller than the window, because models get worse
+before the window is full.</li>
+<li>Tool results take most of the budget. Truncate them, read ranges, and let
+the model fetch what it needs.</li>
+<li>Compaction replaces old rounds with a summary, and memory files keep
+knowledge on disk, outside the array.</li>
+</ul>
 <p><em><a href="#chapter-7-subagents-fork-the-context">Next: Chapter 7 — Subagents: Fork the Context</a></em></p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="chapter-7-subagents-fork-the-context"><a class="header" href="#chapter-7-subagents-fork-the-context">Chapter 7: Subagents: Fork the Context</a></h1>
@@ -1633,6 +1680,15 @@ no write tools in it.</p>
 is this chapter at production size: the same recursive loop, with a live
 panel for the running children, a model you can pick per task, and a
 worktree per child.</p>
+<h2 id="what-you-now-know-6"><a class="header" href="#what-you-now-know-6">What you now know</a></h2>
+<ul>
+<li>A subagent runs the agent loop on a fresh array, and only its final report
+comes back to the parent.</li>
+<li>It spends tokens to keep the main context clean: lots of reading goes in,
+a short summary comes out.</li>
+<li>The child knows nothing and the parent sees only the report, so write the
+task like a ticket for a contractor.</li>
+</ul>
 <p>Subagents keep bulk output out of the main array, but another problem shows
 up in long sessions: the model drifts off course, forgets standing rules, or
 misses changes in the world. The harness needs a way to nudge a running loop
@@ -1787,6 +1843,15 @@ moment earlier. So the model would create a file, try to edit it, get
 refused, read back what it had written, and only then edit. Now creating a
 file needs no read, and a file the model just wrote counts as read, so it
 can edit it straight away.</p>
+<h2 id="what-you-now-know-7"><a class="header" href="#what-you-now-know-7">What you now know</a></h2>
+<ul>
+<li>The harness steers a running loop by appending reminders near the bottom
+of the array, which keeps the cache.</li>
+<li>The todo tool keeps the model’s own plan in view by injecting it back
+after each update.</li>
+<li>Steer on events, and rarely. A reminder you need every round belongs in
+the system prompt.</li>
+</ul>
 <p>The loop can now be informed and re-aimed while it runs. The next failure
 is time itself. Everything so far happens <em>inside</em> one synchronous turn,
 but real work has slow builds, long test suites, and things worth checking
@@ -1931,6 +1996,15 @@ chapter. If you want the exercise, it is a good one: add a <code>tasks</code> di
 a <code>task_output</code> tool, and a check at the top of each user turn that drains
 finished-task notices into the next message. Every piece is standard
 Python. The epilogue’s full harness includes a minimal version.</p>
+<h2 id="what-you-now-know-8"><a class="header" href="#what-you-now-know-8">What you now know</a></h2>
+<ul>
+<li>Slow work runs as a background task with an ID the model can check or
+stop.</li>
+<li>When a task finishes, the harness tells the model through the steering
+queue, and starts a turn if none is running.</li>
+<li>Monitors, schedules and model-set wakeups are one mechanism with three
+triggers. Keep every job visible and killable.</li>
+</ul>
 <p>That finishes Part II, which covered context budgets, subagents, steering,
 and background tasks. Part III steps back to look at the broader ecosystem,
 starting with what actually sits inside agent frameworks.</p>
@@ -2061,6 +2135,14 @@ real; weigh them against the transparency answer from question 2.</li>
 <p>A framework that answers all four cleanly is a fine tool. One whose docs
 answer with vocabulary (“the executor invokes the runnable graph”) is
 telling you where the complexity will hurt.</p>
+<h2 id="what-you-now-know-9"><a class="header" href="#what-you-now-know-9">What you now know</a></h2>
+<ul>
+<li>Framework terms map onto things you built in chapters 1 to 9: chains are
+control flow, memory is the array, executors are the loop.</li>
+<li>Frameworks give real value in plumbing, provider abstraction and tracing.</li>
+<li>Their cost is distance from the array, so first ask whether you can see
+the bytes sent to the model.</li>
+</ul>
 <p>The next chapter covers the parts of the ecosystem that are <em>not</em>
 wrappers: the standards and mechanisms for getting new capabilities into
 the array from outside your codebase. That means tools someone else hosts,
@@ -2217,6 +2299,16 @@ mechanism is this:</p>
 </tbody>
 </table>
 </div>
+<h2 id="what-you-now-know-10"><a class="header" href="#what-you-now-know-10">What you now know</a></h2>
+<ul>
+<li>MCP is chapter 3’s dispatch table over the network. An MCP server runs
+with your harness’s trust, so choose servers as carefully as code you
+install.</li>
+<li>Skills and deferred tool loading keep a short index in the array and load
+the detail only when needed.</li>
+<li>Hooks are scripts that run on loop events, for things that must happen
+every time.</li>
+</ul>
 <p>Strangers can now extend the body with their tools, instructions and
 reflexes. That sharpens a question that has been building since chapter 5.
 With all these moving parts assembling every request, do you actually know
@@ -2368,6 +2460,15 @@ token costs on a timeline. These are useful, and by all means adopt one.
 But a tracing UI is a <em>viewer</em> over exactly what this chapter built:
 captured requests, responses, and events. The capture is what lets you
 debug, and the UI makes it more convenient to look at.</p>
+<h2 id="what-you-now-know-11"><a class="header" href="#what-you-now-know-11">What you now know</a></h2>
+<ul>
+<li>When the model misbehaves, look at the request it actually received before
+blaming the model.</li>
+<li>Capture requests and responses at the last point before the wire. Captures
+replay exactly, so you can edit one and rerun it.</li>
+<li>Pin the array in tests, and watch <code>cache_read_input_tokens</code> for silent
+cost bugs.</li>
+</ul>
 <p>Part III covered the ecosystem: what wraps the array, what extends it, and
 how to see it. Part IV starts with the question all this visibility was
 preparing for: the loop can now act on the real world with real
@@ -2541,6 +2642,15 @@ once the context is full or has started to rot. The layers of this chapter give 
 reflexes enforce, humans approve, classifiers screen, and sandboxes
 contain. Anything that must be true with probability 1 cannot live in the
 prompt.</p>
+<h2 id="what-you-now-know-12"><a class="header" href="#what-you-now-know-12">What you now know</a></h2>
+<ul>
+<li>There are two threats: a model that sometimes gets it wrong, and untrusted
+text in the array that pushes it.</li>
+<li>Layer the defenses, cheapest and most certain first: don’t expose the
+tool, add rules the harness enforces, ask a human, then sandbox what is
+left.</li>
+<li>A rule in the system prompt is advice. Only the harness can enforce it.</li>
+</ul>
 <p>Next, the case study chapter: why coding became <em>the</em> agent domain, what a
 coding body has that a generic one lacks, and the argument (which deserves
 respect) that most of it is unnecessary as long as the agent has a
@@ -2692,6 +2802,14 @@ in practice, since every major one ships both the shell and the structured
 organs, and lets the model choose:
 <strong>structured tools for the common paths where structure gives you safety
 and feedback, the terminal for the long tail, and guardrails around both.</strong></p>
+<h2 id="what-you-now-know-13"><a class="header" href="#what-you-now-know-13">What you now know</a></h2>
+<ul>
+<li>Coding suited agents first: the world is text, feedback is free, and
+mistakes can be undone. Use those three tests for any other domain.</li>
+<li>Coding harnesses add edit tools that refuse bad edits, fast search,
+diagnostics after edits, and git for undo.</li>
+<li>Ship structured tools and a terminal, let the model choose, and gate both.</li>
+</ul>
 <p>One chapter of the main sequence remains, and it is the retrospective one:
 the pattern this whole series has been circling (put the right data in the
 array at the right time) had a famous name before agents were mainstream.
@@ -2842,6 +2960,15 @@ acronym will arrive on schedule. When it does, ask the questions this
 series trained you to ask: <em>what ends up in the array? who decides, brain
 or body? what does it cost, and what enforces it?</em> Their answers tell you
 where anything fits.</p>
+<h2 id="what-you-now-know-14"><a class="header" href="#what-you-now-know-14">What you now know</a></h2>
+<ul>
+<li>RAG is choosing what goes in the array, with a search index doing the
+choosing.</li>
+<li>Push means the harness guesses up front. Pull means the model searches
+while it reasons. Most systems need both.</li>
+<li>Most of the field’s names turn into simple questions about the array once
+you look at it this way.</li>
+</ul>
 <p>The epilogue puts all the pieces together by walking through the complete
 toy harness: fifteen chapters in about 300 lines of Python that you can
 run, break, and rebuild.</p>

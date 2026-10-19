@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -346,6 +346,15 @@ once the context is full or has started to rot. The layers of this chapter give 
 reflexes enforce, humans approve, classifiers screen, and sandboxes
 contain. Anything that must be true with probability 1 cannot live in the
 prompt.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>There are two threats: a model that sometimes gets it wrong, and untrusted
+text in the array that pushes it.</li>
+<li>Layer the defenses, cheapest and most certain first: don’t expose the
+tool, add rules the harness enforces, ask a human, then sandbox what is
+left.</li>
+<li>A rule in the system prompt is advice. Only the harness can enforce it.</li>
+</ul>
 <p>Next, the case study chapter: why coding became <em>the</em> agent domain, what a
 coding body has that a generic one lacks, and the argument (which deserves
 respect) that most of it is unnecessary as long as the agent has a

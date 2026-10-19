@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-baec7a3c.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -317,6 +317,15 @@ chapter. If you want the exercise, it is a good one: add a <code>tasks</code> di
 a <code>task_output</code> tool, and a check at the top of each user turn that drains
 finished-task notices into the next message. Every piece is standard
 Python. The epilogue’s full harness includes a minimal version.</p>
+<h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
+<ul>
+<li>Slow work runs as a background task with an ID the model can check or
+stop.</li>
+<li>When a task finishes, the harness tells the model through the steering
+queue, and starts a turn if none is running.</li>
+<li>Monitors, schedules and model-set wakeups are one mechanism with three
+triggers. Keep every job visible and killable.</li>
+</ul>
 <p>That finishes Part II, which covered context budgets, subagents, steering,
 and background tasks. Part III steps back to look at the broader ecosystem,
 starting with what actually sits inside agent frameworks.</p>
