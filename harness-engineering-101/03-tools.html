@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -366,15 +366,10 @@ systems.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
 <li>A tool is three pieces of JSON: a schema in the request, a <code>tool_use</code>
-block in the reply, a <code>tool_result</code> block in the next message.</li>
-<li>The model asks; the harness acts. Every agent capability is a function
-you chose to expose, which is why capability and safety are both harness
-properties.</li>
-<li>Tool errors should be returned as strings in the tool result, not raised
-as exceptions.</li>
-<li>The human is a tool (clarifying questions) and a gate (approvals).</li>
-<li>Structured output is tool calling pointed at data. Server-side tools are
-tool calling executed by the provider.</li>
+block in the reply, and a <code>tool_result</code> block in the next message.</li>
+<li>The model asks and the harness acts, so capability and safety both live in
+the harness.</li>
+<li>Return tool errors as text in the tool result, not as exceptions.</li>
 </ul>
 <p>v2 can act only once, but real tasks need the model to act, look at the
 result, and act again, without a human pressing enter between steps. That

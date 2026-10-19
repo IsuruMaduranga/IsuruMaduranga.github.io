@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -277,7 +277,7 @@ for what subagents are allowed to do.</p>
 <p>The tension that remains is that full autonomy (“auto-approve everything”)
 is what users actually want for flow, and rules cannot cover the long tail
 of <code>bash</code> one-liners. The industry’s emerging answer, which I find
-charming, is to <strong>use a model to check the model.</strong> Before executing a risky-looking action in auto mode,
+charming, is to use a model to check the model. Before executing a risky-looking action in auto mode,
 the harness makes a <em>side call</em> to a small, fast model with a narrow
 question: “Given this user request and this proposed command, is executing
 it consistent with what the user asked? Answer with a category.” Rules
@@ -340,22 +340,20 @@ project” in the system prompt and considering the matter handled. Trained
 deference is strong, and you should absolutely state the rules (they steer
 the 97%). But a system-prompt rule is a <em>preference in a probability
 machine</em>. It loses to context rot (chapter 6), to injected text pushing the
-other way, and to plain sampling variance. The layers of this chapter give the honest picture: prompts advise,
+other way, and to plain sampling variance. On GPT-3.5 and GPT-4, rules
+like that broke all the time. I still see smaller models break them today,
+once the context is full or has started to rot. The layers of this chapter give the honest picture: prompts advise,
 reflexes enforce, humans approve, classifiers screen, and sandboxes
 contain. Anything that must be true with probability 1 cannot live in the
 prompt.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>Two threat sources: an honest probability machine, and untrusted text in
-the array steering it. Design for both; assume injection.</li>
-<li>Safety is layered, cheapest and most certain first: don’t expose the
-tool; deterministic reflexes (with reasons fed back); human gates tuned
-against approval fatigue; verified cheap-model classifiers for the
-autonomy long tail; recoverability and sandboxes for whatever slips
-through.</li>
-<li>Guardrails that explain themselves double as steering. Every approval
-should teach the config.</li>
-<li>The prompt only advises; the body enforces.</li>
+<li>There are two threats: a model that sometimes gets it wrong, and untrusted
+text in the array that pushes it.</li>
+<li>Layer the defenses, cheapest and most certain first: don’t expose the
+tool, add rules the harness enforces, ask a human, then sandbox what is
+left.</li>
+<li>A rule in the system prompt is advice. Only the harness can enforce it.</li>
 </ul>
 <p>Next, the case study chapter: why coding became <em>the</em> agent domain, what a
 coding body has that a generic one lacks, and the argument (which deserves

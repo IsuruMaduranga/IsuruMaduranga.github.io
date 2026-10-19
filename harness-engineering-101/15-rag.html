@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -202,8 +202,8 @@ payoff, because you now have the one sentence that organizes all of it:</p>
 different answer to “which text, chosen how.”</strong></p>
 </blockquote>
 <h2 id="classic-rag-in-harness-terms"><a class="header" href="#classic-rag-in-harness-terms">Classic RAG, in harness terms</a></h2>
-<p>In this series’ vocabulary, the original pattern is that <strong>the harness
-retrieves before the model speaks.</strong> The user asks a question. The harness
+<p>In this series’ vocabulary, the original pattern is that the harness
+retrieves before the model speaks. The user asks a question. The harness
 (not the model) searches a document store for relevant chunks, and the
 winners get pasted into the array next to the question. The model then
 answers, now “grounded” in text it was handed.</p>
@@ -296,8 +296,8 @@ document set, classic push RAG remains the correct engineering answer, and
 “agentic” would be waste. Push is also the only option when there is no
 loop at all: batch pipelines, one-shot API products, strict latency
 budgets.</p>
-<p>So the design rule is to <strong>pull when reasoning should steer the reading,
-and push when the reading is predictable.</strong> The two also compose. A fine
+<p>So the design rule is to pull when reasoning should steer the reading,
+and push when the reading is predictable. The two also compose. A fine
 pattern is a cheap push (paste an obviously relevant page) plus pull tools
 for everything else. A coding agent already works this way: the memory
 file is push and grep is pull.</p>
@@ -326,18 +326,12 @@ or body? what does it cost, and what enforces it?</em> Their answers tell you
 where anything fits.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>RAG = choosing what goes in the array, with a search index doing the
-choosing. Embeddings are grep-for-meaning; the rest of the machinery is
-search engineering.</li>
-<li>The variant zoo is knob-naming: index tricks, rankers, retries. Learn the
-knobs, ignore the classification.</li>
-<li>The real axis is push (harness guesses up front; cheap, one-shot,
-guessable document sets) versus pull (model steers retrieval mid-reasoning;
-better on hard questions, costs a loop). Compose them; fork the long
-pulls.</li>
-<li>The bigger lesson is that the harness view turns the field’s proper
-nouns into simple questions about the array. That skill was the point of
-101, more than any single pattern.</li>
+<li>RAG is choosing what goes in the array, with a search index doing the
+choosing.</li>
+<li>Push means the harness guesses up front. Pull means the model searches
+while it reasons. Most systems need both.</li>
+<li>Most of the field’s names turn into simple questions about the array once
+you look at it this way.</li>
 </ul>
 <p>The epilogue puts all the pieces together by walking through the complete
 toy harness: fifteen chapters in about 300 lines of Python that you can

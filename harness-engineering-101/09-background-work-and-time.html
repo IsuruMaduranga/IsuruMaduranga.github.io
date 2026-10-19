@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -234,8 +234,8 @@ status. The model peeks when it has a reason to.</li>
     H--&gt;&gt;B: tool_result: build log tail
 </pre>
 
-<p>The subtle part is the last arrow before the peek, where <strong>completion
-arrives as a steering event</strong>. When the process exits, the harness does
+<p>The subtle part is the last arrow before the peek, where completion
+arrives as a steering event. When the process exits, the harness does
 not interrupt anything; it enqueues a chapter 8 reminder (“task b1
 finished, exit 0”), which rides into the next round’s user-side message.
 If no round is running because the turn already ended, the harness
@@ -319,15 +319,12 @@ finished-task notices into the next message. Every piece is standard
 Python. The epilogue’s full harness includes a minimal version.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>Slow work becomes a background task: start detached, return an ID,
-collect output in a registry. <code>task_output</code> to peek, <code>task_stop</code> to kill.</li>
-<li>Completions and conditions come back as steering events (chapter 8’s
-queue), and if no turn is running, the harness starts one: the body can
-now invoke the brain.</li>
-<li>Monitors, schedules, and model-set wakeups are one mechanism with three
-triggers. The brain sleeps while the body watches, and polling goes away.</li>
-<li>Keep the wakes affordable, make sure notifications are accurate, keep
-background jobs visible and killable, and persist the state to disk.</li>
+<li>Slow work runs as a background task with an ID the model can check or
+stop.</li>
+<li>When a task finishes, the harness tells the model through the steering
+queue, and starts a turn if none is running.</li>
+<li>Monitors, schedules and model-set wakeups are one mechanism with three
+triggers. Keep every job visible and killable.</li>
 </ul>
 <p>That finishes Part II, which covered context budgets, subagents, steering,
 and background tasks. Part III steps back to look at the broader ecosystem,

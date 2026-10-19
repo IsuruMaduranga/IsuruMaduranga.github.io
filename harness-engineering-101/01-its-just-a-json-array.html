@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -184,10 +184,14 @@
 <p><em>Harness Engineering 101, Part I — The Wire. <a href="index.html">Series index</a> ·
 <a href="02-the-brain.html">Next: The Brain</a></em></p>
 <hr>
-<p>In 2023 I was building generative AI systems on GPT-3.5. There were no
-agents, tool calls or caching. You sent an array of messages to an HTTP
-endpoint and got formatted text back, and that was all.</p>
-<p><strong>That is still all that happens</strong>, and this whole series is built on that
+<p>In late 2023 I was building
+<a href="https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/wso2-integrator-copilot/overview/">WSO2 MI Copilot</a>,
+a coding assistant like GitHub Copilot for software integration in WSO2’s
+Synapse language. It ran on GPT-3.5. There were no
+agents and no caching, and hardly anyone used tool calls. You sent an array
+of messages to an HTTP endpoint and got formatted text back, and that was
+all. Our array held the user’s whole project, sent again with every message.</p>
+<p>That is still all that happens, and this whole series is built on that
 fact. Every agent you have seen, including the one that edits your code and
 files your pull requests, is a program that builds a JSON array, POSTs it,
 reads the reply, updates the array, and POSTs it again.</p>
@@ -264,7 +268,7 @@ that.”</p>
 <li>Cost scales with the array, and you resend it every turn. That becomes
 chapter 5.</li>
 </ul>
-<p>One useful consequence is that <strong>sessions are just files.</strong> When a coding
+<p>One useful consequence is that sessions are just files. When a coding
 agent offers <code>--resume</code>, it loads a JSON array from disk and keeps
 appending. When you type <code>/clear</code>, the implementation is essentially:</p>
 <pre><code class="language-python">messages = []
@@ -293,7 +297,7 @@ chapter 12 and a safety question in chapter 13.</li>
 </ul>
 <h2 id="content-is-blocks-not-strings"><a class="header" href="#content-is-blocks-not-strings">Content is blocks, not strings</a></h2>
 <p>Originally, <code>content</code> was a string. It still can be, but in modern APIs it
-is a <strong>list of typed blocks</strong>:</p>
+is a list of typed blocks:</p>
 <pre><code class="language-json">{
   "role": "user",
   "content": [
@@ -306,8 +310,8 @@ is a <strong>list of typed blocks</strong>:</p>
 model’s thinking are all blocks. When models learned to see, the array kept
 its shape and the blocks got new types. Chapter 2 covers what the brain does
 with an image block; chapter 3 covers tool blocks. The main thing to
-remember is that <strong>whatever modality or feature ships next year will arrive
-as a new block type in the same array.</strong></p>
+remember is that whatever modality or feature ships next year will arrive
+as a new block type in the same array.</p>
 <h2 id="two-dialects-one-language"><a class="header" href="#two-dialects-one-language">Two dialects, one language</a></h2>
 <p>You will meet two wire formats in practice, and the differences are
 cosmetic. Here is the same exchange in both:</p>
@@ -346,7 +350,7 @@ cosmetic. Here is the same exchange in both:</p>
 </tbody>
 </table>
 </div>
-<p>OpenAI’s newer <strong>Responses API</strong> reshuffles this again: <code>input</code> instead of
+<p>OpenAI’s newer Responses API reshuffles this again: <code>input</code> instead of
 <code>messages</code>, a <code>developer</code> role, and an optional server-side conversation
 store. That store is the one real departure from statelessness: the provider
 offers to keep the array for you. Gemini has its own spelling. All of them
@@ -443,16 +447,12 @@ the loop around it) is the same everywhere. This series builds a coding body
 because it is the easiest to demo in text, but every pattern transfers.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>Talking to an LLM is one stateless HTTP POST: role-tagged messages in, one
-continuation out.</li>
-<li>All memory, sessions, and “context” live in your program’s array. <code>/clear</code>
-is <code>messages = []</code>. Resume is a file read.</li>
-<li>Content is typed blocks (text, images, documents, and later tool calls and
-thinking), not strings.</li>
-<li>Provider APIs are dialects of the same structure. A harness above the wire
-format is portable.</li>
-<li>The harness is the body that builds and maintains the array, and every
-feature in the rest of this series is a piece of that body.</li>
+<li>Talking to an LLM is one stateless HTTP POST. You send the whole array
+every time.</li>
+<li>Memory, sessions and context all live in your program’s array. <code>/clear</code> is
+<code>messages = []</code>, and resume is a file read.</li>
+<li>Content is a list of typed blocks, and every provider’s API is a dialect
+of the same structure.</li>
 </ul>
 <p>Before we add any features to the harness, we should look at what sits on
 the other end of that POST, and why how it is trained explains most of its

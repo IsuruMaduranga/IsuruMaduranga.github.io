@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -302,11 +302,20 @@ diagnostics after an edit; the model must remember to check (probability
 injected diagnostics catch real mistakes deterministically, so dropping
 them hurts quality today.</li>
 <li><strong>Weaker brains need more body.</strong> On frontier models, terminal-only is
-serviceable. Run the same experiment on a mid-tier model (I have, while
-testing <a href="https://github.com/IsuruMaduranga/one-code">One Code</a> against
-cheap models) and structured tools with tight schemas and loud errors
-visibly outperform free-form shell: the structure is doing steering work
-the weak brain cannot do alone. Appendix A returns to this trade.</li>
+serviceable. On cheap models it is not, and I test this often.
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> has a probe that
+runs a fixed set of tasks on cheap models such as DeepSeek V4 Flash and
+GPT-5.6 Luna. The sample project has planted traps: a failing test caused
+by an off-by-one, a README that disagrees with the code, and a background
+job ID that does not exist. In the traces, cheap models edit files they
+never read, make up a cause when a search comes back empty, and let
+subagents drift off the task. Frontier models do the same things
+sometimes, only less often. That is why Claude Code steers the model with
+tool errors and reminders when it happens, and why I built the same
+steering into One Code. Structured tools with tight schemas and loud
+errors visibly outperform free-form shell, because the structure does
+steering work the weak brain cannot do alone. Appendix A returns to this
+trade.</li>
 </ul>
 <p>So here is my honest scorecard. The terminal-only camp is right about where
 the value lives (in the model, which keeps improving) and clearly wrong
@@ -318,17 +327,11 @@ organs, and lets the model choose:
 and feedback, the terminal for the long tail, and guardrails around both.</strong></p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>Coding won because its world is text, its feedback is free and honest,
-and its mistakes are undoable. Use those three tests as a measure for any
-other domain.</li>
-<li>The coding body’s organs: mismatch-refusing edit tools (tool shape as
-guardrail), cheap search senses, LSP diagnostics injected as steering,
-git as recoverability infrastructure.</li>
-<li>The terminal-only argument is half right: the shell is the irreplaceable
-long tail, and history favors bodies dissolving into brains. It underrates
-what structure buys <em>now</em>: the ability to permission actions, automatic
-feedback, and a floor for weak models.</li>
-<li>Ship both, let the model choose, and gate everything.</li>
+<li>Coding suited agents first: the world is text, feedback is free, and
+mistakes can be undone. Use those three tests for any other domain.</li>
+<li>Coding harnesses add edit tools that refuse bad edits, fast search,
+diagnostics after edits, and git for undo.</li>
+<li>Ship structured tools and a terminal, let the model choose, and gate both.</li>
 </ul>
 <p>One chapter of the main sequence remains, and it is the retrospective one:
 the pattern this whole series has been circling (put the right data in the

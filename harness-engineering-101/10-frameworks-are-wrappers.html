@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -275,7 +275,9 @@ digging through abstraction layers to find the actual bytes on the wire. If
 the framework makes the outgoing request easy to see and shape, the price is
 small. If it hides the request as an implementation detail, it makes
 debugging and tuning the harness much harder.</p>
-<p>I have built harnesses both ways, and this is my rule:</p>
+<p>I have built harnesses both ways: on the raw OpenAI SDK for MI Copilot, on
+the Vercel AI SDK for the Ballerina copilot, and on top of pi for One Code.
+This is my rule:</p>
 <blockquote>
 <p>Take small, transparent layers for plumbing (an SDK; a provider-dialect
 wrapper). Be suspicious of layers that want to own the array. And never
@@ -305,16 +307,11 @@ answer with vocabulary (“the executor invokes the runnable graph”) is
 telling you where the complexity will hurt.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>Framework vocabulary maps one-to-one onto things you built in chapters 1
-through 9. Chains and graphs are control flow; memory is the array;
-executors are the loop.</li>
-<li>The heaviness is historical: the tricks weak models needed became the
-abstractions, and then the models absorbed the tricks.</li>
-<li>Frameworks genuinely offer plumbing, provider abstraction, tracing, and
-team legibility. Their one real cost is distance from the array, which is
-where all the engineering in this series happens.</li>
-<li>Evaluate any framework with four questions, starting with: can I see the
-bytes going to the model?</li>
+<li>Framework terms map onto things you built in chapters 1 to 9: chains are
+control flow, memory is the array, executors are the loop.</li>
+<li>Frameworks give real value in plumbing, provider abstraction and tracing.</li>
+<li>Their cost is distance from the array, so first ask whether you can see
+the bytes sent to the model.</li>
 </ul>
 <p>The next chapter covers the parts of the ecosystem that are <em>not</em>
 wrappers: the standards and mechanisms for getting new capabilities into

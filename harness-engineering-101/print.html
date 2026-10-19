@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-76518845.js";
+            window.path_to_searchindex_js = "searchindex-a8dbda90.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9a291a95.js"></script>
@@ -180,12 +180,19 @@
                     <main>
                         <h1 id="harness-engineering-101"><a class="header" href="#harness-engineering-101">Harness Engineering 101</a></h1>
 <p><em>The LLM is the brain. The harness is the body.</em></p>
-<p><em>By <a href="https://isuruwijesiri.com">Isuru Wijesiri</a>. Version 1.0, September 2026.</em></p>
+<p><em>By <a href="https://isuruwijesiri.com">Isuru Wijesiri</a>. Version 1.1, October 2026.</em></p>
+<blockquote>
+<p>AI usage disclosure: I drafted every chapter myself, from what I learned
+building the projects described below. I used Claude Code and One Code to reorder each
+chapter so it leads with the answer (the Minto pyramid), to polish the
+English, to generate the diagrams, and to write the code that draws the
+charts.</p>
+</blockquote>
 <p>Everyone talks about AI agents like they’re a new kind of software: tool calls,
 memory, planning, RAG, MCP, multi-agent orchestration. Put enough of those
 words together and it sounds like there is a complicated system underneath that
 you were supposed to already understand.</p>
-<p>There isn’t, and the whole thing fits in one paragraph:</p>
+<p>It isn’t that complicated. Here is the whole idea:</p>
 <blockquote>
 <p>An LLM API is stateless. Every turn, you send the entire conversation as a
 JSON array and get text back. A <strong>harness</strong> is the program that builds,
@@ -193,20 +200,33 @@ maintains, and protects that array using a simple loop. Everything the field
 calls “agents” is a set of patches to that one loop, and each patch exists
 because something concrete broke.</p>
 </blockquote>
-<p>I know this firsthand because in 2023 I was building generative AI systems on
-GPT-3.5, when the models had no tool calls, no caching, and no agents. You sent
-the OpenAI SDK a message array and got formatted text back. Every piece that
-came later was added for a reason, and I watched most of it show up one patch
-at a time.</p>
+<p>I learned this by building it. In October 2023 I started
+<a href="https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/wso2-integrator-copilot/overview/">WSO2 MI Copilot</a>,
+a coding agent for software integration, in the same family as GitHub
+Copilot, Cursor and Claude Code. Developers use it to build integrations in
+Synapse, the XML-based language of WSO2 Micro Integrator. It began as a chat
+assistant inside the VS Code extension. GitHub Copilot Chat had just come
+out, and I wanted the same thing for integration developers. The idea was mine, and I led the work until we shipped
+it at WSO2Con 2024. It ran on GPT-3.5 and GPT-3.5 Turbo, and later GPT-4.
+There were no agents and no prompt caching. Function calling existed, but
+hardly anyone used it. We used the plain OpenAI SDK and sent the user’s whole
+project with every chat message. When I wanted tool calls, I described the
+tools as XML schemas in the prompt and made the model answer in that format.</p>
+<p>That chat assistant is now a full agent. I now build its sibling,
+<a href="https://wso2.com/integration-platform/docs/saas/editor/copilot">WSO2 BI Copilot</a>,
+which does the same job in the Ballerina programming language.
+I also built <a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, a
+from-scratch rebuild of Claude Code on the open-source pi harness. Many of
+the failures in this book happened to me in one of those three projects.</p>
 <p>So every chapter has the same shape: the failure, the minimal patch, and what
 the patch costs you. A toy harness in plain Python (raw HTTP, no SDK) grows
 alongside the text. By the epilogue you’ll have a working mini coding agent in
 about 300 lines, and you’ll know that there’s no magic anywhere in the stack.
 The full source is on
 <a href="https://github.com/IsuruMaduranga/harness-engineering-101">GitHub</a>.</p>
-<p>If you learn the patches in the order they were invented, as fixes to real
-failures, none of it is complicated. There are no frameworks here, no buzzword
-tour, and no architecture diagrams with twelve boxes.</p>
+<p>If you learn the patches in the order they appeared, each as a fix for
+something that broke, none of it is complicated. That is also why the book
+uses no frameworks: you see each patch in plain code.</p>
 <h2 id="reading-order"><a class="header" href="#reading-order">Reading order</a></h2>
 <h3 id="part-i--the-wire-nothing-is-magic"><a class="header" href="#part-i--the-wire-nothing-is-magic">Part I — The Wire (nothing is magic)</a></h3>
 <div class="table-wrapper">
@@ -297,12 +317,8 @@ on GitHub. Each version is the previous one plus the chapter’s patch:</p>
 Anthropic Messages API by default. Swapping the wire format for OpenAI’s is
 chapter 1 homework, and the point of the whole series is that it’s <em>only</em> the
 wire format you’d swap.</p>
-<p>The toy is deliberately small, so a few chapters reach for a bigger example.
-That is <a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, my
-from-scratch rebuild of Claude Code on a provider-neutral runtime, running
-the same patterns at production scale. The toy harness is what this series
-builds; One Code is where I point when you want to see how a patch looks in
-production.</p>
+<p>The toy is deliberately small, so a few chapters point to One Code to show
+how a patch looks at production scale.</p>
 <h2 id="out-of-scope"><a class="header" href="#out-of-scope">Out of scope</a></h2>
 <p>This book does not cover training or fine-tuning models, terminal UI
 implementation, provider billing, or OAuth plumbing. It is about the body, not
@@ -315,10 +331,14 @@ the terms.</p>
 <p><em>Harness Engineering 101, Part I — The Wire. <a href="#harness-engineering-101">Series index</a> ·
 <a href="#chapter-2-the-brain-a-next-token-black-box">Next: The Brain</a></em></p>
 <hr>
-<p>In 2023 I was building generative AI systems on GPT-3.5. There were no
-agents, tool calls or caching. You sent an array of messages to an HTTP
-endpoint and got formatted text back, and that was all.</p>
-<p><strong>That is still all that happens</strong>, and this whole series is built on that
+<p>In late 2023 I was building
+<a href="https://mi.docs.wso2.com/en/latest/develop/mi-for-vscode/wso2-integrator-copilot/overview/">WSO2 MI Copilot</a>,
+a coding assistant like GitHub Copilot for software integration in WSO2’s
+Synapse language. It ran on GPT-3.5. There were no
+agents and no caching, and hardly anyone used tool calls. You sent an array
+of messages to an HTTP endpoint and got formatted text back, and that was
+all. Our array held the user’s whole project, sent again with every message.</p>
+<p>That is still all that happens, and this whole series is built on that
 fact. Every agent you have seen, including the one that edits your code and
 files your pull requests, is a program that builds a JSON array, POSTs it,
 reads the reply, updates the array, and POSTs it again.</p>
@@ -395,7 +415,7 @@ that.”</p>
 <li>Cost scales with the array, and you resend it every turn. That becomes
 chapter 5.</li>
 </ul>
-<p>One useful consequence is that <strong>sessions are just files.</strong> When a coding
+<p>One useful consequence is that sessions are just files. When a coding
 agent offers <code>--resume</code>, it loads a JSON array from disk and keeps
 appending. When you type <code>/clear</code>, the implementation is essentially:</p>
 <pre><code class="language-python">messages = []
@@ -424,7 +444,7 @@ chapter 12 and a safety question in chapter 13.</li>
 </ul>
 <h2 id="content-is-blocks-not-strings"><a class="header" href="#content-is-blocks-not-strings">Content is blocks, not strings</a></h2>
 <p>Originally, <code>content</code> was a string. It still can be, but in modern APIs it
-is a <strong>list of typed blocks</strong>:</p>
+is a list of typed blocks:</p>
 <pre><code class="language-json">{
   "role": "user",
   "content": [
@@ -437,8 +457,8 @@ is a <strong>list of typed blocks</strong>:</p>
 model’s thinking are all blocks. When models learned to see, the array kept
 its shape and the blocks got new types. Chapter 2 covers what the brain does
 with an image block; chapter 3 covers tool blocks. The main thing to
-remember is that <strong>whatever modality or feature ships next year will arrive
-as a new block type in the same array.</strong></p>
+remember is that whatever modality or feature ships next year will arrive
+as a new block type in the same array.</p>
 <h2 id="two-dialects-one-language"><a class="header" href="#two-dialects-one-language">Two dialects, one language</a></h2>
 <p>You will meet two wire formats in practice, and the differences are
 cosmetic. Here is the same exchange in both:</p>
@@ -477,7 +497,7 @@ cosmetic. Here is the same exchange in both:</p>
 </tbody>
 </table>
 </div>
-<p>OpenAI’s newer <strong>Responses API</strong> reshuffles this again: <code>input</code> instead of
+<p>OpenAI’s newer Responses API reshuffles this again: <code>input</code> instead of
 <code>messages</code>, a <code>developer</code> role, and an optional server-side conversation
 store. That store is the one real departure from statelessness: the provider
 offers to keep the array for you. Gemini has its own spelling. All of them
@@ -574,16 +594,12 @@ the loop around it) is the same everywhere. This series builds a coding body
 because it is the easiest to demo in text, but every pattern transfers.</p>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <ul>
-<li>Talking to an LLM is one stateless HTTP POST: role-tagged messages in, one
-continuation out.</li>
-<li>All memory, sessions, and “context” live in your program’s array. <code>/clear</code>
-is <code>messages = []</code>. Resume is a file read.</li>
-<li>Content is typed blocks (text, images, documents, and later tool calls and
-thinking), not strings.</li>
-<li>Provider APIs are dialects of the same structure. A harness above the wire
-format is portable.</li>
-<li>The harness is the body that builds and maintains the array, and every
-feature in the rest of this series is a piece of that body.</li>
+<li>Talking to an LLM is one stateless HTTP POST. You send the whole array
+every time.</li>
+<li>Memory, sessions and context all live in your program’s array. <code>/clear</code> is
+<code>messages = []</code>, and resume is a file read.</li>
+<li>Content is a list of typed blocks, and every provider’s API is a dialect
+of the same structure.</li>
 </ul>
 <p>Before we add any features to the harness, we should look at what sits on
 the other end of that POST, and why how it is trained explains most of its
@@ -720,9 +736,9 @@ to try a different approach, because retrying blindly did not earn reward
 during training. Chapter 4 leans on this: feeding failures back into the
 array is half of what makes agents work.</li>
 </ul>
-<p>In practice, across all three stages, <strong>when the model behaves well, it is
+<p>In practice, across all three stages, when the model behaves well, it is
 because someone trained it to; when it behaves badly, no message in your
-array fully overrides that.</strong> A harness works <em>with</em> those trained
+array fully overrides that. A harness works <em>with</em> those trained
 behaviors, because it cannot install new ones.</p>
 <h2 id="more-than-text-modalities"><a class="header" href="#more-than-text-modalities">More than text: modalities</a></h2>
 <p>Modern models accept images and documents. It is natural to assume a
@@ -961,15 +977,10 @@ systems.</p>
 <h2 id="what-you-now-know-2"><a class="header" href="#what-you-now-know-2">What you now know</a></h2>
 <ul>
 <li>A tool is three pieces of JSON: a schema in the request, a <code>tool_use</code>
-block in the reply, a <code>tool_result</code> block in the next message.</li>
-<li>The model asks; the harness acts. Every agent capability is a function
-you chose to expose, which is why capability and safety are both harness
-properties.</li>
-<li>Tool errors should be returned as strings in the tool result, not raised
-as exceptions.</li>
-<li>The human is a tool (clarifying questions) and a gate (approvals).</li>
-<li>Structured output is tool calling pointed at data. Server-side tools are
-tool calling executed by the provider.</li>
+block in the reply, and a <code>tool_result</code> block in the next message.</li>
+<li>The model asks and the harness acts, so capability and safety both live in
+the harness.</li>
+<li>Return tool errors as text in the tool result, not as exceptions.</li>
 </ul>
 <p>v2 can act only once, but real tasks need the model to act, look at the
 result, and act again, without a human pressing enter between steps. That
@@ -1034,8 +1045,8 @@ generating. The loop is really a dispatch on this field:</p>
 </tbody>
 </table>
 </div>
-<p>At the core there are two states: <strong><code>tool_use</code> means the turn is still in
-progress; <code>end_turn</code> means the brain considers the task done.</strong> A “turn” in
+<p>At the core there are two states: <code>tool_use</code> means the turn is still in
+progress; <code>end_turn</code> means the brain considers the task done. A “turn” in
 an agent is one user request plus however many model+tool rounds the loop
 runs before <code>end_turn</code>, not one API call. A single “fix the tests” turn
 might be 40 API calls. The user sees one answer; the array saw 40 round
@@ -1054,7 +1065,7 @@ Hold that thought for chapter 5.)</p>
 
 <h2 id="errors-are-fuel"><a class="header" href="#errors-are-fuel">Errors are fuel</a></h2>
 <p>The most surprising habit in agent building is to treat a tool failure as
-<strong>information you deliver to the model, not an error you handle.</strong></p>
+information you deliver to the model, not an error you handle.</p>
 <p>In normal software, an exception is a problem for the <em>programmer</em>. In an
 agent, a failed command is a problem for the <em>model</em>, and the model is good
 at it. Send back the compiler error, the stack trace, the “file not found,”
@@ -1075,6 +1086,10 @@ and its next step builds on a state it does not know about.</li>
 <p>The rule I follow is that a tool result is either the real output or the
 real error, marked as an error, with enough detail that a person could act
 on it. The model gets the same courtesy.</p>
+<p>I learned this while building the agent mode of MI Copilot. A file write
+failed, and the model never found out. It assumed the write had worked and
+kept editing on top of a file that did not hold what it thought. With no
+safeguard to catch it, the model corrupted the files.</p>
 <p>The loop does need one limit, a maximum round count (say, 50). A model
 stuck alternating between two failing approaches will happily burn your API
 budget forever. When you hit the cap, stop and tell the user. The cap is a
@@ -1147,14 +1162,10 @@ them concurrently if you like; deliver them together.</p>
 </blockquote>
 <h2 id="what-you-now-know-3"><a class="header" href="#what-you-now-know-3">What you now know</a></h2>
 <ul>
-<li>An agent is a while loop: call the model, execute requested tools, append
-results, repeat until <code>end_turn</code>.</li>
-<li><code>stop_reason</code> is the loop’s control signal. One user turn may be dozens of
-API calls.</li>
-<li>Tool failures are input for the model, not exceptions for you. Deliver
-them raw; cap the rounds.</li>
-<li>ReAct is this loop implemented in prompt text, from before tool use was
-trained into the models. The pattern survived; the prompting did not.</li>
+<li>An agent is a while loop: call the model, run the requested tools, append
+the results, and repeat until <code>end_turn</code>.</li>
+<li>One user turn can be dozens of API calls, so cap the rounds.</li>
+<li>Tool failures are input for the model. Pass them back as they are.</li>
 </ul>
 <p>The loop works, so now look at what it costs. Forty rounds each resend the
 entire growing array. If the array is 50,000 tokens by mid-task, forty
@@ -1177,7 +1188,7 @@ about 2,000 tokens (a tool call plus its result). The array starts at
 context). Round 1 sends 10,000 input tokens. Round 2 sends 12,000. Round 40
 sends 88,000. Total input tokens across the turn:</p>
 <blockquote>
-<p>10,000 + 12,000 + 14,000 + … + 88,000 = <strong>1.96 million tokens</strong>, for one
+<p>10,000 + 12,000 + 14,000 + … + 88,000 = 1.96 million tokens, for one
 user request.</p>
 </blockquote>
 <p>The work grows with the <em>square</em> of the conversation length, because you pay
@@ -1210,7 +1221,7 @@ actually skips recomputing those tokens instead of only giving a billing
 discount.</p>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="diagrams/cache_economics.png" alt="Cumulative input-token cost with and without prefix caching"><span class="img-wrapper"><img src="diagrams/cache_economics.png" alt="Cumulative input-token cost with and without prefix caching"></span></label></p>
 <p><em>Generated by <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/diagrams/gen_cache_economics.py"><code>diagrams/gen_cache_economics.py</code></a>.</em></p>
-<p>This works because <strong>the agent loop is append-only.</strong> Each round adds
+<p>This works because the agent loop is append-only. Each round adds
 messages at the end and touches nothing earlier. An append-only
 array has a perfectly stable prefix, which is a perfectly cacheable prefix.
 The loop we built in chapter 4 already has this shape, and your job now is
@@ -1223,8 +1234,9 @@ price, even if the remaining 80,000 tokens are identical. So the rule is:</p>
 <p><strong>Appending is cheap. Editing anything above the append point costs you
 everything below it.</strong></p>
 </blockquote>
-<p>This sounds easy to follow, but it’s also easy to break. Here are the
-classic accidental cache-busters, all of which I have shipped or reviewed:</p>
+<p>This sounds easy to follow, but it’s also easy to break. I have broken it
+many times, including in One Code, and I still do now and then. Here are the
+classic accidental cache-busters:</p>
 <ul>
 <li><strong>A timestamp in the system prompt.</strong> <code>Current time: 14:32:07</code> at the top
 of the array means <em>no request ever hits the cache</em>. If the model needs
@@ -1233,6 +1245,11 @@ low in the array.</li>
 <li><strong>Reordering tools.</strong> Tool schemas are part of the prefix. If you build
 the tool list from an unordered dict, so it serializes in a different
 order per process, the cache is gone. Sort your tools.</li>
+<li><strong>Changing the tool list between turns.</strong> I found this one recently in
+WSO2 BI Copilot. Users can turn MCP servers (chapter 11) on and off, and
+every toggle edited the tool array, so the next request missed the cache.
+Fetching MCP tools fresh before every request can do the same, because
+any change in what the servers return changes the prefix.</li>
 <li><strong>“Improving” the system prompt mid-session.</strong> Any conditional text up
 top (“the user seems frustrated, add a tone note”) rewrites byte one.</li>
 <li><strong>Rotating content in place</strong>, like keeping a live “current status”
@@ -1243,8 +1260,8 @@ the most. Trimming the array to make it <em>smaller</em> can actually make it
 the trim invalidates the prefix. Context reduction has to be done in
 deliberate, occasional jumps (chapter 6), not in small continuous trims.</li>
 </ul>
-<p>This rule also shapes the design, beyond avoiding bugs. <strong>New information
-should enter the array at the bottom.</strong> When the harness must tell the model
+<p>This rule also shapes the design, beyond avoiding bugs. New information
+should enter the array at the bottom. When the harness must tell the model
 something mid-session (a file changed on disk, the current todo list),
 append it as a new message near the end. Don’t update some canonical block
 near the top. Chapter 8 builds a whole steering mechanism on this principle,
@@ -1257,6 +1274,15 @@ visible failure. You pay full price on every request and only notice if you
 track your cache-hit rate. API responses report <code>cache_read_input_tokens</code>,
 and that number should account for most of your input tokens on every round
 after the first.</p>
+<p>In a complex harness, the final array is assembled fresh for every request
+from many sources: the system prompt, the tool definitions, MCP servers,
+memory files and reminders. Any one of them can change a byte near the
+top, so a cache break is easy to cause and hard to see. Because I keep
+breaking it, I don’t trust myself here anymore. Before every
+release and pull request, I run a cache probe. It sends a short multi-turn
+conversation to the real API, captures every request, and checks that each
+request reads what the one before it cached. Unit tests can’t catch a broken
+cache, because the code still works. It only shows up in the bill.</p>
 <h2 id="cache-breakpoints-anthropic-vs-automatic-openai"><a class="header" href="#cache-breakpoints-anthropic-vs-automatic-openai">Cache breakpoints (Anthropic) vs automatic (OpenAI)</a></h2>
 <p>OpenAI caches automatically. Send a request whose prefix matches a recent
 one and the discount appears. There is nothing to configure.</p>
@@ -1299,8 +1325,8 @@ request after a long pause will be expensive. When a turn costs 10x as much
 as the previous one, an expired cache is usually the reason.</p>
 <h2 id="what-this-changes-about-your-thinking"><a class="header" href="#what-this-changes-about-your-thinking">What this changes about your thinking</a></h2>
 <p>Chapter 1 said the harness “builds and maintains the array.” This chapter
-adds the constraint that makes that job interesting. <strong>The array is also a
-physical layout with a price gradient.</strong> The top of the array is frozen and
+adds the constraint that makes that job interesting. The array is also a
+physical layout with a price gradient. The top of the array is frozen and
 cheap, and you pay if you touch it. The bottom is fluid, and all new
 information lands there. Every later chapter respects this gradient:</p>
 <ul>
@@ -1314,18 +1340,11 @@ identical across sessions and features.</li>
 </ul>
 <h2 id="what-you-now-know-4"><a class="header" href="#what-you-now-know-4">What you now know</a></h2>
 <ul>
-<li>The agent loop resends a growing array; cost grows with the square of
-conversation length. Caching is what makes agents economically possible.</li>
-<li>Prefix caching matches your array byte-for-byte from the front and
-discounts the matched part about 90%.</li>
-<li>Append-only conversations are naturally cacheable. Editing anything above
-the append point loses the discount for everything below it, with no
-error to tell you.</li>
-<li>Anthropic uses explicit breakpoints and OpenAI caches automatically, but
-the discipline (byte-stable prefix, information enters at the bottom) is
-the same.</li>
-<li>Watch <code>cache_read_input_tokens</code>. A low cache-hit rate is an expensive
-bug.</li>
+<li>Prefix caching matches your array byte for byte from the front and
+discounts the matched part by about 90%.</li>
+<li>Appending keeps the cache. Changing anything above the append point loses
+it for everything below, and nothing tells you.</li>
+<li>Watch <code>cache_read_input_tokens</code>. A low cache-hit rate is an expensive bug.</li>
 </ul>
 <p>Part I is complete: the wire, the brain, tools, the loop, and the economics.
 Part II is about what happens when the loop runs <em>long</em>: the array
@@ -1364,7 +1383,7 @@ coding-agent session, the composition surprises people:</p>
 <p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="diagrams/context_composition.png" alt="What fills a coding agent’s context window"><span class="img-wrapper"><img src="diagrams/context_composition.png" alt="What fills a coding agent’s context window"></span></label></p>
 <p><em>Illustrative composition of a long session. Generated by
 <a href="https://github.com/IsuruMaduranga/harness-engineering-101/blob/main/src/diagrams/gen_context_composition.py"><code>diagrams/gen_context_composition.py</code></a>.</em></p>
-<p>The biggest spender is almost always <strong>tool results</strong> (file contents,
+<p>The biggest spender is almost always tool results (file contents,
 command output, search results), not the conversation or the system prompt.
 So that is where cutting pays off most. These are the three cheapest wins in
 most harnesses, before any clever mechanism:</p>
@@ -1382,6 +1401,12 @@ GPT-3.5 era, when there were no tools) was to push everything the model
 it <em>does</em> need, when it needs it. Prefer pull over push. That rule is also
 most of chapter 15, where we look at RAG.</li>
 </ul>
+<p>I got truncation wrong the first time. In MI Copilot I added a layer that
+cut long tool results and said nothing about it. The model saw a cut-off
+file with no sign that anything was missing, and you can imagine how
+confused it got. What I do now, a trick I picked up from Claude Code, has
+three steps: cut the result, write the full output to a file, and give the
+model the file path with a reminder not to read the whole thing at once.</p>
 <h2 id="compaction-forgetting-well"><a class="header" href="#compaction-forgetting-well">Compaction: forgetting well</a></h2>
 <p>Suppose the session is long anyway and the budget is nearly spent. The
 remaining move is <strong>compaction</strong>: replace the older part of the conversation
@@ -1478,17 +1503,12 @@ no amount of trimming saves you. You need to spend <em>someone else’s</em> bud
 That is what subagents do in the next chapter.</p>
 <h2 id="what-you-now-know-5"><a class="header" href="#what-you-now-know-5">What you now know</a></h2>
 <ul>
-<li>There are two limits: the hard window, and context rot well before it.
-The practical budget is smaller than the advertised window.</li>
-<li>Tool results take most of the budget. Truncate at the source, read
-ranges, and prefer letting the model pull over pushing things in.</li>
-<li>Compaction summarizes the old part, keeps the recent part verbatim and
-rebuilds the array. It is lossy by design, and cache-friendly because it
-is rare.</li>
-<li>Memory files are knowledge on disk, injected at session start, and the
-model can maintain them itself with ordinary tools. The array is RAM and
-files are disk.</li>
-<li>Everything in the array is a budget line. Know your composition.</li>
+<li>The practical budget is smaller than the window, because models get worse
+before the window is full.</li>
+<li>Tool results take most of the budget. Truncate them, read ranges, and let
+the model fetch what it needs.</li>
+<li>Compaction replaces old rounds with a summary, and memory files keep
+knowledge on disk, outside the array.</li>
 </ul>
 <p><em><a href="#chapter-7-subagents-fork-the-context">Next: Chapter 7 — Subagents: Fork the Context</a></em></p>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -1508,7 +1528,7 @@ carry one sentence of value.</p>
 conclusion. That is a <strong>subagent</strong>, and I want to define it precisely,
 because the industry makes it sound like distributed systems:</p>
 <blockquote>
-<p>A subagent is a second agent loop, run with a <strong>fresh, empty array</strong>,
+<p>A subagent is a second agent loop, run with a fresh, empty array,
 given one task, whose final answer is returned to the main loop as a tool
 result. Then its array is thrown away.</p>
 </blockquote>
@@ -1562,7 +1582,7 @@ including error handling. A subagent that fails should fail loudly in its
 tool result.</p>
 <h2 id="what-to-delegate"><a class="header" href="#what-to-delegate">What to delegate</a></h2>
 <p>From a context-budget view, the rule is simple: delegate work whose
-<strong>intermediate volume is high and final summary is small.</strong></p>
+intermediate volume is high and final summary is small.</p>
 <p>Good delegation targets:</p>
 <ul>
 <li><strong>Search and exploration.</strong> “Find where X happens” means huge
@@ -1651,22 +1671,23 @@ like a ticket for a contractor with no Slack access. Say what to do, where
 to look, what done looks like, and what to return. Every failure I
 have seen in multi-agent systems that was blamed on “coordination” was a
 bad ticket.</p>
+<p>Here is one that happened to me. I asked a subagent to explore a codebase
+and report back, and it started editing files. My task never said “read
+only,” and the subagent had an edit tool, so it used it. Now an exploration
+subagent gets a task that says what it must not touch, and a toolset with
+no write tools in it.</p>
 <p>One Code’s <a href="https://github.com/IsuruMaduranga/one-code/tree/master/extensions/subagents">subagents extension</a>
 is this chapter at production size: the same recursive loop, with a live
 panel for the running children, a model you can pick per task, and a
 worktree per child.</p>
 <h2 id="what-you-now-know-6"><a class="header" href="#what-you-now-know-6">What you now know</a></h2>
 <ul>
-<li>A subagent is the agent loop run over a fresh, disposable array; only its
-final report enters the parent, as a tool result.</li>
-<li>The point is context protection: high-volume exploration for a
-fixed-size summary. You pay in tokens and save attention.</li>
-<li>The child knows nothing, and the parent sees only the report. Write
-self-contained tasks, and demand evidence in the answers.</li>
-<li>Delegate high-volume/low-residue work; keep judgment-heavy work in the
-main loop. Fan out in parallel; avoid deep hierarchies.</li>
-<li>Implementation is one tool plus a recursive call to the loop you already
-have.</li>
+<li>A subagent runs the agent loop on a fresh array, and only its final report
+comes back to the parent.</li>
+<li>It spends tokens to keep the main context clean: lots of reading goes in,
+a short summary comes out.</li>
+<li>The child knows nothing and the parent sees only the report, so write the
+task like a ticket for a contractor.</li>
 </ul>
 <p>Subagents keep bulk output out of the main array, but another problem shows
 up in long sessions: the model drifts off course, forgets standing rules, or
@@ -1731,7 +1752,7 @@ along.</li>
 want is to react to an <em>event</em> between two rounds, which is exactly
 where the next user-side message is about to be built anyway.</li>
 </ol>
-<p>The important discipline is to send all steering through a <strong>queue</strong>
+<p>The important discipline is to send all steering through a queue
 instead of pasting strings into the array one at a time. A production
 harness has one component that owns “pending reminders”: anything (a file
 watcher, a permission system, a memory module) can enqueue a note, and the
@@ -1770,8 +1791,8 @@ world and the brain’s text-only world.</p>
 writes <em>to itself</em>.</p>
 <p>Give the agent a <code>todo_write</code> tool: “maintain your task list; update
 statuses as you work.” The tool’s implementation stores a small list in
-harness state. <strong>After each update, the harness injects the current list
-back into the conversation as a reminder.</strong> So the model’s plan becomes an
+harness state. After each update, the harness injects the current list
+back into the conversation as a reminder. So the model’s plan becomes an
 artifact outside the model, and it comes back as fresh tokens at the
 bottom of the array, round after round.</p>
 <p>A model needs to be reminded of its own plan because, as chapter 2 showed,
@@ -1814,19 +1835,22 @@ two simple rules: trigger a reminder from an <em>event</em> rather than a schedu
 find yourself injecting the same reminder constantly, move that content
 into the system prompt or a tool description instead. A reminder you need
 all the time points to a design problem, and more steering won’t fix it.</p>
+<p>My clearest case of over-steering was read-before-write. A harness should
+refuse an edit to a file the model has not read, with a tool error and a
+reminder to read it first. Otherwise the model edits from memory. I once
+applied that rule to every file, including files the model had created a
+moment earlier. So the model would create a file, try to edit it, get
+refused, read back what it had written, and only then edit. Now creating a
+file needs no read, and a file the model just wrote counts as read, so it
+can edit it straight away.</p>
 <h2 id="what-you-now-know-7"><a class="header" href="#what-you-now-know-7">What you now know</a></h2>
 <ul>
-<li>The harness talks to a running loop by appending labeled blocks
-(<code>&lt;system-reminder&gt;</code>) to user-side messages: bottom of the array, cache
-respected, recency exploited.</li>
-<li>Steering goes through a central queue; events in the body become
-sentences in the array.</li>
-<li>The todo tool is self-steering: the model’s plan is externalized, then
-re-injected so it cannot fade. It is a whiteboard kept in view.</li>
-<li>OpenAI’s developer role is the same pattern with official wire support.
-Harness conventions tend to become API features.</li>
-<li>Steer on events, sparingly. A constant reminder is a sign of a design
-problem.</li>
+<li>The harness steers a running loop by appending reminders near the bottom
+of the array, which keeps the cache.</li>
+<li>The todo tool keeps the model’s own plan in view by injecting it back
+after each update.</li>
+<li>Steer on events, and rarely. A reminder you need every round belongs in
+the system prompt.</li>
 </ul>
 <p>The loop can now be informed and re-aimed while it runs. The next failure
 is time itself. Everything so far happens <em>inside</em> one synchronous turn,
@@ -1889,8 +1913,8 @@ status. The model peeks when it has a reason to.</li>
     H--&gt;&gt;B: tool_result: build log tail
 </pre>
 
-<p>The subtle part is the last arrow before the peek, where <strong>completion
-arrives as a steering event</strong>. When the process exits, the harness does
+<p>The subtle part is the last arrow before the peek, where completion
+arrives as a steering event. When the process exits, the harness does
 not interrupt anything; it enqueues a chapter 8 reminder (“task b1
 finished, exit 0”), which rides into the next round’s user-side message.
 If no round is running because the turn already ended, the harness
@@ -1974,15 +1998,12 @@ finished-task notices into the next message. Every piece is standard
 Python. The epilogue’s full harness includes a minimal version.</p>
 <h2 id="what-you-now-know-8"><a class="header" href="#what-you-now-know-8">What you now know</a></h2>
 <ul>
-<li>Slow work becomes a background task: start detached, return an ID,
-collect output in a registry. <code>task_output</code> to peek, <code>task_stop</code> to kill.</li>
-<li>Completions and conditions come back as steering events (chapter 8’s
-queue), and if no turn is running, the harness starts one: the body can
-now invoke the brain.</li>
-<li>Monitors, schedules, and model-set wakeups are one mechanism with three
-triggers. The brain sleeps while the body watches, and polling goes away.</li>
-<li>Keep the wakes affordable, make sure notifications are accurate, keep
-background jobs visible and killable, and persist the state to disk.</li>
+<li>Slow work runs as a background task with an ID the model can check or
+stop.</li>
+<li>When a task finishes, the harness tells the model through the steering
+queue, and starts a turn if none is running.</li>
+<li>Monitors, schedules and model-set wakeups are one mechanism with three
+triggers. Keep every job visible and killable.</li>
 </ul>
 <p>That finishes Part II, which covered context budgets, subagents, steering,
 and background tasks. Part III steps back to look at the broader ecosystem,
@@ -2084,7 +2105,9 @@ digging through abstraction layers to find the actual bytes on the wire. If
 the framework makes the outgoing request easy to see and shape, the price is
 small. If it hides the request as an implementation detail, it makes
 debugging and tuning the harness much harder.</p>
-<p>I have built harnesses both ways, and this is my rule:</p>
+<p>I have built harnesses both ways: on the raw OpenAI SDK for MI Copilot, on
+the Vercel AI SDK for the Ballerina copilot, and on top of pi for One Code.
+This is my rule:</p>
 <blockquote>
 <p>Take small, transparent layers for plumbing (an SDK; a provider-dialect
 wrapper). Be suspicious of layers that want to own the array. And never
@@ -2114,16 +2137,11 @@ answer with vocabulary (“the executor invokes the runnable graph”) is
 telling you where the complexity will hurt.</p>
 <h2 id="what-you-now-know-9"><a class="header" href="#what-you-now-know-9">What you now know</a></h2>
 <ul>
-<li>Framework vocabulary maps one-to-one onto things you built in chapters 1
-through 9. Chains and graphs are control flow; memory is the array;
-executors are the loop.</li>
-<li>The heaviness is historical: the tricks weak models needed became the
-abstractions, and then the models absorbed the tricks.</li>
-<li>Frameworks genuinely offer plumbing, provider abstraction, tracing, and
-team legibility. Their one real cost is distance from the array, which is
-where all the engineering in this series happens.</li>
-<li>Evaluate any framework with four questions, starting with: can I see the
-bytes going to the model?</li>
+<li>Framework terms map onto things you built in chapters 1 to 9: chains are
+control flow, memory is the array, executors are the loop.</li>
+<li>Frameworks give real value in plumbing, provider abstraction and tracing.</li>
+<li>Their cost is distance from the array, so first ask whether you can see
+the bytes sent to the model.</li>
 </ul>
 <p>The next chapter covers the parts of the ecosystem that are <em>not</em>
 wrappers: the standards and mechanisms for getting new capabilities into
@@ -2175,8 +2193,8 @@ back as an ordinary <code>tool_result</code>.</p>
     H --&gt;|tool_result| B
 </pre>
 
-<p>So the entire trick is that <strong>the dispatch table from chapter 3 got a
-network hop.</strong> The model cannot tell a built-in tool from an MCP tool; both
+<p>So the entire trick is that the dispatch table from chapter 3 got a
+network hop. The model cannot tell a built-in tool from an MCP tool; both
 are schemas in, results out. What MCP actually bought the ecosystem is the
 economics: the Jira integration is written once, by anyone, and works in
 every MCP-speaking harness. Tools became an ecosystem instead of a feature
@@ -2200,8 +2218,8 @@ most are irrelevant to most sessions. Pasting your 3,000-token release
 runbook into every array, on the chance the user says “cut a release,” is a
 serious waste of budget.</p>
 <p>A <strong>skill</strong> is the budget-respecting version: a folder with a markdown file
-of instructions (plus optional scripts and templates), with a <strong>name and a
-one-line description</strong>. At session start, the harness injects <em>only the
+of instructions (plus optional scripts and templates), with a name and a
+one-line description. At session start, the harness injects <em>only the
 names and descriptions</em>: a menu, a few hundred tokens for dozens of skills.
 When the task matches one, the model asks for it (via a <code>skill</code> tool call,
 or the user types <code>/release</code>), and only <em>then</em> does the full body of
@@ -2283,17 +2301,13 @@ mechanism is this:</p>
 </div>
 <h2 id="what-you-now-know-10"><a class="header" href="#what-you-now-know-10">What you now know</a></h2>
 <ul>
-<li>MCP is chapter 3’s dispatch table with a network hop and a discovery
-handshake: tools as an ecosystem. Treat servers as trusted limbs, because
-that is what they are.</li>
-<li>Skills are instructions behind a menu: index in context, prose on demand,
-executable extras via existing tools.</li>
-<li>Deferred loading does the same for tool schemas, with an append-only
-reveal to respect caching.</li>
-<li>All three are one shape: progressive disclosure against the context
-budget.</li>
-<li>Hooks are deterministic scripts attached to loop events, used for
-behavior that must run every time rather than almost every time.</li>
+<li>MCP is chapter 3’s dispatch table over the network. An MCP server runs
+with your harness’s trust, so choose servers as carefully as code you
+install.</li>
+<li>Skills and deferred tool loading keep a short index in the array and load
+the detail only when needed.</li>
+<li>Hooks are scripts that run on loop events, for things that must happen
+every time.</li>
 </ul>
 <p>Strangers can now extend the body with their tools, instructions and
 reflexes. That sharpens a question that has been building since chapter 5.
@@ -2358,9 +2372,9 @@ instruction fell out during compaction, or your reminder never drained from
 the queue, or it is there but buried at token 3,000 of an 8,000-token
 system prompt. If the model misread a file, find the <code>tool_result</code>, and
 you’ll see your truncation cut the file at exactly the wrong line. In my
-experience the split is roughly a third “it was never in the array,” a
-third “it was in the array but mangled or misplaced,” and only the last
-third anything like model failure.</p>
+experience, when I blame the model, the cause is often in the array
+instead: the thing was never there, or it was there but mangled or
+misplaced.</p>
 <h2 id="the-vital-sign-cache-read-tokens"><a class="header" href="#the-vital-sign-cache-read-tokens">The vital sign: cache-read tokens</a></h2>
 <p>The response’s <code>usage</code> block reports how the input was billed, including
 <code>cache_read_input_tokens</code>. This is where you verify that chapter 5’s
@@ -2448,18 +2462,12 @@ captured requests, responses, and events. The capture is what lets you
 debug, and the UI makes it more convenient to look at.</p>
 <h2 id="what-you-now-know-11"><a class="header" href="#what-you-now-know-11">What you now know</a></h2>
 <ul>
-<li>Harness bugs live in the assembled request, and mostly divide into “not
-in the array” / “in the array but wrong” / actual model failure, in
-roughly that order. Look at the bytes first.</li>
-<li>Capture requests and responses at the last point before the wire; many
-bugs come from the drift between what you meant and what was sent.</li>
-<li><code>cache_read_input_tokens</code> is the number to watch. Zero after round one is
-a silent 10x cost bug, and only this number tells you.</li>
-<li>Statelessness makes captures perfectly replayable and <em>editable</em>: prompt
-debugging becomes controlled experiments.</li>
-<li>Pin the array in CI: presence, placement, bytes. Persist subagent
-transcripts and the steering queue, or you have no way to check those
-subsystems.</li>
+<li>When the model misbehaves, look at the request it actually received before
+blaming the model.</li>
+<li>Capture requests and responses at the last point before the wire. Captures
+replay exactly, so you can edit one and rerun it.</li>
+<li>Pin the array in tests, and watch <code>cache_read_input_tokens</code> for silent
+cost bugs.</li>
 </ul>
 <p>Part III covered the ecosystem: what wraps the array, what extends it, and
 how to see it. Part IV starts with the question all this visibility was
@@ -2565,7 +2573,7 @@ for what subagents are allowed to do.</p>
 <p>The tension that remains is that full autonomy (“auto-approve everything”)
 is what users actually want for flow, and rules cannot cover the long tail
 of <code>bash</code> one-liners. The industry’s emerging answer, which I find
-charming, is to <strong>use a model to check the model.</strong> Before executing a risky-looking action in auto mode,
+charming, is to use a model to check the model. Before executing a risky-looking action in auto mode,
 the harness makes a <em>side call</em> to a small, fast model with a narrow
 question: “Given this user request and this proposed command, is executing
 it consistent with what the user asked? Answer with a category.” Rules
@@ -2628,22 +2636,20 @@ project” in the system prompt and considering the matter handled. Trained
 deference is strong, and you should absolutely state the rules (they steer
 the 97%). But a system-prompt rule is a <em>preference in a probability
 machine</em>. It loses to context rot (chapter 6), to injected text pushing the
-other way, and to plain sampling variance. The layers of this chapter give the honest picture: prompts advise,
+other way, and to plain sampling variance. On GPT-3.5 and GPT-4, rules
+like that broke all the time. I still see smaller models break them today,
+once the context is full or has started to rot. The layers of this chapter give the honest picture: prompts advise,
 reflexes enforce, humans approve, classifiers screen, and sandboxes
 contain. Anything that must be true with probability 1 cannot live in the
 prompt.</p>
 <h2 id="what-you-now-know-12"><a class="header" href="#what-you-now-know-12">What you now know</a></h2>
 <ul>
-<li>Two threat sources: an honest probability machine, and untrusted text in
-the array steering it. Design for both; assume injection.</li>
-<li>Safety is layered, cheapest and most certain first: don’t expose the
-tool; deterministic reflexes (with reasons fed back); human gates tuned
-against approval fatigue; verified cheap-model classifiers for the
-autonomy long tail; recoverability and sandboxes for whatever slips
-through.</li>
-<li>Guardrails that explain themselves double as steering. Every approval
-should teach the config.</li>
-<li>The prompt only advises; the body enforces.</li>
+<li>There are two threats: a model that sometimes gets it wrong, and untrusted
+text in the array that pushes it.</li>
+<li>Layer the defenses, cheapest and most certain first: don’t expose the
+tool, add rules the harness enforces, ask a human, then sandbox what is
+left.</li>
+<li>A rule in the system prompt is advice. Only the harness can enforce it.</li>
 </ul>
 <p>Next, the case study chapter: why coding became <em>the</em> agent domain, what a
 coding body has that a generic one lacks, and the argument (which deserves
@@ -2773,11 +2779,20 @@ diagnostics after an edit; the model must remember to check (probability
 injected diagnostics catch real mistakes deterministically, so dropping
 them hurts quality today.</li>
 <li><strong>Weaker brains need more body.</strong> On frontier models, terminal-only is
-serviceable. Run the same experiment on a mid-tier model (I have, while
-testing <a href="https://github.com/IsuruMaduranga/one-code">One Code</a> against
-cheap models) and structured tools with tight schemas and loud errors
-visibly outperform free-form shell: the structure is doing steering work
-the weak brain cannot do alone. Appendix A returns to this trade.</li>
+serviceable. On cheap models it is not, and I test this often.
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> has a probe that
+runs a fixed set of tasks on cheap models such as DeepSeek V4 Flash and
+GPT-5.6 Luna. The sample project has planted traps: a failing test caused
+by an off-by-one, a README that disagrees with the code, and a background
+job ID that does not exist. In the traces, cheap models edit files they
+never read, make up a cause when a search comes back empty, and let
+subagents drift off the task. Frontier models do the same things
+sometimes, only less often. That is why Claude Code steers the model with
+tool errors and reminders when it happens, and why I built the same
+steering into One Code. Structured tools with tight schemas and loud
+errors visibly outperform free-form shell, because the structure does
+steering work the weak brain cannot do alone. Appendix A returns to this
+trade.</li>
 </ul>
 <p>So here is my honest scorecard. The terminal-only camp is right about where
 the value lives (in the model, which keeps improving) and clearly wrong
@@ -2789,17 +2804,11 @@ organs, and lets the model choose:
 and feedback, the terminal for the long tail, and guardrails around both.</strong></p>
 <h2 id="what-you-now-know-13"><a class="header" href="#what-you-now-know-13">What you now know</a></h2>
 <ul>
-<li>Coding won because its world is text, its feedback is free and honest,
-and its mistakes are undoable. Use those three tests as a measure for any
-other domain.</li>
-<li>The coding body’s organs: mismatch-refusing edit tools (tool shape as
-guardrail), cheap search senses, LSP diagnostics injected as steering,
-git as recoverability infrastructure.</li>
-<li>The terminal-only argument is half right: the shell is the irreplaceable
-long tail, and history favors bodies dissolving into brains. It underrates
-what structure buys <em>now</em>: the ability to permission actions, automatic
-feedback, and a floor for weak models.</li>
-<li>Ship both, let the model choose, and gate everything.</li>
+<li>Coding suited agents first: the world is text, feedback is free, and
+mistakes can be undone. Use those three tests for any other domain.</li>
+<li>Coding harnesses add edit tools that refuse bad edits, fast search,
+diagnostics after edits, and git for undo.</li>
+<li>Ship structured tools and a terminal, let the model choose, and gate both.</li>
 </ul>
 <p>One chapter of the main sequence remains, and it is the retrospective one:
 the pattern this whole series has been circling (put the right data in the
@@ -2829,8 +2838,8 @@ payoff, because you now have the one sentence that organizes all of it:</p>
 different answer to “which text, chosen how.”</strong></p>
 </blockquote>
 <h2 id="classic-rag-in-harness-terms"><a class="header" href="#classic-rag-in-harness-terms">Classic RAG, in harness terms</a></h2>
-<p>In this series’ vocabulary, the original pattern is that <strong>the harness
-retrieves before the model speaks.</strong> The user asks a question. The harness
+<p>In this series’ vocabulary, the original pattern is that the harness
+retrieves before the model speaks. The user asks a question. The harness
 (not the model) searches a document store for relevant chunks, and the
 winners get pasted into the array next to the question. The model then
 answers, now “grounded” in text it was handed.</p>
@@ -2923,8 +2932,8 @@ document set, classic push RAG remains the correct engineering answer, and
 “agentic” would be waste. Push is also the only option when there is no
 loop at all: batch pipelines, one-shot API products, strict latency
 budgets.</p>
-<p>So the design rule is to <strong>pull when reasoning should steer the reading,
-and push when the reading is predictable.</strong> The two also compose. A fine
+<p>So the design rule is to pull when reasoning should steer the reading,
+and push when the reading is predictable. The two also compose. A fine
 pattern is a cheap push (paste an obviously relevant page) plus pull tools
 for everything else. A coding agent already works this way: the memory
 file is push and grep is pull.</p>
@@ -2953,18 +2962,12 @@ or body? what does it cost, and what enforces it?</em> Their answers tell you
 where anything fits.</p>
 <h2 id="what-you-now-know-14"><a class="header" href="#what-you-now-know-14">What you now know</a></h2>
 <ul>
-<li>RAG = choosing what goes in the array, with a search index doing the
-choosing. Embeddings are grep-for-meaning; the rest of the machinery is
-search engineering.</li>
-<li>The variant zoo is knob-naming: index tricks, rankers, retries. Learn the
-knobs, ignore the classification.</li>
-<li>The real axis is push (harness guesses up front; cheap, one-shot,
-guessable document sets) versus pull (model steers retrieval mid-reasoning;
-better on hard questions, costs a loop). Compose them; fork the long
-pulls.</li>
-<li>The bigger lesson is that the harness view turns the field’s proper
-nouns into simple questions about the array. That skill was the point of
-101, more than any single pattern.</li>
+<li>RAG is choosing what goes in the array, with a search index doing the
+choosing.</li>
+<li>Push means the harness guesses up front. Pull means the model searches
+while it reasons. Most systems need both.</li>
+<li>Most of the field’s names turn into simple questions about the array once
+you look at it this way.</li>
 </ul>
 <p>The epilogue puts all the pieces together by walking through the complete
 toy harness: fifteen chapters in about 300 lines of Python that you can
@@ -3075,12 +3078,13 @@ counting and compaction (ch. 6), a real permission model with modes and
 remembered grants (ch. 13, Appendix C), streaming for the human’s sake
 (Appendix D), model routing for cost (Appendix A), and tests that pin
 the array (ch. 12). None of these will change the skeleton. I have built
-this same shape twice at production scale, once against the frontier and
-once as a from-scratch rebuild of Claude Code’s behavior on another
-runtime (<a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, the
-full-size version of the skeleton here), and the skeleton you are holding is
-genuinely the one under both: an array, a loop, a dispatch table, a queue,
-and a gate.</p>
+this same shape three times at production scale: MI Copilot, the Ballerina
+copilot (WSO2 BI Copilot), and
+<a href="https://github.com/IsuruMaduranga/one-code">One Code</a>, a from-scratch
+rebuild of Claude Code’s behavior on another runtime and the full-size
+version of the skeleton here. The skeleton you are holding is genuinely the
+one under all three: an array, a loop, a dispatch table, a queue, and a
+gate.</p>
 <h2 id="the-close"><a class="header" href="#the-close">The close</a></h2>
 <p>The introduction claimed there is no magic anywhere in the stack, and now
 you have the evidence. The brain is a next-token predictor that was
@@ -3153,14 +3157,20 @@ harmed. The consequence of a mistake sets the floor, not the token count.</p>
 mistake is routing subagent work to the cheapest tier because it is
 “background.” Then the search agent returns a confidently wrong answer,
 the main loop builds on it, and you spend frontier tokens debugging a
-haiku-sized mistake. After being burned, my working rule is to route
+haiku-sized mistake. This happened to me while testing One Code, and the
+reason is that the main model usually trusts what its subagent reports.
+Pairing a weak subagent with a strong main model is a bad idea. My working
+rule now is to route
 <em>down</em> for jobs whose output you can verify cheaply or whose failure is
 cosmetic, and to stay <em>up</em> for anything whose report the main loop will
 trust blindly (chapter 7’s whole design is that the parent cannot check
-the child’s work).</p>
+the child’s work). One Code applies this rule on its own. When the session
+runs on a mid-tier or frontier model, the subagent model it picks
+automatically is never below mid-tier, and it never picks the smallest
+models.</p>
 <h2 id="prompt-tiers-the-body-adapts-to-the-brain"><a class="header" href="#prompt-tiers-the-body-adapts-to-the-brain">Prompt tiers: the body adapts to the brain</a></h2>
-<p>Routing is only half of the work. The other half is that <strong>the same harness
-should not send the exact same array to different models.</strong></p>
+<p>Routing is only half of the work. The other half is that the same harness
+should not send the exact same array to different models.</p>
 <p>Chapter 14 touched on the reason: weaker models need more body. Concretely,
 in a harness that runs on multiple tiers
 (<a href="https://github.com/IsuruMaduranga/one-code">One Code</a> runs the same loop
@@ -3276,7 +3286,7 @@ is a sensible setup.</li>
 </ul>
 <h2 id="the-non-coding-version"><a class="header" href="#the-non-coding-version">The non-coding version</a></h2>
 <p>The pattern goes beyond git, and the principle underneath it is that
-<strong>agents should work on transactions, not on the live world</strong>: a draft
+agents should work on transactions, not on the live world: a draft
 email instead of the send button, a staging table instead of production,
 a proposed diff instead of an applied one. The worktree is just the
 coding domain’s excellent built-in transaction. When you build a harness
@@ -3318,7 +3328,7 @@ coding agent:</p>
 <tr><td>default / ask</td><td>auto</td><td>prompt</td><td>prompt</td><td>trust nothing yet</td></tr>
 <tr><td>accept-edits</td><td>auto</td><td>auto</td><td>prompt</td><td>trust its editing, not its shell</td></tr>
 <tr><td>auto / full</td><td>auto</td><td>auto</td><td>classifier + reflexes (ch. 13)</td><td>flow state</td></tr>
-<tr><td>plan</td><td>auto</td><td><strong>refused</strong></td><td><strong>refused</strong></td><td>think, don’t touch</td></tr>
+<tr><td>plan</td><td>auto</td><td>refused</td><td>refused</td><td>think, don’t touch</td></tr>
 </tbody>
 </table>
 </div>
@@ -3348,8 +3358,8 @@ files, or gate them behind user confirmation.</li>
 </ul>
 <h2 id="plan-mode-approve-the-intention-not-the-keystrokes"><a class="header" href="#plan-mode-approve-the-intention-not-the-keystrokes">Plan mode: approve the intention, not the keystrokes</a></h2>
 <p>The dial above trades safety against interruptions action by action. Plan
-mode moves the trade to a better place: it <strong>separates deciding from
-doing.</strong></p>
+mode moves the trade to a better place: it separates deciding from
+doing.</p>
 <p>In plan mode, the user poses a substantial task with the body in a
 read-only state. The agent explores freely (reads, searches and subagents
 are all safe), then produces a <em>plan</em>: the files it will change, the
@@ -3423,13 +3433,13 @@ difference between a demo and a service.</p>
 <tr><td>Overloaded / server error</td><td>500/529, or Anthropic’s <code>overloaded_error</code></td><td>retry with backoff</td></tr>
 <tr><td>Rate limited</td><td>429, often with <code>retry-after</code></td><td>wait <em>what the header says</em>, then retry</td></tr>
 <tr><td>Timeout / connection drop</td><td>no response</td><td>retry, but safely (see below)</td></tr>
-<tr><td>Context too long</td><td>400 with explicit message</td><td><strong>do not retry</strong>: compact (ch. 6) or fail up</td></tr>
-<tr><td>Invalid request</td><td>other 400s</td><td><strong>do not retry</strong>: it’s your bug; capture it (ch. 12)</td></tr>
+<tr><td>Context too long</td><td>400 with explicit message</td><td>do not retry: compact (ch. 6) or fail up</td></tr>
+<tr><td>Invalid request</td><td>other 400s</td><td>do not retry: it’s your bug; capture it (ch. 12)</td></tr>
 <tr><td>Auth / billing</td><td>401/403</td><td>stop, tell the human</td></tr>
 </tbody>
 </table>
 </div>
-<p>The first discipline is the split between <strong>temporary and permanent</strong>
+<p>The first discipline is the split between temporary and permanent
 failures. Retrying a 529 is correct; retrying a 400 is a loop that burns
 budget and buries the real error. Your wrapper should distinguish them on
 day one.</p>
@@ -3482,8 +3492,8 @@ production harness ends up streaming <em>everything</em> and accumulating,
 even when no UI wants the deltas. The toy harness gets away without it
 only because its outputs are modest.</li>
 </ul>
-<p>The engineering reason to stream even a headless call is that <strong>first-token
-latency becomes your health signal.</strong> A stream that has produced nothing
+<p>The engineering reason to stream even a headless call is that first-token
+latency becomes your health signal. A stream that has produced nothing
 for 60 seconds is distinguishable from a model thinking hard (thinking
 deltas and fine-grained events keep arriving); one connection carries both
 the answer and the liveness check.</p>
@@ -3506,7 +3516,7 @@ subagent spawner, as well as backing off below it.</p>
 <p><strong>A streaming failure is a <em>mid-reply</em> failure.</strong> The chapter 1 sidebar
 deferred exactly one real problem: with <code>"stream": true</code>, the connection
 can die after you have received half an answer, or half a tool call.
-The rule that keeps this simple is that <strong>partial output is not output.</strong>
+The rule that keeps this simple is that partial output is not output.
 Treat a broken stream as a failed request. Discard the fragment, and never
 append it to the array as if the model said it. (Executing a truncated
 tool call “best effort” is chapter 13’s worst case, caused by plumbing.)
