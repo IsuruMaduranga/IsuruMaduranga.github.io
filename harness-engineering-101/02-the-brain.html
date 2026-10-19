@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
+            window.path_to_searchindex_js = "searchindex-76518845.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-2dba1b62.js"></script>
+        <script src="toc-9a291a95.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -187,32 +187,32 @@
 <hr>
 <p>Chapter 1 showed the wire: a JSON array in, a continuation out. This chapter
 is about the thing on the other end.</p>
-<p>Here’s the whole model, and it is not much: <strong>an LLM does one thing. You
-give it a sequence of tokens, and it gives back a probability for every
-possible next token. The serving layer then picks one, adds it to the
-sequence, and runs the model again.</strong> That’s it. No goals, no memory,
-nothing saved between calls.</p>
+<p>Here is the whole model in one sentence: <strong>you give an LLM a sequence of
+tokens, and it gives back a probability for every possible next token.</strong> The
+serving layer then picks one, adds it to the sequence, and runs the model
+again. The model has no goals and no memory, and nothing is saved between
+calls.</p>
 <p>(By “serving layer” I mean the code that runs the model for you: the
 provider’s inference stack. The model itself only outputs the
 probabilities; choosing a token from them is a separate step done by that
-code, which is why you can change how random it is per request. More on
-that below.)</p>
-<p>The rest of this chapter explains one idea: three stages of training were
+code, which is why you can change how random it is per request. We will
+come back to that in a moment.)</p>
+<p>The rest of this chapter explains one idea. Three stages of training were
 added on top of that single operation, and that training history predicts
-almost every behavior that will surprise you later. Why the model
-hallucinates. Why it follows the system prompt. Why tool calls come out as
-valid JSON. Why “thinking” works.</p>
+almost every behavior that will surprise you later: why the model
+hallucinates, why it follows the system prompt, why tool calls come out as
+valid JSON, and why “thinking” works.</p>
 <p>You do not need to know how to build a model to build a harness, the same
 way you do not need to be a brain surgeon to be a physical therapist. But
 you do need this much. This chapter has no code. It is the shortest mental
 model of an LLM that is still useful for harness work.</p>
 <h2 id="one-operation-repeated"><a class="header" href="#one-operation-repeated">One operation, repeated</a></h2>
 <p>An LLM does exactly one thing: given a sequence of tokens, it outputs a
-probability for every possible next token. The serving layer does the rest —
-pick one, append it, run the model again. And again. That loop, run until a
-stop condition, is text generation. The model produces the probabilities;
-the code around it does the picking and the looping.</p>
-<p>A few terms, quickly:</p>
+probability for every possible next token. The serving layer does the rest:
+it picks one, appends it, and runs the model again, over and over. That
+loop, run until a stop condition, is text generation. The model produces the
+probabilities; the code around it does the picking and the looping.</p>
+<p>Here are the three terms that matter most:</p>
 <ul>
 <li><strong>Token</strong>: a chunk of text, usually 3 to 4 characters of English. “harness
 engineering” is about 4 tokens. Everything is measured in tokens: context
@@ -220,20 +220,21 @@ windows, prices, speed.</li>
 <li><strong>Temperature</strong>: how randomly the serving layer picks from the
 probabilities. Temperature 0 means always pick the most likely token.
 Higher values mean more variety. For agents you usually want low
-temperature; you want the probable action, not the creative one. (That’s
-the proof the picking happens outside the model: temperature is a setting
-you send with each request, so the same model can pick differently.)</li>
+temperature, because you want the probable action, not the creative one.
+(That’s the proof that the picking happens outside the model. Temperature
+is a setting you send with each request, so the same model can pick
+differently.)</li>
 <li><strong>Context window</strong>: the maximum number of tokens the model can take as
 input. This is the hard size limit on your array from chapter 1.</li>
 </ul>
-<p>The model has no memory, no goals, no state between calls. It is a pure
+<p>The model has no memory, goals or state between calls. It is a pure
 function from “sequence so far” to “what probably comes next.” Everything
 that looks like memory, personality, or intent comes from what is in the
 sequence, and the sequence is your array.</p>
 <h2 id="three-layers-of-training"><a class="header" href="#three-layers-of-training">Three layers of training</a></h2>
-<p>Why does predicting the next token produce something that can debug your
-code? Because of what the model was trained on, in three stages. Each stage
-matters to you as a harness engineer for a different reason.</p>
+<p>Next-token prediction can end up debugging your code because the model is
+trained in three stages. Each stage matters to a harness engineer for a
+different reason.</p>
 <pre class="mermaid">flowchart LR
     A["Pre-training&lt;br/&gt;(most of the internet)"] --&gt; B["Post-training&lt;br/&gt;(instruction + preference tuning)"]
     B --&gt; C["RL on tasks&lt;br/&gt;(tool use, thinking, agentic behavior)"]
@@ -244,21 +245,22 @@ matters to you as a harness engineer for a different reason.</p>
 
 <h3 id="pre-training-compression-of-the-internet"><a class="header" href="#pre-training-compression-of-the-internet">Pre-training: compression of the internet</a></h3>
 <p>The model first learns by predicting the next token across a huge slice of
-human text: code, books, documentation, forums. Nothing else. No goals, no
-rules, no chat. The result is a raw pattern-completion engine that has
-compressed an enormous amount of knowledge into its weights.</p>
+human text (code, books, documentation, forums) and nothing else. There are
+no goals, rules or chat at this stage. The result is a raw
+pattern-completion engine that has compressed an enormous amount of
+knowledge into its weights.</p>
 <p>What this stage explains for you:</p>
 <ul>
-<li><strong>Why the model knows things.</strong> Facts, APIs, idioms: they were in the
+<li><strong>Why the model knows things.</strong> Facts, APIs and idioms were in the
 training text.</li>
 <li><strong>Why it hallucinates.</strong> The model learned to produce text that <em>sounds
 likely</em>, not text that is true. When the real answer was not in its
 training data, or it cannot recall it, the most likely next words are
-still a smooth, confident sentence. Hallucination is not a bug or a lie.
-It is the training goal working exactly as designed on a question the
-model cannot answer. You cannot remove this with a clever prompt. You can
-only design around it, which is why harnesses feed the model facts (file
-contents, tool results) instead of trusting its memory.</li>
+still a smooth, confident sentence. Hallucination is the training goal
+working exactly as designed on a question the model cannot answer, so it
+is neither a bug nor a lie. You cannot remove this with a clever prompt.
+You can only design around it, which is why harnesses feed the model facts
+(file contents, tool results) instead of trusting its memory.</li>
 <li><strong>Why the knowledge cutoff exists.</strong> The training text was collected up to
 some date. Everything after that date must come in through the array.</li>
 </ul>
@@ -266,7 +268,7 @@ some date. Everything after that date must come in through the array.</li>
 <p>A raw pre-trained model does not answer questions. If you type “What is the
 capital of France?” it might continue with “What is the capital of Germany?”
 because lists of questions were common in its training data. Post-training
-fixes this. The model gets more training on hand-picked conversations.
+fixes this by giving the model more training on hand-picked conversations.
 Humans (and AI) judge which answers are better, and the model is tuned
 toward those. The result acts like an assistant: it answers the question,
 follows instructions, and refuses some things.</p>
@@ -275,18 +277,18 @@ follows instructions, and refuses some things.</p>
 <li><strong>Why roles work.</strong> The model is trained on transcripts where <code>system</code>
 text sets the rules and the assistant follows them. The system prompt has
 authority because the model was trained to give it authority, not because
-the API enforces anything. This matters: role authority is a learned
-behavior, strong but not absolute.</li>
+the API enforces anything. Role authority is a learned behavior, strong
+but not absolute.</li>
 <li><strong>Why the chat format exists at all.</strong> The message array from chapter 1
-mirrors the format of post-training data. You are not sending a
-conversation to the model. You are sending text shaped like the
-conversations it was trained to continue.</li>
+mirrors the format of post-training data. Strictly speaking, you are
+sending the model text shaped like the conversations it was trained to
+continue.</li>
 </ul>
 <h3 id="rl-on-tasks-where-agents-come-from"><a class="header" href="#rl-on-tasks-where-agents-come-from">RL on tasks: where agents come from</a></h3>
-<p>The newest stage. The model practices multi-step tasks (coding, browsing,
-math) and is rewarded for outcomes: the test passed, the answer was right.
-This is reinforcement learning, and it is where “agentic” behavior comes
-from. Three learned skills matter most for this series:</p>
+<p>RL on tasks is the newest stage. The model practices multi-step tasks
+(coding, browsing, math) and is rewarded for outcomes: the test passed, the
+answer was right. This is reinforcement learning, and it is where “agentic”
+behavior comes from. Three learned skills matter most for this series:</p>
 <ul>
 <li><strong>Tool use.</strong> Models emit tool calls as clean, schema-matching JSON
 because they were explicitly trained on millions of examples of doing so.
@@ -308,51 +310,50 @@ to try a different approach, because retrying blindly did not earn reward
 during training. Chapter 4 leans on this: feeding failures back into the
 array is half of what makes agents work.</li>
 </ul>
-<p>The practical summary of all three stages: <strong>when the model behaves well, it
-is because someone trained it to; when it behaves badly, no message in your
-array fully overrides that.</strong> A harness works <em>with</em> the trained behaviors.
-It cannot install new ones.</p>
+<p>In practice, across all three stages, <strong>when the model behaves well, it is
+because someone trained it to; when it behaves badly, no message in your
+array fully overrides that.</strong> A harness works <em>with</em> those trained
+behaviors, because it cannot install new ones.</p>
 <h2 id="more-than-text-modalities"><a class="header" href="#more-than-text-modalities">More than text: modalities</a></h2>
-<p>Modern models accept images and documents. It is natural to assume there is
-a separate vision system involved. There is not, in any sense that matters
-to you.</p>
+<p>Modern models accept images and documents. It is natural to assume a
+separate vision system is involved, but for harness engineering purposes,
+there isn’t.</p>
 <p>When you send an image block, the provider cuts the image into small
 patches. A vision encoder, trained alongside the language model, turns each
 patch into tokens. Those image tokens go into the same sequence as your
 text tokens, and the same next-token machinery runs over all of it. The
 model “sees” the way it “reads”: everything becomes tokens in one sequence.
 This is why a large image costs context window space, and why a model can
-answer questions that mix text and image so naturally. There is one brain,
-one sequence.</p>
-<p>PDFs make this even clearer. When a model “reads a PDF,” here is what
-usually happens: the <em>harness or the provider’s API layer</em> pulls out the
-text and turns each page into an image, then puts both into the array as
-ordinary text and image blocks. The brain never sees a PDF. It sees tokens
-that used to be a PDF.</p>
-<p>Note what just happened: a thing marketed as a model capability turned out
-to be mostly body work. Preprocessing, extraction, and rendering happen in
-the harness or in the provider’s serving stack, before the brain runs. The
-same is true of audio in many products (a transcription model runs first)
-and of “reading spreadsheets” (the harness converts to CSV or renders a
-screenshot). When you evaluate any impressive capability, ask: how much of
-this is the brain, and how much is the body? The answer is usually “more
-body than you think,” and that is good news, because you can build the body.</p>
+answer questions that mix text and image so naturally.</p>
+<p>PDFs make this even clearer. When a model “reads a PDF,” the <em>harness or
+the provider’s API layer</em> usually pulls out the text and turns each page
+into an image, then puts both into the array as ordinary text and image
+blocks. The brain never sees a PDF, only tokens that used to be one.</p>
+<p>So a thing marketed as a model capability turned out to be mostly body work.
+Preprocessing, extraction, and rendering happen in the harness or in the
+provider’s serving stack, before the brain runs. The same is true of audio
+in many products (a transcription model runs first) and of “reading
+spreadsheets” (the harness converts to CSV or renders a screenshot). When
+you evaluate any impressive capability, ask how much of it is the brain and
+how much is the body. Usually it is more body than you think, and that is
+good news, because you can build the body.</p>
 <h2 id="working-rules-for-harness-engineers"><a class="header" href="#working-rules-for-harness-engineers">Working rules for harness engineers</a></h2>
 <p>Everything above compresses into rules you will use in every later chapter:</p>
 <ol>
-<li><strong>The model is a pure function.</strong> Same array in, same distribution out.
-All state is your problem, and your opportunity.</li>
-<li><strong>Trust recall less than retrieval.</strong> Weights hallucinate; tool results
-do not. Feed the brain ground truth.</li>
+<li><strong>The model is a pure function.</strong> Given the same array in, you get the
+same probability distribution out. All state lives on your side.</li>
+<li><strong>Trust retrieval over recall.</strong> Model weights hallucinate, while tool
+results do not. Feed the brain ground truth instead of asking it to
+remember.</li>
 <li><strong>Roles work because of training, not enforcement.</strong> The system prompt is
 strong guidance, not an access-control system. Chapter 13 treats it
 accordingly.</li>
 <li><strong>Tool calling and thinking are trained skills.</strong> You get them by asking
 in the format the model was trained on, which the provider documents.</li>
-<li><strong>Everything is tokens in one sequence.</strong> Images, thinking, tool calls:
-all blocks, all counted, all paid for.</li>
-<li><strong>Errors are useful input.</strong> The model was trained to react to failure.
-Give it the failure.</li>
+<li><strong>Everything is tokens in one sequence.</strong> Images, thinking and tool
+calls are all blocks, and every one is counted and paid for.</li>
+<li><strong>Errors are useful input.</strong> The model was trained to react to failure,
+so pass error messages back into the array.</li>
 </ol>
 <h2 id="what-you-now-know"><a class="header" href="#what-you-now-know">What you now know</a></h2>
 <p>The brain is a next-token predictor with three layers of training: raw
@@ -360,9 +361,8 @@ knowledge from pre-training, assistant behavior from post-training, and
 agentic skills (tools, thinking, self-correction) from RL. It hallucinates
 by design, follows roles by training, and sees images as tokens. It cannot
 act, remember, or perceive anything you do not put in the array.</p>
-<p>Which raises the obvious next question: if the brain can only emit text, how
-does an agent ever <em>do</em> anything? The answer is a formatting trick so simple
-it feels like it should not work.</p>
+<p>If the brain can only emit text, how does an agent ever <em>do</em> anything? The
+answer is a simple formatting convention between the model and the harness.</p>
 <p><em><a href="03-tools.html">Next: Chapter 3 — Tools: JSON Mapped to Functions</a></em></p>
 
                     </main>

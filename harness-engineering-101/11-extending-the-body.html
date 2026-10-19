@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-4e90d8c3.js";
+            window.path_to_searchindex_js = "searchindex-76518845.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-2dba1b62.js"></script>
+        <script src="toc-9a291a95.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -195,12 +195,12 @@ capability on earth.</p>
 plug in everything. A hundred connected tools means a hundred schemas in
 every request. Chapter 6 did that math: the tool list alone would eat the
 context budget before work begins. More capability makes the array worse.</p>
-<p>So the real question this chapter answers is: <strong>how do capabilities get
-into the body, and into the array, without the harness author writing them
-and without drowning the budget?</strong> The ecosystem’s four answers, in the
-order I would teach them: MCP (someone else’s tools), skills (someone
-else’s instructions), deferred loading (tools that stay out of the array
-until needed), and hooks (someone else’s reflexes).</p>
+<p>So the real question this chapter answers is how capabilities get into the
+body, and into the array, without the harness author writing them and
+without drowning the budget. The ecosystem has four answers, and here they
+are in the order I would teach them: MCP (someone else’s tools), skills
+(someone else’s instructions), deferred loading (tools that stay out of the
+array until needed), and hooks (someone else’s reflexes).</p>
 <h2 id="mcp-tools-from-other-processes"><a class="header" href="#mcp-tools-from-other-processes">MCP: tools from other processes</a></h2>
 <p><strong>Model Context Protocol</strong> (MCP, Anthropic 2024, now adopted across the
 industry) standardizes one thing: how a harness discovers and calls tools
@@ -208,8 +208,8 @@ that live in <em>another program</em>.</p>
 <p>An MCP <strong>server</strong> is a small external process (or remote service) that
 speaks a JSON-RPC protocol. The harness, as MCP <strong>client</strong>, launches or
 connects to it and asks <code>tools/list</code>. The server replies with tool
-definitions: name, description, JSON schema. Sound familiar? It is exactly
-chapter 3’s tool format. The harness merges these into the tool list it
+definitions: name, description, JSON schema. That is exactly chapter 3’s
+tool format. The harness merges these into the tool list it
 sends the model, prefixed to avoid collisions (<code>jira__create_issue</code>). When
 the model calls one, the harness forwards the call to the server
 (<code>tools/call</code>) instead of its own dispatch table, and relays the result
@@ -223,25 +223,25 @@ back as an ordinary <code>tool_result</code>.</p>
     H --&gt;|tool_result| B
 </pre>
 
-<p>That is the entire trick: <strong>the dispatch table from chapter 3 got a network
-hop.</strong> The model cannot tell a built-in tool from an MCP tool; both are
-schemas in, results out. What MCP actually bought the ecosystem is the
+<p>So the entire trick is that <strong>the dispatch table from chapter 3 got a
+network hop.</strong> The model cannot tell a built-in tool from an MCP tool; both
+are schemas in, results out. What MCP actually bought the ecosystem is the
 economics: the Jira integration is written once, by anyone, and works in
 every MCP-speaking harness. Tools became an ecosystem instead of a feature
 list.</p>
-<p>Two working notes. First, MCP servers also offer <em>resources</em> (readable
-data, like files) and <em>prompts</em> (reusable templates); tools carry most of
-the real traffic. Second, an MCP server is code you are wiring into your
-agent’s body, with all the trust questions of any dependency, plus new
-ones: its tool descriptions go into your array (a channel for injected
-instructions) and its results come back as “world truth.” Chapter 13 takes
-that seriously; here, just note that plugging in limbs from strangers is a
-security decision.</p>
+<p>I want to add two working notes about MCP. First, MCP servers also offer
+<em>resources</em> (readable data, like files) and <em>prompts</em> (reusable
+templates); tools carry most of the real traffic. Second, an MCP server is
+code you are wiring into your agent’s body, with all the trust questions
+of any dependency, plus new ones: its tool descriptions go into your array
+(a channel for injected instructions) and its results come back as “world
+truth.” Chapter 13 takes that seriously; here, just note that plugging in
+limbs from strangers is a security decision.</p>
 <h2 id="skills-instructions-on-demand"><a class="header" href="#skills-instructions-on-demand">Skills: instructions on demand</a></h2>
-<p>MCP delivers <em>capabilities</em>. But much of what makes an agent useful in a
-particular team is not a new tool, it is <em>knowledge of procedure</em>: how we
-write commit messages, how to run the release, how this odd test harness
-works. That is prose, not code.</p>
+<p>MCP delivers <em>capabilities</em>, but much of what makes an agent useful in a
+particular team is <em>knowledge of procedure</em>: how we write commit messages,
+how to run the release, how this odd test harness works. You write that
+kind of knowledge down as prose, not as code.</p>
 <p>The naive place for prose is the system prompt or the memory file (chapter
 6), and for small stable facts, that is right. But procedures are long, and
 most are irrelevant to most sessions. Pasting your 3,000-token release
@@ -255,22 +255,22 @@ When the task matches one, the model asks for it (via a <code>skill</code> tool 
 or the user types <code>/release</code>), and only <em>then</em> does the full body of
 instructions enter the array, where the model follows it.</p>
 <p>The mechanism deserves a name because you will use it constantly:
-<strong>progressive disclosure</strong>. Keep the index in context, pull the detail on
-demand. It’s chapter 6’s “pull beats push,” applied to instructions. Memory-file
-indexes point at deeper docs the same way. The next section shows the same
-trick again, for tool schemas. A skill can even bundle
-executable scripts, which the model runs with its ordinary shell tool; the
-skill teaches <em>when and how</em>, existing tools do the work. Instructions
-compose with capabilities.</p>
+<strong>progressive disclosure</strong>. You keep the index in context and pull the
+detail on demand. It’s chapter 6’s “pull beats push,” applied to
+instructions. Memory-file indexes point at deeper docs the same way, and
+the next section shows the same trick again, for tool schemas. A skill can
+even bundle executable scripts, which the model runs with its ordinary
+shell tool. The skill teaches <em>when and how</em>, and existing tools do the
+work, so instructions compose with capabilities.</p>
 <p>Skills are also the cheapest extension point for <em>users</em>, which is why the
 convention (a <code>skills/</code> folder in a project or home directory, discovered
-by the harness) has spread fast: writing one is writing a markdown file.
-Automation without programming.</p>
+by the harness) has spread fast. Writing one means writing a markdown
+file, so users get automation without programming.</p>
 <h2 id="deferred-loading-the-tool-list-on-a-diet"><a class="header" href="#deferred-loading-the-tool-list-on-a-diet">Deferred loading: the tool list on a diet</a></h2>
-<p>Now the hundred-tools problem directly. The insight is that a tool’s
-<em>schema</em> only needs to be in the array when the model is about to use it.
-The rest of the time, it can be represented by something much smaller: a
-name, or nothing at all.</p>
+<p>To solve the hundred-tools problem, notice that a tool’s <em>schema</em> only
+needs to be in the array when the model is about to use it. The rest of the
+time, it can be represented by something much smaller: a name, or nothing at
+all.</p>
 <p><strong>Deferred tool loading</strong> (Anthropic’s Tool Search, and equivalents) works
 like the skills menu, one level down. The array carries a compact list of
 deferred tool <em>names</em> plus one real tool: <code>tool_search</code>. When the model
@@ -285,18 +285,17 @@ one wired up.</p>
 <p>There’s a wrinkle worth knowing, even if you never implement it. Once a
 tool’s schema is <em>activated</em> into the conversation, it has to stay available
 and stable for the rest of the session (the model might call it twenty
-rounds later, and chapter 5 punishes churn in the request). Deferred
-loading is an append-only reveal, not a swap. One-way doors again; the
-array’s physics show up in every feature.</p>
-<p>Step back and see the pattern across all three mechanisms so far. MCP,
-skills, and deferred loading are the same idea at three altitudes: <strong>an
-index in the array, a body of detail outside it, and a fetch once you know
-you need it.</strong> Tools, instructions, schemas. If you remember
-one thing from this chapter, remember the shape.</p>
+rounds later, and chapter 5 punishes churn in the request). So deferred
+loading only ever adds schemas to the array and never swaps one out.
+Caching makes activation a one-way operation, because removing a schema
+later would break the prefix.</p>
+<p>MCP, skills, and deferred loading all use the same pattern at three levels
+(tools, instructions, and schemas): <strong>keep a short index in the array, keep
+the detail outside it, and fetch the detail only when needed.</strong></p>
 <h2 id="hooks-deterministic-reflexes"><a class="header" href="#hooks-deterministic-reflexes">Hooks: deterministic reflexes</a></h2>
-<p>The fourth mechanism is different in kind, and the difference is the
-point. MCP, skills, and deferral all extend what the <em>brain</em> can choose to
-do. A <strong>hook</strong> extends what the body does <em>regardless of what the brain
+<p>The fourth mechanism is different in kind from the other three. MCP,
+skills, and deferral all extend what the <em>brain</em> can choose to do, while a
+<strong>hook</strong> extends what the body does <em>regardless of what the brain
 chooses</em>.</p>
 <p>A hook is a user-supplied script bound to a lifecycle event of the loop.
 The harness defines the events; Claude Code’s set is a good reference:
@@ -306,17 +305,17 @@ harness runs the script and hands it a JSON description of what’s happening
 on stdin. Its exit code and output can do one of three things: <em>observe</em>
 (log it), <em>augment</em> (add a message, injected as chapter 8 steering), or
 <em>veto</em> (block the tool call and tell the model why).</p>
-<p>Why does this matter when the model could be <em>asked</em> to do the same things?
-Chapter 2’s lesson, from the other side: the model is probabilistic.
-“Always run the formatter after editing” as a system-prompt instruction
-happens 97% of the time; as an after-edit hook, it happens 100% of the
-time, because it is not a request to a brain, it is code on an event.
+<p>Hooks matter even when you could ask the model to do the same thing,
+because the model is probabilistic. “Always run the formatter after
+editing” as a system-prompt instruction happens 97% of the time; as an
+after-edit hook, it happens 100% of the time, because it is code bound to
+an event instead of a request to a brain.
 Hooks are how users install <em>guarantees</em>: policy (“block any tool call
 touching <code>.env</code>”), hygiene (auto-format, auto-lint), integration (notify a
 dashboard). The harness’s own guardrails in chapter 13 are the same
 species, built in rather than user-supplied.</p>
-<p>The practical rule for choosing a mechanism, then, spanning this whole
-chapter:</p>
+<p>Across this whole chapter, then, the practical rule for choosing a
+mechanism is this:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -341,14 +340,13 @@ executable extras via existing tools.</li>
 reveal to respect caching.</li>
 <li>All three are one shape: progressive disclosure against the context
 budget.</li>
-<li>Hooks are the other species: deterministic scripts on loop events, for
-behavior that must happen with probability 1. Brains choose; bodies
-guarantee.</li>
+<li>Hooks are deterministic scripts attached to loop events, used for
+behavior that must run every time rather than almost every time.</li>
 </ul>
-<p>The body is now extensible by strangers: their tools, their instructions,
-their reflexes. Which sharpens a question that has been building since
-chapter 5: with all these moving parts assembling every request, do you
-actually know what your model is seeing? Next chapter: how to look.</p>
+<p>Strangers can now extend the body with their tools, instructions and
+reflexes. That sharpens a question that has been building since chapter 5.
+With all these moving parts assembling every request, do you actually know
+what your model is seeing? The next chapter shows how to look.</p>
 <p><em><a href="12-debugging-the-array.html">Next: Chapter 12 — Debugging the Array</a></em></p>
 
                     </main>
